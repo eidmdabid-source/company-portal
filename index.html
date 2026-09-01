@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Roshan Bundles Sales</title>
+<title>د شرکت مدیریتي سیسټم</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
@@ -18,7 +18,7 @@
     --sidebar:#101826;
     --sidebar-text:#C9D1DB;
     --sidebar-text-dim:#7C8698;
-    --accent:#B8862B
+    --accent:#B8862B;
     --accent-soft:#F3E7CE;
     --ok:#2E7D5B;
     --ok-soft:#DFF0E7;
@@ -351,24 +351,24 @@
       {key:'managers', label:'مديران'},
       {key:'ntos', label:'مشتريان'},
       {key:'sales', label:'بنډلونه'},
-      {key:'report', label:'مدير-راپور'},
-      {key:'nto_report', label:'مشتري-راپور'},
-      {key:'rolls', label:'پيغام ليږل'},
+      {key:'report', label:'راپور-مدير'},
+      {key:'nto_report', label:'راپور-مشتري'},
+      {key:'rolls', label:'پيغام استول'},
       {key:'complaints', label:'شکایتونه'}
     ],
     manager:[
       {key:'ntos', label:'مشتريان'},
       {key:'sales', label:'بنډلونه'},
-      {key:'report', label:'فروشاتو راپور'}
+      {key:'report', label:'فروشات'}
     ],
     nto:[
-      {key:'bundle', label:'بنډل ليږل'},
-      {key:'sales', label:'بنډلونه'},
-      {key:'report', label:'فروشاتو راپور'},
-      {key:'complaints', label:'شکایت ليږل'}
+      {key:'bundle', label:'نوى بنډل استول'},
+      {key:'sales', label:'فروشاتو راپور'},
+      {key:'report', label:'راپور'},
+      {key:'complaints', label:'شکایت استول'}
     ]
   };
-  var ROLE_LABEL = {admin:'اډمین', manager:'مدير', nto:'مشتري'};
+  var ROLE_LABEL = {admin:'اډمین', manager:'منیجر', nto:'مشتري'};
 
   // ---------------- render root ----------------
   function render(){
@@ -398,10 +398,10 @@
   function renderLogin(root){
     root.innerHTML =
       '<div class="login-wrap"><div class="login-card">'+
-        '<div class="login-brand"><div class="mark"></div><span>روشن مخابراتي شرکت</span></div>'+
-        '<p class="sub">دننه کیدو لپاره خپل یوزر نوم او پاسورډ ولیکئ</p>'+
+        '<div class="login-brand"><div class="mark"></div><span>شرکت پورټال</span></div>'+
+        '<p class="sub">دننه کیدو لپاره خپل یوزرنوم او پاسورډ ولیکئ</p>'+
         (state.error ? '<div class="error-box">'+escapeHtml(state.error)+'</div>' : '')+
-        '<div class="field"><label>یوزر نوم</label><input id="li-user" type="text" autocomplete="username"></div>'+
+        '<div class="field"><label>یوزرنوم</label><input id="li-user" type="text" autocomplete="username"></div>'+
         '<div class="field"><label>پاسورډ</label><input id="li-pass" type="password" autocomplete="current-password"></div>'+
         '<button class="btn btn-primary btn-block" id="li-btn">دننه شئ</button>'+
       '</div></div>';
@@ -416,12 +416,12 @@
     var u = document.getElementById('li-user').value.trim();
     var p = document.getElementById('li-pass').value;
     if(!u || !p){
-      state.error = 'مهرباني وکړئ یوزر نوم او پاسورډ دواړه ولیکئ.';
+      state.error = 'مهرباني وکړئ یوزرنوم او پاسورډ دواړه ولیکئ.';
       render(); return;
     }
     var found = state.users.find(function(x){return x.username===u;});
     if(!found || found.password!==p){
-      state.error = 'یوزر نوم یا پاسورډ سم نه دی.';
+      state.error = 'یوزرنوم یا پاسورډ سم نه دی.';
       render(); return;
     }
     state.error='';
@@ -441,9 +441,9 @@
     root.innerHTML =
       '<div class="blocked-wrap"><div class="blocked-card">'+
         '<div class="icon">&#9888;</div>'+
-        '<h3 style="direction:rtl;">تاسو نشئ دننه کيدلى</h3>'+
-        '<p>ستاسو اکونټ د اډمين لخوا تړل شوى دى مهرباني وکړئ اډمين سره اړيکه کې شئp>'+
-        '<button class="btn btn-ghost" id="bk-back" style="margin-top:18px;">شاته لاړ شه</button>'+
+        '<h3 style="direction:rtl;">ستاسو دننه کیدل بند شوي دي</h3>'+
+        '<p>Your user has been disabled by the Admin. Please contact them.</p>'+
+        '<button class="btn btn-ghost" id="bk-back" style="margin-top:18px;">بیرته لاگ-این ته</button>'+
       '</div></div>';
     document.getElementById('bk-back').onclick = function(){
       state.currentUser = null;
@@ -456,9 +456,9 @@
     root.innerHTML =
       '<div class="blocked-wrap"><div class="blocked-card">'+
         '<div class="icon">&#9888;</div>'+
-        '<h3 style="direction:rtl;">ستاسو يوﺯر په بل ځای کې لوګ ان شوی</h3>'+
-        '<p style="direction:rtl;">ستاسو د مدير حساب په بل ډیوایس یا براوزر کې دننه شوی، نو دلته له سیسټم څخه وایستل شوئ.</p>'+
-        '<button class="btn btn-ghost" id="sr-back" style="margin-top:18px;">بیا لاګ-این شئ</button>'+
+        '<h3 style="direction:rtl;">ستاسو حساب په بل ځای کې دننه شوی</h3>'+
+        '<p style="direction:rtl;">ستاسو منیجر حساب په بل ډیوایس یا براوزر کې دننه شوی، نو دلته له سیسټم څخه وایستل شوئ.</p>'+
+        '<button class="btn btn-ghost" id="sr-back" style="margin-top:18px;">بیرته لاگ-این ته</button>'+
       '</div></div>';
     document.getElementById('sr-back').onclick = function(){
       state.currentUser = null;
@@ -502,7 +502,7 @@
           '<div class="spacer"></div>'+
           '<div class="user-box">'+
             '<div class="uname">'+escapeHtml(state.currentUser.username)+'</div>'+
-            '<button class="btn btn-ghost btn-sm btn-block" id="logout-btn">له اکونټ څخه وتل</button>'+
+            '<button class="btn btn-ghost btn-sm btn-block" id="logout-btn">وتل (Logout)</button>'+
           '</div>'+
         '</div>'+
         '<div class="main" id="main-area"></div>'+
@@ -588,7 +588,7 @@
       };
       state.bundles.unshift(entry);
       persistBundles().then(function(){
-        showToast('بنډل واستول شو، اوس د انتظار په حالت کې دی.');
+        showToast('بنډل واستول شو، اوس د تمې په حالت کې دی.');
         renderDashboard(document.getElementById('app'));
       });
     };
@@ -597,7 +597,7 @@
     if(!myBundles.length){
       list.innerHTML = '<div class="empty-state">تر اوسه هیڅ بنډل نه دی استول شوی.</div>';
     }else{
-      list.innerHTML = '<table><thead><tr><th>اړيکې شمیره</th><th>بنډل نوم</th><th>حالت</th><th>نیټه</th></tr></thead><tbody>'+
+      list.innerHTML = '<table><thead><tr><th>شمیره</th><th>د بنډل نوم</th><th>حالت</th><th>نیټه</th></tr></thead><tbody>'+
         myBundles.map(function(b){
           return '<tr><td>'+escapeHtml(b.field1)+'</td><td>'+escapeHtml(b.field2)+'</td><td>'+statusBadge(b.status)+'</td><td>'+fmtDate(b.createdAt)+'</td></tr>';
         }).join('')+
@@ -622,12 +622,12 @@
         if(!rows.length){ showToast('هیڅ معلومات نشته چې ډاونلوډ شي.'); return; }
         var data = rows.map(function(b){
           var o = {};
-          o['مشتري نوم'] = b.ntoUsername;
-          o['اړيکې شمیره'] = b.field1;
-          o['بنډل نوم'] = b.field2;
+          o['د NTO یوزر'] = b.ntoUsername;
+          o['شمیره'] = b.field1;
+          o['د بنډل نوم'] = b.field2;
           o['حالت'] = statusLabel(b.status);
-          o['تائيد-مدير'] = b.actionedBy || '';
-          o['يادونه شوې'] = b.comment || '';
+          o['عمل شوی له خوا'] = b.actionedBy || '';
+          o['کمینټ'] = b.comment || '';
           o['نیټه'] = fmtDate(b.createdAt);
           return o;
         });
@@ -641,7 +641,7 @@
 
       if(role==='admin'){
         document.getElementById('sales-reset').onclick = function(){
-          var ok = window.confirm('آیا ډاډه یاست چې غواړئ د پلور راپور ټول معلومات بالکل ختم کړئ؟ دا به د مشتري د بنډلونو راپور پاڼې هم پاکې کړي. دا معلومات بیرته نشې راتلاى.');
+          var ok = window.confirm('آیا ډاډه یاست چې غواړئ د پلور راپور ټول معلومات بالکل ختم کړئ؟ دا به د NTO د بنډل او پلور راپور پاڼې هم پاکې کړي. دا کار بیرته نشي کیدلی.');
           if(!ok) return;
           state.bundles = [];
           persistBundles().then(function(){
@@ -657,10 +657,10 @@
       return;
     }
     body.innerHTML = '<div class="card"><div style="overflow-x:auto;"><table><thead><tr>'+
-      (role!=='nto' ? '<th>مشتري نوم</th>' : '')+
-      '<th>شمیره</th><th>بنډل نوم</th><th>حالت</th>'+
-      (canProcess ? '<th>عمل(role==='nto' ? '\u003Ctd>'+(b.status==='rejected' ? '\u003Cbutton class=\"btn btn-sm btn-info\" data-resubmit=\"'+b.id+'\">ریسبمیټ\u003C/button>' : '')+'\u003C/td>' : '')+ شوی له خوا</th>' : '')+
-      '<th>يادونه شوې</th>'+
+      (role!=='nto' ? '<th>د NTO یوزر</th>' : '')+
+      '<th>شمیره</th><th>د بنډل نوم</th><th>حالت</th>'+
+      (canProcess ? '<th>عمل شوی له خوا</th>' : '')+
+      '<th>کمینټ</th>'+
       '<th>نیټه</th>'+
       (role==='nto' ? '<th></th>' : '')+
       '</tr></thead><tbody>'+
@@ -677,7 +677,7 @@
           (canProcess ? '<td>'+(b.actionedBy?escapeHtml(b.actionedBy):'—')+'</td>' : '')+
           '<td>'+(b.comment?escapeHtml(b.comment):'—')+'</td>'+
           '<td>'+fmtDate(b.createdAt)+'</td>'+
-          (role==='nto' ? '<td>'+(b.status==='rejected' ? '<button class="btn btn-sm btn-info" data-resubmit="'+b.id+'">بيا ځلې استول</button>' : '')+'</td>' : '')+
+          (role==='nto' ? '<td>'+(b.status==='rejected' ? '<button class="btn btn-sm btn-info" data-resubmit="'+b.id+'">ریسبمیټ</button>' : '')+'</td>' : '')+
         '</tr>';
       }).join('')+
     '</tbody></table></div></div>';
@@ -732,11 +732,11 @@
     return '';
   }
   function statusLabel(status){
-    if(status==='pending') return 'په انتظار کې';
-    if(status==='in_process') return 'په جريان کې';
-    if(status==='approved') return 'تائيد شوي';
-    if(status==='rejected') return 'رد شوې';
-    if(status==='resubmit') return 'بیا استول شوي';
+    if(status==='pending') return 'په تمه (Pending)';
+    if(status==='in_process') return 'پروسیس کې';
+    if(status==='approved') return 'تصویب شوی';
+    if(status==='rejected') return 'ردشوی';
+    if(status==='resubmit') return 'بیا وړاندې شوی';
     return status;
   }
   function statusBadge(status){
@@ -787,7 +787,7 @@
     b.processingBy = null;
     b.ntoSeen = false;
     persistBundles().then(function(){
-      showToast(decision==='approved' ? 'بنډل تائيد شو.' : 'بنډل رد شو.');
+      showToast(decision==='approved' ? 'بنډل تصویب شو.' : 'بنډل رد شو.');
       state.modal = null;
       render();
     });
@@ -815,7 +815,7 @@
     b.processingBy = null;
     b.ntoSeen = true;
     persistBundles().then(function(){
-      showToast('بنډل بیا واستول شو.');
+      showToast('بنډل بیا وړاندې شو.');
       state.modal = null;
       render();
     });
@@ -836,18 +836,18 @@
           '<h3>د بنډل پروسس کول</h3>'+
           '<div class="field"><label>کمینټ (اړین دی)</label><textarea id="proc-comment" rows="3" placeholder="خپل کمینټ دلته ولیکئ..."></textarea></div>'+
           '<div class="modal-actions">'+
-            '<button class="btn btn-ok" id="proc-approve">تائيد کول (Approve)</button>'+
-            '<button class="btn btn-danger" id="proc-reject">ردول کول (Reject)</button>'+
+            '<button class="btn btn-ok" id="proc-approve">تصویب (Approve)</button>'+
+            '<button class="btn btn-danger" id="proc-reject">ردول (Reject)</button>'+
           '</div>'+
-          '<button class="btn btn-ghost btn-block" id="proc-cancel" style="margin-top:10px;">پريښودل</button>'+
+          '<button class="btn btn-ghost btn-block" id="proc-cancel" style="margin-top:10px;">لغوه کول</button>'+
         '</div>';
     }else if(state.modal.type==='resubmit'){
       layer.innerHTML =
         '<div class="modal-card">'+
-          '<h3>بیا ځلې استول </h3>'+
+          '<h3>بیا وړاندې کول</h3>'+
           '<div class="field"><label>کمینټ</label><textarea id="resub-comment" rows="3" placeholder="خپل کمینټ دلته ولیکئ..."></textarea></div>'+
           '<div class="modal-actions">'+
-            '<button class="btn btn-gold btn-block" id="resub-submit">بيا ځلې ليږل</button>'+
+            '<button class="btn btn-gold btn-block" id="resub-submit">ریسبمیټ</button>'+
           '</div>'+
           '<button class="btn btn-ghost btn-block" id="resub-cancel" style="margin-top:10px;">لغوه کول</button>'+
         '</div>';
