@@ -348,27 +348,27 @@
   // ---------------- role menu config ----------------
   var MENUS = {
     admin:[
-      {key:'managers', label:'منیجر یوزر'},
-      {key:'ntos', label:'مشتري یوزر'},
-      {key:'sales', label:'بنډلونه'},
-      {key:'report', label:'مدير راپور'},
-      {key:'nto_report', label:'مشتري راپور'},
+      {key:'managers', label:'د منیجر یوزران'},
+      {key:'ntos', label:'د NTO یوزران'},
+      {key:'sales', label:'د پلور راپور'},
+      {key:'report', label:'راپور'},
+      {key:'nto_report', label:'د NTO راپور'},
       {key:'rolls', label:'د شرکت مقررات'},
       {key:'complaints', label:'شکایتونه'}
     ],
     manager:[
-      {key:'ntos', label:'مشتري يوﺯر جوړول'},
-      {key:'sales', label: 'بنډلونه'},
+      {key:'ntos', label:'د NTO یوزران'},
+      {key:'sales', label:'د پلور راپور'},
       {key:'report', label:'راپور'}
     ],
     nto:[
-      {key:'bundle', label:'بنډل ليږل'},
-      {key:'sales', label:'بنډلونه'},
-      {key:'report', label:'راپور'if(fresh.role==='manager' && state.mySessionToken && fresh.sessionToken && fresh.sessionToken!==state.mySessionToken){},
-      {key:'complaints', label:'شکایت ليږل'}
+      {key:'bundle', label:'بنډل'},
+      {key:'sales', label:'د پلور راپور'},
+      {key:'report', label:'راپور'},
+      {key:'complaints', label:'شکایتونه'}
     ]
   };
-  var ROLE_LABEL = {admin:'اډمین', manager:'منیجر', nto:'مشتري'};
+  var ROLE_LABEL = {admin:'اډمین', manager:'منیجر', nto:'NTO'};
 
   // ---------------- render root ----------------
   function render(){
@@ -398,7 +398,7 @@
   function renderLogin(root){
     root.innerHTML =
       '<div class="login-wrap"><div class="login-card">'+
-        '<div class="login-brand"><div class="mark"></div><span>روشن</span></div>'+
+        '<div class="login-brand"><div class="mark"></div><span>شرکت پورټال</span></div>'+
         '<p class="sub">دننه کیدو لپاره خپل یوزرنوم او پاسورډ ولیکئ</p>'+
         (state.error ? '<div class="error-box">'+escapeHtml(state.error)+'</div>' : '')+
         '<div class="field"><label>یوزرنوم</label><input id="li-user" type="text" autocomplete="username"></div>'+
@@ -496,7 +496,7 @@
     root.innerHTML =
       '<div class="shell">'+
         '<div class="sidebar">'+
-          '<div class="brand"><div class="mark"></div><b>روشن</b></div>'+
+          '<div class="brand"><div class="mark"></div><b>شرکت پورټال</b></div>'+
           '<div class="role-tag">'+ROLE_LABEL[role]+'</div>'+
           '<div style="display:flex;flex-direction:column;gap:2px;flex:1;">'+navHtml+'</div>'+
           '<div class="spacer"></div>'+
