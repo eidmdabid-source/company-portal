@@ -1,3 +1,4 @@
+cat > /home/claude/app.html << 'ENDOFFILE'
 <!DOCTYPE html>
 <html lang="ps" dir="rtl">
 <head>
@@ -8,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
   :root{
     --bg:#EEF1F4;
@@ -23,6 +25,8 @@
     --ok-soft:#DFF0E7;
     --danger:#B3432B;
     --danger-soft:#F6E1DA;
+    --info:#2E5FA3;
+    --info-soft:#DDE8F6;
     --border:#DDE2E8;
     --radius:10px;
   }
@@ -84,6 +88,7 @@
     transition:border-color .15s;
   }
   .field input:focus, .field textarea:focus, .field select:focus{border-color:var(--accent);}
+  .field input:disabled, .btn:disabled{opacity:.5;cursor:not-allowed;}
   .btn{
     display:inline-flex;align-items:center;justify-content:center;gap:8px;
     padding:11px 18px;
@@ -104,17 +109,20 @@
   .btn-ok:hover{filter:brightness(1.1);}
   .btn-danger{background:var(--danger);color:#fff;}
   .btn-danger:hover{filter:brightness(1.1);}
+  .btn-info{background:var(--info);color:#fff;}
   .btn-ghost{background:transparent;color:var(--ink-soft);border:1.5px solid var(--border);}
   .btn-ghost:hover{border-color:var(--ink-soft);color:var(--ink);}
   .btn-block{width:100%;}
   .btn-sm{padding:6px 12px;font-size:13px;border-radius:6px;}
+  .icon-btn{
+    width:34px;height:34px;border-radius:8px;border:1.5px solid var(--border);
+    background:#fff;display:inline-flex;align-items:center;justify-content:center;
+    cursor:pointer;font-size:16px;
+  }
+  .icon-btn:hover{border-color:var(--accent);}
   .error-box{
     background:var(--danger-soft);color:var(--danger);
     border-radius:8px;padding:10px 12px;font-size:13.5px;margin-bottom:16px;font-weight:600;
-  }
-  .hint-box{
-    background:var(--accent-soft);color:#7a5a17;
-    border-radius:8px;padding:10px 12px;font-size:12.5px;margin-top:18px;line-height:1.9;
   }
 
   /* ---------- Disabled full screen ---------- */
@@ -166,24 +174,30 @@
   }
   .sidebar .user-box .uname{font-size:13.5px;font-weight:700;color:#fff;margin-bottom:8px;}
   .main{flex:1;padding:30px 34px;overflow-y:auto;min-width:0;}
-  .main-header{margin-bottom:24px;}
+  .main-header{margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
   .main-header h2{margin:0 0 4px 0;font-size:21px;}
   .main-header p{margin:0;color:var(--ink-soft);font-size:13.5px;}
+  .header-actions{display:flex;gap:8px;}
 
   .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:20px;}
   .card h4{margin:0 0 16px 0;font-size:15px;}
   .row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;}
   .row .field{flex:1;min-width:180px;margin-bottom:0;}
 
-  table{width:100%;border-collapse:collapse;font-size:13.8px;}
+  table{width:100%;border-collapse:collapse;font-size:13.4px;}
   th,td{padding:11px 10px;text-align:right;border-bottom:1px solid var(--border);}
-  th{color:var(--ink-soft);font-weight:700;font-size:12.5px;}
+  th{color:var(--ink-soft);font-weight:700;font-size:12px;}
   tr:last-child td{border-bottom:none;}
   .badge{
     display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;
+    cursor:default;
   }
+  .badge.clickable{cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
   .badge-pending{background:var(--accent-soft);color:#7a5a17;}
+  .badge-process{background:var(--info-soft);color:var(--info);}
   .badge-approved{background:var(--ok-soft);color:var(--ok);}
+  .badge-rejected{background:var(--danger-soft);color:var(--danger);}
+  .badge-resubmit{background:#EFE3F7;color:#6b3fa0;}
   .badge-enabled{background:var(--ok-soft);color:var(--ok);}
   .badge-disabled{background:var(--danger-soft);color:var(--danger);}
   .empty-state{color:var(--ink-soft);font-size:13.5px;padding:26px 10px;text-align:center;}
@@ -193,6 +207,26 @@
     box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:999;
   }
   .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  .note-text{color:var(--ink-soft);font-size:12.5px;margin:14px 0 0 0;}
+  .small-muted{color:var(--ink-soft);font-size:11.5px;}
+
+  /* ---------- Modal ---------- */
+  .modal-backdrop{
+    position:fixed;inset:0;background:rgba(16,24,38,.55);
+    display:flex;align-items:center;justify-content:center;padding:20px;z-index:500;
+  }
+  .modal-card{
+    background:#fff;border-radius:14px;padding:26px;max-width:460px;width:100%;
+    box-shadow:0 30px 60px rgba(0,0,0,.35);
+  }
+  .modal-card h3{margin:0 0 14px 0;font-size:16.5px;}
+  .modal-actions{display:flex;gap:10px;margin-top:18px;}
+  .modal-actions .btn{flex:1;}
+  .modal-close{
+    position:absolute;top:14px;left:14px;
+  }
+  .modal-card{position:relative;}
+
   @media (max-width:860px){
     .shell{flex-direction:column;}
     .sidebar{width:100%;flex-direction:row;flex-wrap:wrap;padding:14px;align-items:center;}
@@ -203,6 +237,7 @@
     .nav-item{margin-bottom:0;}
     .main{padding:20px 16px;}
     .grid-2{grid-template-columns:1fr;}
+    table{font-size:12px;}
   }
 </style>
 </head>
@@ -212,8 +247,7 @@
 (function(){
   "use strict";
 
-  // ====== FIREBASE CONFIG — replace with YOUR project's config ======
-  // Get this from: Firebase Console > Project settings > General > Your apps > SDK setup
+  // ====== FIREBASE CONFIG ======
   var firebaseConfig = {
     apiKey: "AIzaSyCFI4CdRV6IwyjmifRjUlzzT_28I47vgh0",
     authDomain: "companyportal-f52e0.firebaseapp.com",
@@ -231,10 +265,12 @@
     bundles:[],
     complaints:[],
     rolls:[],
+    reportResetAt:0,
     section:null,
     loading:true,
     error:"",
-    unsubs:null
+    unsubs:null,
+    modal:null // {type:'process'|'resubmit', bundleId, previousStatus}
   };
 
   // ---------------- storage helpers (Firestore) ----------------
@@ -255,10 +291,23 @@
   function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 
   // ---------------- data bootstrap ----------------
+  var DEFAULT_ADMIN_USER = 'admin@roshan.af';
+  var DEFAULT_ADMIN_PASS = 'Roshan.af.admin@af&786';
+
   function ensureSeed(){
     return loadJSON('users', null).then(function(users){
-      if(users && users.length){ state.users = users; return; }
-      var seeded = [{username:'admin', password:'admin123', role:'admin', status:'enabled', createdBy:'system'}];
+      if(users && users.length){
+        state.users = users;
+        // migrate legacy admin account to the configured credentials
+        var legacy = state.users.find(function(u){return u.username==='admin' && u.role==='admin';});
+        if(legacy){
+          legacy.username = DEFAULT_ADMIN_USER;
+          legacy.password = DEFAULT_ADMIN_PASS;
+          return persistUsers();
+        }
+        return;
+      }
+      var seeded = [{username:DEFAULT_ADMIN_USER, password:DEFAULT_ADMIN_PASS, role:'admin', status:'enabled', createdBy:'system'}];
       state.users = seeded;
       return saveJSON('users', seeded);
     });
@@ -269,7 +318,10 @@
       ensureSeed(),
       loadJSON('bundles', []).then(function(v){ state.bundles = v; }),
       loadJSON('complaints', []).then(function(v){ state.complaints = v; }),
-      loadJSON('rolls', []).then(function(v){ state.rolls = v; })
+      loadJSON('rolls', []).then(function(v){ state.rolls = v; }),
+      db.collection('appdata').doc('reportMeta').get().then(function(snap){
+        state.reportResetAt = (snap.exists && snap.data().resetAt) ? snap.data().resetAt : 0;
+      }).catch(function(){ state.reportResetAt = 0; })
     ]);
   }
 
@@ -277,25 +329,27 @@
   function persistBundles(){ return saveJSON('bundles', state.bundles); }
   function persistComplaints(){ return saveJSON('complaints', state.complaints); }
   function persistRolls(){ return saveJSON('rolls', state.rolls); }
+  function persistReportMeta(){ return db.collection('appdata').doc('reportMeta').set({resetAt: state.reportResetAt}); }
 
   // ---------------- role menu config ----------------
   var MENUS = {
     admin:[
-      {key:'bundle', label:'بنډل'},
       {key:'managers', label:'د منیجر یوزران'},
       {key:'ntos', label:'د NTO یوزران'},
       {key:'sales', label:'د پلور راپور'},
+      {key:'report', label:'راپور'},
       {key:'rolls', label:'د شرکت مقررات'},
       {key:'complaints', label:'شکایتونه'}
     ],
     manager:[
-      {key:'bundle', label:'بنډل'},
       {key:'ntos', label:'د NTO یوزران'},
-      {key:'sales', label:'د پلور راپور'}
+      {key:'sales', label:'د پلور راپور'},
+      {key:'report', label:'راپور'}
     ],
     nto:[
       {key:'bundle', label:'بنډل'},
       {key:'sales', label:'د پلور راپور'},
+      {key:'report', label:'راپور'},
       {key:'complaints', label:'شکایتونه'}
     ]
   };
@@ -312,13 +366,13 @@
       renderLogin(root);
       return;
     }
-    // re-check current user still enabled (in case cache stale)
     var fresh = state.users.find(function(u){return u.username===state.currentUser.username;});
     if(!fresh || fresh.status==='disabled'){
       renderBlocked(root);
       return;
     }
     renderDashboard(root);
+    renderModalLayer();
   }
 
   // ---------------- LOGIN VIEW ----------------
@@ -331,7 +385,6 @@
         '<div class="field"><label>یوزرنوم</label><input id="li-user" type="text" autocomplete="username"></div>'+
         '<div class="field"><label>پاسورډ</label><input id="li-pass" type="password" autocomplete="current-password"></div>'+
         '<button class="btn btn-primary btn-block" id="li-btn">دننه شئ</button>'+
-        '<div class="hint-box">لومړنی د اډمین حساب: <b>admin</b> / <b>admin123</b></div>'+
       '</div></div>';
 
     document.getElementById('li-btn').onclick = doLogin;
@@ -351,12 +404,6 @@
     if(!found || found.password!==p){
       state.error = 'یوزرنوم یا پاسورډ سم نه دی.';
       render(); return;
-    }
-    if(found.status==='disabled'){
-      state.currentUser = {username:found.username, role:found.role};
-      state.error='';
-      render();
-      return;
     }
     state.error='';
     state.currentUser = {username:found.username, role:found.role};
@@ -387,18 +434,18 @@
       state.section = menu[0].key;
     }
 
-    var pendingCount = state.bundles.filter(function(b){return b.status==='pending';}).length;
-    var myApprovedUnseen = state.bundles.filter(function(b){
-      return b.ntoUsername===state.currentUser.username && b.status==='approved' && !b.ntoSeen;
+    var actionableCount = state.bundles.filter(function(b){return b.status==='pending' || b.status==='resubmit';}).length;
+    var myUnseen = state.bundles.filter(function(b){
+      return b.ntoUsername===state.currentUser.username && (b.status==='approved'||b.status==='rejected') && !b.ntoSeen;
     }).length;
 
     var navHtml = menu.map(function(m){
       var badge = '';
       if(m.key==='sales'){
-        if((role==='admin'||role==='manager') && pendingCount>0){
-          badge = '<span class="nav-badge">'+pendingCount+'</span>';
-        }else if(role==='nto' && myApprovedUnseen>0){
-          badge = '<span class="nav-badge">'+myApprovedUnseen+'</span>';
+        if((role==='admin'||role==='manager') && actionableCount>0){
+          badge = '<span class="nav-badge">'+actionableCount+'</span>';
+        }else if(role==='nto' && myUnseen>0){
+          badge = '<span class="nav-badge">'+myUnseen+'</span>';
         }
       }
       return '<div class="nav-item '+(state.section===m.key?'active':'')+'" data-sec="'+m.key+'">'+
@@ -425,7 +472,7 @@
         state.section = el.getAttribute('data-sec');
         if(state.section==='sales' && role==='nto'){
           state.bundles.forEach(function(b){
-            if(b.ntoUsername===state.currentUser.username && b.status==='approved') b.ntoSeen = true;
+            if(b.ntoUsername===state.currentUser.username && (b.status==='approved'||b.status==='rejected')) b.ntoSeen = true;
           });
           persistBundles();
         }
@@ -442,55 +489,64 @@
   }
 
   function sectionTitle(key){
-    var map = {bundle:'بنډل', managers:'د منیجر یوزران', ntos:'د NTO یوزران', sales:'د پلور راپور', rolls:'د شرکت مقررات', complaints:'شکایتونه'};
+    var map = {bundle:'بنډل', managers:'د منیجر یوزران', ntos:'د NTO یوزران', sales:'د پلور راپور', report:'راپور', rolls:'د شرکت مقررات', complaints:'شکایتونه'};
     return map[key] || '';
   }
 
   function renderSection(main){
     var role = state.currentUser.role;
-    main.innerHTML = '<div class="main-header"><h2>'+sectionTitle(state.section)+'</h2></div><div id="sec-body"></div>';
+    main.innerHTML = '<div class="main-header" id="main-header-row"><div><h2>'+sectionTitle(state.section)+'</h2></div></div><div id="sec-body"></div>';
+    var headerRow = document.getElementById('main-header-row');
     var body = document.getElementById('sec-body');
 
-    if(state.section==='bundle') return renderBundleSection(body, role);
-    if(state.section==='managers') return renderUsersSection(body, 'manager', true);
-    if(state.section==='ntos') return renderUsersSection(body, 'nto', role==='admin');
+    if(state.section==='bundle' && role==='nto') return renderBundleSection(body);
+    if(state.section==='managers' && role==='admin') return renderUsersSection(body, 'manager', true);
+    if(state.section==='ntos' && (role==='admin'||role==='manager')) return renderUsersSection(body, 'nto', role==='admin');
     if(state.section==='sales') return renderSalesSection(body, role);
-    if(state.section==='rolls') return renderRollsSection(body, role);
+    if(state.section==='report') return renderReportSection(body, role, headerRow);
+    if(state.section==='rolls' && role==='admin') return renderRollsSection(body);
     if(state.section==='complaints') return renderComplaintsSection(body, role);
+
+    body.innerHTML = '<div class="empty-state">لاسرسی نشته.</div>';
   }
 
-  // ---------------- BUNDLE SECTION ----------------
-  function renderBundleSection(body, role){
+  // ---------------- BUNDLE SECTION (NTO only) ----------------
+  function renderBundleSection(body){
     var myBundles = state.bundles.filter(function(b){return b.ntoUsername===state.currentUser.username;});
     body.innerHTML =
       '<div class="card">'+
         '<h4>نوی بنډل واستوئ</h4>'+
         '<div class="row">'+
-          '<div class="field"><label>لومړی معلومات</label><input id="bd-f1" type="text" placeholder="لومړی ارزښت ولیکئ"></div>'+
-          '<div class="field"><label>دوهم معلومات</label><input id="bd-f2" type="text" placeholder="دوهم ارزښت ولیکئ"></div>'+
+          '<div class="field"><label>شمیره</label><input id="bd-f1" type="text" inputmode="numeric" placeholder="یوازې شمیره"></div>'+
+          '<div class="field"><label>د بنډل نوم</label><input id="bd-f2" type="text" placeholder="د بنډل نوم ولیکئ"></div>'+
           '<button class="btn btn-gold" id="bd-submit">واستوئ</button>'+
         '</div>'+
-        (role!=='nto' ? '<p style="color:var(--ink-soft);font-size:12.5px;margin:14px 0 0 0;">ستاسو د '+ROLE_LABEL[role]+' په توګه استول شوي بنډلونه سمدلاسه تصویب شوي ګڼل کیږي.</p>' : '')+
       '</div>'+
       '<div class="card"><h4>ستاسو د بنډل تاریخچه</h4><div id="bd-list"></div></div>';
 
+    var f1 = document.getElementById('bd-f1');
+    f1.addEventListener('input', function(){
+      var v = f1.value.replace(/[^0-9]/g,'');
+      v = v.replace(/^0+(?=\d)/,'');
+      f1.value = v;
+    });
+
     document.getElementById('bd-submit').onclick = function(){
-      var f1 = document.getElementById('bd-f1').value.trim();
-      var f2 = document.getElementById('bd-f2').value.trim();
-      if(!f1 || !f2){ showToast('مهرباني وکړئ دواړه خانې ډکې کړئ.'); return; }
+      var v1 = f1.value.trim();
+      var v2 = document.getElementById('bd-f2').value.trim();
+      if(!v1 || !v2){ showToast('مهرباني وکړئ دواړه خانې ډکې کړئ.'); return; }
       var entry = {
         id: uid(),
         ntoUsername: state.currentUser.username,
-        submittedByRole: role,
-        field1:f1, field2:f2,
-        status: role==='nto' ? 'pending' : 'approved',
+        field1:v1, field2:v2,
+        status: 'pending',
         createdAt: Date.now(),
-        approvedBy: role==='nto' ? null : state.currentUser.username,
-        ntoSeen: role==='nto' ? true : true
+        comment:null, actionedBy:null, actionedAt:null, processingBy:null,
+        ntoSeen: true
       };
       state.bundles.unshift(entry);
       persistBundles().then(function(){
-        showToast(role==='nto' ? 'بنډل واستول شو، اوس د تصویب په حالت کې دی.' : 'بنډل واستول شو او تصویب شو.');
+        showToast('بنډل واستول شو، اوس د تمې په حالت کې دی.');
         renderDashboard(document.getElementById('app'));
       });
     };
@@ -499,7 +555,7 @@
     if(!myBundles.length){
       list.innerHTML = '<div class="empty-state">تر اوسه هیڅ بنډل نه دی استول شوی.</div>';
     }else{
-      list.innerHTML = '<table><thead><tr><th>لومړی معلومات</th><th>دوهم معلومات</th><th>حالت</th><th>نیټه</th></tr></thead><tbody>'+
+      list.innerHTML = '<table><thead><tr><th>شمیره</th><th>د بنډل نوم</th><th>حالت</th><th>نیټه</th></tr></thead><tbody>'+
         myBundles.map(function(b){
           return '<tr><td>'+escapeHtml(b.field1)+'</td><td>'+escapeHtml(b.field2)+'</td><td>'+statusBadge(b.status)+'</td><td>'+fmtDate(b.createdAt)+'</td></tr>';
         }).join('')+
@@ -510,53 +566,196 @@
   // ---------------- SALES REPORT SECTION ----------------
   function renderSalesSection(body, role){
     var rows = role==='nto' ? state.bundles.filter(function(b){return b.ntoUsername===state.currentUser.username;}) : state.bundles.slice();
-    var canApprove = (role==='admin' || role==='manager');
+    var canProcess = (role==='admin' || role==='manager');
 
     if(!rows.length){
       body.innerHTML = '<div class="card"><div class="empty-state">هیڅ ثبت شوی معلومات نشته.</div></div>';
       return;
     }
-    body.innerHTML = '<div class="card"><table><thead><tr>'+
+    body.innerHTML = '<div class="card"><div style="overflow-x:auto;"><table><thead><tr>'+
       (role!=='nto' ? '<th>د NTO یوزر</th>' : '')+
-      '<th>لومړی معلومات</th><th>دوهم معلومات</th><th>حالت</th><th>نیټه</th>'+
-      (canApprove ? '<th></th>' : '')+
+      '<th>شمیره</th><th>د بنډل نوم</th><th>حالت</th>'+
+      (canProcess ? '<th>عمل شوی له خوا</th>' : '')+
+      '<th>کمینټ</th>'+
+      '<th>نیټه</th>'+
+      (role==='nto' ? '<th></th>' : '')+
       '</tr></thead><tbody>'+
       rows.map(function(b){
+        var statusCell = statusBadge(b.status);
+        if(canProcess && (b.status==='pending' || b.status==='resubmit')){
+          statusCell = '<span class="badge clickable '+badgeClass(b.status)+'" data-open-process="'+b.id+'">'+statusLabel(b.status)+'</span>';
+        }
         return '<tr>'+
           (role!=='nto' ? '<td>'+escapeHtml(b.ntoUsername)+'</td>' : '')+
           '<td>'+escapeHtml(b.field1)+'</td><td>'+escapeHtml(b.field2)+'</td>'+
-          '<td>'+statusBadge(b.status)+'</td>'+
+          '<td>'+statusCell+'</td>'+
+          (canProcess ? '<td>'+(b.actionedBy?escapeHtml(b.actionedBy):'—')+'</td>' : '')+
+          '<td>'+(b.comment?escapeHtml(b.comment):'—')+'</td>'+
           '<td>'+fmtDate(b.createdAt)+'</td>'+
-          (canApprove ? '<td>'+(b.status==='pending' ? '<button class="btn btn-ok btn-sm" data-approve="'+b.id+'">تصویب</button>' : '')+'</td>' : '')+
+          (role==='nto' ? '<td>'+(b.status==='rejected' ? '<button class="btn btn-sm btn-info" data-resubmit="'+b.id+'">ریسبمیټ</button>' : '')+'</td>' : '')+
         '</tr>';
       }).join('')+
-    '</tbody></table></div>';
+    '</tbody></table></div></div>';
 
-    if(canApprove){
-      Array.prototype.forEach.call(document.querySelectorAll('[data-approve]'), function(btn){
-        btn.onclick = function(){
-          var id = btn.getAttribute('data-approve');
-          var b = state.bundles.find(function(x){return x.id===id;});
-          if(b){
-            b.status='approved';
-            b.approvedBy=state.currentUser.username;
-            b.approvedAt=Date.now();
-            b.ntoSeen=false;
-            persistBundles().then(function(){
-              showToast('بنډل تصویب شو.');
-              renderDashboard(document.getElementById('app'));
-            });
-          }
-        };
+    if(canProcess){
+      Array.prototype.forEach.call(document.querySelectorAll('[data-open-process]'), function(el){
+        el.onclick = function(){ openProcessModal(el.getAttribute('data-open-process')); };
       });
+    }
+    if(role==='nto'){
+      Array.prototype.forEach.call(document.querySelectorAll('[data-resubmit]'), function(btn){
+        btn.onclick = function(){ openResubmitModal(btn.getAttribute('data-resubmit')); };
+      });
+    }
+  }
+
+  function badgeClass(status){
+    if(status==='pending') return 'badge-pending';
+    if(status==='in_process') return 'badge-process';
+    if(status==='approved') return 'badge-approved';
+    if(status==='rejected') return 'badge-rejected';
+    if(status==='resubmit') return 'badge-resubmit';
+    return '';
+  }
+  function statusLabel(status){
+    if(status==='pending') return 'په تمه (Pending)';
+    if(status==='in_process') return 'پروسیس کې';
+    if(status==='approved') return 'تصویب شوی';
+    if(status==='rejected') return 'ردشوی';
+    if(status==='resubmit') return 'بیا وړاندې شوی';
+    return status;
+  }
+  function statusBadge(status){
+    return '<span class="badge '+badgeClass(status)+'">'+statusLabel(status)+'</span>';
+  }
+
+  // ---------------- PROCESS MODAL (admin/manager: approve/reject) ----------------
+  function openProcessModal(bundleId){
+    var b = state.bundles.find(function(x){return x.id===bundleId;});
+    if(!b) return;
+    if(b.status!=='pending' && b.status!=='resubmit') return;
+    var previousStatus = b.status;
+    b.status = 'in_process';
+    b.processingBy = state.currentUser.username;
+    persistBundles().then(function(){
+      state.modal = {type:'process', bundleId:bundleId, previousStatus:previousStatus};
+      render();
+    });
+  }
+
+  function closeProcessModal(){
+    if(!state.modal) return;
+    var b = state.bundles.find(function(x){return x.id===state.modal.bundleId;});
+    if(b && b.status==='in_process'){
+      b.status = state.modal.previousStatus;
+      b.processingBy = null;
+      persistBundles().then(function(){
+        state.modal = null;
+        render();
+      });
+    }else{
+      state.modal = null;
+      render();
+    }
+  }
+
+  function submitProcessDecision(decision){
+    if(!state.modal) return;
+    var commentEl = document.getElementById('proc-comment');
+    var comment = commentEl ? commentEl.value.trim() : '';
+    if(!comment){ showToast('مهرباني وکړئ لومړی کمینټ ولیکئ.'); return; }
+    var b = state.bundles.find(function(x){return x.id===state.modal.bundleId;});
+    if(!b) return;
+    b.status = decision; // 'approved' or 'rejected'
+    b.comment = comment;
+    b.actionedBy = state.currentUser.username;
+    b.actionedAt = Date.now();
+    b.processingBy = null;
+    b.ntoSeen = false;
+    persistBundles().then(function(){
+      showToast(decision==='approved' ? 'بنډل تصویب شو.' : 'بنډل رد شو.');
+      state.modal = null;
+      render();
+    });
+  }
+
+  // ---------------- RESUBMIT MODAL (NTO) ----------------
+  function openResubmitModal(bundleId){
+    var b = state.bundles.find(function(x){return x.id===bundleId;});
+    if(!b || b.status!=='rejected') return;
+    state.modal = {type:'resubmit', bundleId:bundleId};
+    render();
+  }
+
+  function submitResubmit(){
+    if(!state.modal) return;
+    var commentEl = document.getElementById('resub-comment');
+    var comment = commentEl ? commentEl.value.trim() : '';
+    if(!comment){ showToast('مهرباني وکړئ کمینټ ولیکئ.'); return; }
+    var b = state.bundles.find(function(x){return x.id===state.modal.bundleId;});
+    if(!b) return;
+    b.status = 'resubmit';
+    b.comment = comment;
+    b.actionedBy = null;
+    b.actionedAt = null;
+    b.processingBy = null;
+    b.ntoSeen = true;
+    persistBundles().then(function(){
+      showToast('بنډل بیا وړاندې شو.');
+      state.modal = null;
+      render();
+    });
+  }
+
+  function renderModalLayer(){
+    var old = document.getElementById('modal-layer');
+    if(old) old.remove();
+    if(!state.modal) return;
+
+    var layer = document.createElement('div');
+    layer.id = 'modal-layer';
+    layer.className = 'modal-backdrop';
+
+    if(state.modal.type==='process'){
+      layer.innerHTML =
+        '<div class="modal-card">'+
+          '<h3>د بنډل پروسس کول</h3>'+
+          '<div class="field"><label>کمینټ (اړین دی)</label><textarea id="proc-comment" rows="3" placeholder="خپل کمینټ دلته ولیکئ..."></textarea></div>'+
+          '<div class="modal-actions">'+
+            '<button class="btn btn-ok" id="proc-approve">تصویب (Approve)</button>'+
+            '<button class="btn btn-danger" id="proc-reject">ردول (Reject)</button>'+
+          '</div>'+
+          '<button class="btn btn-ghost btn-block" id="proc-cancel" style="margin-top:10px;">لغوه کول</button>'+
+        '</div>';
+    }else if(state.modal.type==='resubmit'){
+      layer.innerHTML =
+        '<div class="modal-card">'+
+          '<h3>بیا وړاندې کول</h3>'+
+          '<div class="field"><label>کمینټ</label><textarea id="resub-comment" rows="3" placeholder="خپل کمینټ دلته ولیکئ..."></textarea></div>'+
+          '<div class="modal-actions">'+
+            '<button class="btn btn-gold btn-block" id="resub-submit">ریسبمیټ</button>'+
+          '</div>'+
+          '<button class="btn btn-ghost btn-block" id="resub-cancel" style="margin-top:10px;">لغوه کول</button>'+
+        '</div>';
+    }
+
+    document.body.appendChild(layer);
+
+    if(state.modal.type==='process'){
+      document.getElementById('proc-approve').onclick = function(){ submitProcessDecision('approved'); };
+      document.getElementById('proc-reject').onclick = function(){ submitProcessDecision('rejected'); };
+      document.getElementById('proc-cancel').onclick = closeProcessModal;
+    }else if(state.modal.type==='resubmit'){
+      document.getElementById('resub-submit').onclick = submitResubmit;
+      document.getElementById('resub-cancel').onclick = function(){ state.modal=null; render(); };
     }
   }
 
   // ---------------- USERS SECTIONS (managers / ntos) ----------------
   function renderUsersSection(body, targetRole, canToggle){
     var list = state.users.filter(function(u){return u.role===targetRole;});
-    var canCreate = true; // admin always; manager only for nto (handled by caller routing)
     var roleLabel = targetRole==='manager' ? 'منیجر' : 'NTO';
+    var isNto = targetRole==='nto';
 
     body.innerHTML =
       '<div class="card">'+
@@ -564,6 +763,8 @@
         '<div class="row">'+
           '<div class="field"><label>یوزرنوم</label><input id="nu-user" type="text"></div>'+
           '<div class="field"><label>پاسورډ</label><input id="nu-pass" type="text"></div>'+
+          (isNto ? '<div class="field"><label>ادرس</label><input id="nu-addr" type="text"></div>'+
+                   '<div class="field"><label>اړیکې شمیره</label><input id="nu-contact" type="text"></div>' : '')+
           '<button class="btn btn-gold" id="nu-create">جوړ کړئ</button>'+
         '</div>'+
       '</div>'+
@@ -572,9 +773,14 @@
     document.getElementById('nu-create').onclick = function(){
       var u = document.getElementById('nu-user').value.trim();
       var p = document.getElementById('nu-pass').value.trim();
+      var addr = isNto ? document.getElementById('nu-addr').value.trim() : '';
+      var contact = isNto ? document.getElementById('nu-contact').value.trim() : '';
       if(!u || !p){ showToast('یوزرنوم او پاسورډ دواړه ولیکئ.'); return; }
+      if(isNto && (!addr || !contact)){ showToast('ادرس او اړیکې شمیره هم ولیکئ.'); return; }
       if(state.users.find(function(x){return x.username===u;})){ showToast('دا یوزرنوم مخکې شتون لري.'); return; }
-      state.users.push({username:u, password:p, role:targetRole, status:'enabled', createdBy:state.currentUser.username});
+      var newUser = {username:u, password:p, role:targetRole, status:'enabled', createdBy:state.currentUser.username};
+      if(isNto){ newUser.address = addr; newUser.contact = contact; }
+      state.users.push(newUser);
       persistUsers().then(function(){
         showToast(roleLabel+' حساب جوړ شو.');
         renderSection(document.getElementById('main-area'));
@@ -586,13 +792,17 @@
       listEl.innerHTML = '<div class="empty-state">تر اوسه هیڅ حساب نشته.</div>';
       return;
     }
-    listEl.innerHTML = '<table><thead><tr><th>یوزرنوم</th><th>حالت</th>'+(canToggle?'<th></th>':'')+'</tr></thead><tbody>'+
+    listEl.innerHTML = '<div style="overflow-x:auto;"><table><thead><tr><th>یوزرنوم</th>'+
+      (isNto ? '<th>ادرس</th><th>اړیکې شمیره</th><th>جوړونکی</th>' : '')+
+      '<th>حالت</th>'+(canToggle?'<th></th>':'')+'</tr></thead><tbody>'+
       list.map(function(u){
-        return '<tr><td>'+escapeHtml(u.username)+'</td><td>'+statusBadge(u.status==='enabled'?'enabled':'disabled')+'</td>'+
+        return '<tr><td>'+escapeHtml(u.username)+'</td>'+
+          (isNto ? '<td>'+escapeHtml(u.address||'—')+'</td><td>'+escapeHtml(u.contact||'—')+'</td><td>'+escapeHtml(u.createdBy||'—')+'</td>' : '')+
+          '<td>'+statusBadge(u.status==='enabled'?'enabled':'disabled')+'</td>'+
           (canToggle ? '<td><button class="btn btn-sm '+(u.status==='enabled'?'btn-danger':'btn-ok')+'" data-toggle="'+u.username+'">'+(u.status==='enabled'?'ډیسیبل':'انیبل')+'</button></td>' : '')+
         '</tr>';
       }).join('')+
-    '</tbody></table>';
+    '</tbody></table></div>';
 
     if(canToggle){
       Array.prototype.forEach.call(document.querySelectorAll('[data-toggle]'), function(btn){
@@ -611,8 +821,104 @@
     }
   }
 
-  // ---------------- COMPANY ROLLS ----------------
-  function renderRollsSection(body, role){
+  // ---------------- REPORT SECTION ----------------
+  function extractNumber(str){
+    if(!str) return 0;
+    var m = String(str).match(/\d+(\.\d+)?/);
+    return m ? parseFloat(m[0]) : 0;
+  }
+  function dateKeyOf(ts){
+    var d = new Date(ts);
+    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+  }
+  function computeReportRows(){
+    var rows = {};
+    state.bundles.forEach(function(b){
+      if(b.status==='approved' && b.actionedAt && b.actionedAt > state.reportResetAt){
+        var dk = dateKeyOf(b.actionedAt);
+        var key = dk+'|'+b.ntoUsername;
+        if(!rows[key]) rows[key] = {dateKey:dk, nto:b.ntoUsername, count:0, total:0};
+        rows[key].count++;
+        rows[key].total += extractNumber(b.comment);
+      }
+    });
+    return Object.keys(rows).map(function(k){return rows[k];}).sort(function(a,b2){
+      if(a.dateKey!==b2.dateKey) return a.dateKey<b2.dateKey?1:-1;
+      return a.nto<b2.nto?-1:1;
+    });
+  }
+
+  function renderReportSection(body, role, headerRow){
+    if(role==='admin'){
+      headerRow.innerHTML =
+        '<div><h2>راپور</h2></div>'+
+        '<div class="header-actions">'+
+          '<button class="icon-btn" id="rep-export" title="اکسیل ډاونلوډ">&#128190;</button>'+
+          '<button class="icon-btn" id="rep-reset" title="ریسیټ">&#8635;</button>'+
+        '</div>';
+    }
+
+    if(role==='admin' || role==='manager'){
+      var rows = computeReportRows();
+      if(!rows.length){
+        body.innerHTML = '<div class="card"><div class="empty-state">تر اوسه هیڅ راپور نشته.</div></div>';
+      }else{
+        body.innerHTML = '<div class="card"><div style="overflow-x:auto;"><table><thead><tr>'+
+          '<th>نیټه</th><th>د NTO یوزر</th><th>د تصویب شمیر</th><th>ټول (افغانۍ)</th>'+
+          '</tr></thead><tbody>'+
+          rows.map(function(r){
+            return '<tr><td>'+escapeHtml(r.dateKey)+'</td><td>'+escapeHtml(r.nto)+'</td><td>'+r.count+'</td><td>'+r.total.toLocaleString()+' افغانۍ</td></tr>';
+          }).join('')+
+        '</tbody></table></div></div>';
+      }
+
+      if(role==='admin'){
+        document.getElementById('rep-export').onclick = function(){
+          var data = rows.map(function(r){
+            var o = {};
+            o['نیټه'] = r.dateKey;
+            o['د NTO یوزر'] = r.nto;
+            o['د تصویب شمیر'] = r.count;
+            o['ټول (افغانۍ)'] = r.total;
+            return o;
+          });
+          if(!data.length){ showToast('هیڅ معلومات نشته چې ډاونلوډ شي.'); return; }
+          try{
+            var ws = XLSX.utils.json_to_sheet(data);
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'Report');
+            XLSX.writeFile(wb, 'report-'+Date.now()+'.xlsx');
+          }catch(e){ showToast('د ډاونلوډ کولو کې تېروتنه.'); }
+        };
+        document.getElementById('rep-reset').onclick = function(){
+          var ok = window.confirm('آیا ډاډه یاست چې غواړئ د راپور ټول معلومات پاک کړئ؟ دا کار بیرته نشي کیدلی.');
+          if(!ok) return;
+          state.reportResetAt = Date.now();
+          persistReportMeta().then(function(){
+            showToast('د راپور معلومات پاک شول.');
+            renderSection(document.getElementById('main-area'));
+          });
+        };
+      }
+    }else if(role==='nto'){
+      var total = 0, count=0;
+      state.bundles.forEach(function(b){
+        if(b.ntoUsername===state.currentUser.username && b.status==='approved' && b.actionedAt && b.actionedAt > state.reportResetAt){
+          total += extractNumber(b.comment);
+          count++;
+        }
+      });
+      body.innerHTML =
+        '<div class="card">'+
+          '<h4>ستاسو د تصویب شویو راپور</h4>'+
+          '<div style="font-size:28px;font-weight:800;color:var(--ok);">'+total.toLocaleString()+' افغانۍ</div>'+
+          '<div class="small-muted" style="margin-top:6px;">د تصویب شویو شمیر: '+count+'</div>'+
+        '</div>';
+    }
+  }
+
+  // ---------------- COMPANY ROLLS (admin only) ----------------
+  function renderRollsSection(body){
     body.innerHTML =
       '<div class="card">'+
         '<h4>نوی مقرره اضافه کړئ</h4>'+
@@ -676,13 +982,6 @@
   }
 
   // ---------------- utils ----------------
-  function statusBadge(status){
-    if(status==='pending') return '<span class="badge badge-pending">په تمه (Pending)</span>';
-    if(status==='approved') return '<span class="badge badge-approved">تصویب شوی</span>';
-    if(status==='enabled') return '<span class="badge badge-enabled">فعال</span>';
-    if(status==='disabled') return '<span class="badge badge-disabled">غیرفعال</span>';
-    return status;
-  }
   function fmtDate(ts){
     var d = new Date(ts);
     return d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
@@ -704,9 +1003,9 @@
     toastTimer = setTimeout(function(){ el.remove(); }, 2600);
   }
 
-  // ---------------- real-time sync (also drives instant forced-logout on disable) ----------------
+  // ---------------- real-time sync ----------------
   function attachListeners(){
-    if(state.unsubs) return; // already attached
+    if(state.unsubs) return;
     state.unsubs = [];
     state.unsubs.push(db.collection('appdata').doc('users').onSnapshot(function(snap){
       if(snap.exists && snap.data().list){ state.users = snap.data().list; render(); }
@@ -719,6 +1018,9 @@
     }));
     state.unsubs.push(db.collection('appdata').doc('rolls').onSnapshot(function(snap){
       if(snap.exists && snap.data().list){ state.rolls = snap.data().list; render(); }
+    }));
+    state.unsubs.push(db.collection('appdata').doc('reportMeta').onSnapshot(function(snap){
+      if(snap.exists){ state.reportResetAt = snap.data().resetAt || 0; render(); }
     }));
   }
 
@@ -733,3 +1035,5 @@
 </script>
 </body>
 </html>
+ENDOFFILE
+echo "File written: $(wc -l < /home/claude/app.html) lines"
