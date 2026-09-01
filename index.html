@@ -587,7 +587,7 @@ document.getElementById('bd-submit').onclick = function(){
   };  
   state.bundles.unshift(entry);  
   persistBundles().then(function(){  
-    showToast('بنډل واستول شو، اوس د تمې په حالت کې دی.');  
+    showToast('بنډل واستول شو، اوس د انتظار په حالت کې دی.');  
     renderDashboard(document.getElementById('app'));  
   });  
 };  
@@ -622,12 +622,12 @@ if(headerRow && (role==='admin' || role==='manager')){
     if(!rows.length){ showToast('هیڅ معلومات نشته چې ډاونلوډ شي.'); return; }  
     var data = rows.map(function(b){  
       var o = {};  
-      o['د NTO یوزر'] = b.ntoUsername;  
+      o['مشتري يوﺯر'] = b.ntoUsername;  
       o['شمیره'] = b.field1;  
       o['د بنډل نوم'] = b.field2;  
       o['حالت'] = statusLabel(b.status);  
-      o['عمل شوی له خوا'] = b.actionedBy || '';  
-      o['کمینټ'] = b.comment || '';  
+      o['منيجر يوﺯر'] = b.actionedBy || '';  
+      o['يادونه'] = b.comment || '';  
       o['نیټه'] = fmtDate(b.createdAt);  
       return o;  
     });  
@@ -641,7 +641,7 @@ if(headerRow && (role==='admin' || role==='manager')){
 
   if(role==='admin'){  
     document.getElementById('sales-reset').onclick = function(){  
-      var ok = window.confirm('آیا ډاډه یاست چې غواړئ د پلور راپور ټول معلومات بالکل ختم کړئ؟ دا به د NTO د بنډل او پلور راپور پاڼې هم پاکې کړي. دا کار بیرته نشي کیدلی.');  
+      var ok = window.confirm('آیا ډاډه یاست چې غواړئ د بنډلونو ټول معلومات بالکل ختم کړئ؟ دا به د NTO د بنډل او پلور راپور پاڼې هم پاکې کړي. دا کار بیرته نشي کیدلی.');  
       if(!ok) return;  
       state.bundles = [];  
       persistBundles().then(function(){  
@@ -657,10 +657,10 @@ if(!rows.length){
   return;  
 }  
 body.innerHTML = '<div class="card"><div style="overflow-x:auto;"><table><thead><tr>'+  
-  (role!=='nto' ? '<th>د NTO یوزر</th>' : '')+  
+  (role!=='nto' ? '<th>مشتري يوﺯر</th>' : '')+  
   '<th>شمیره</th><th>د بنډل نوم</th><th>حالت</th>'+  
-  (canProcess ? '<th>عمل شوی له خوا</th>' : '')+  
-  '<th>کمینټ</th>'+  
+  (canProcess ? '<th>منيجر</th>' : '')+  
+  '<th>يادونه</th>'+  
   '<th>نیټه</th>'+  
   (role==='nto' ? '<th></th>' : '')+  
   '</tr></thead><tbody>'+  
@@ -677,7 +677,7 @@ body.innerHTML = '<div class="card"><div style="overflow-x:auto;"><table><thead>
       (canProcess ? '<td>'+(b.actionedBy?escapeHtml(b.actionedBy):'—')+'</td>' : '')+  
       '<td>'+(b.comment?escapeHtml(b.comment):'—')+'</td>'+  
       '<td>'+fmtDate(b.createdAt)+'</td>'+  
-      (role==='nto' ? '<td>'+(b.status==='rejected' ? '<button class="btn btn-sm btn-info" data-resubmit="'+b.id+'">ریسبمیټ</button>' : '')+'</td>' : '')+  
+      (role==='nto' ? '<td>'+(b.status==='rejected' ? '<button class="btn btn-sm btn-info" data-resubmit="'+b.id+'">بيا ځلې استول</button>' : '')+'</td>' : '')+  
     '</tr>';  
   }).join('')+  
 '</tbody></table></div></div>';  
@@ -733,11 +733,11 @@ if(status==='resubmit') return 'badge-resubmit';
 return '';
 }
 function statusLabel(status){
-if(status==='pending') return 'په تمه (Pending)';
-if(status==='in_process') return 'پروسیس کې';
-if(status==='approved') return 'تصویب شوی';
-if(status==='rejected') return 'ردشوی';
-if(status==='resubmit') return 'بیا وړاندې شوی';
+if(status==='pending') return 'انتظار کې دى (Pending)';
+if(status==='in_process') return 'په جريان کې دى';
+if(status==='approved') return 'تائيد شوى دى';
+if(status==='rejected') return 'رد شوی دى';
+if(status==='resubmit') return 'بیا ځلې ليږل شوی';
 return status;
 }
 function statusBadge(status){
@@ -788,7 +788,7 @@ b.actionedAt = Date.now();
 b.processingBy = null;
 b.ntoSeen = false;
 persistBundles().then(function(){
-showToast(decision==='approved' ? 'بنډل تصویب شو.' : 'بنډل رد شو.');
+showToast(decision==='approved' ? 'بن تائيد شو.' : 'بنډل رد شوو.');
 state.modal = null;
 render();
 });
@@ -834,11 +834,11 @@ layer.className = 'modal-backdrop';
 if(state.modal.type==='process'){  
   layer.innerHTML =  
     '<div class="modal-card">'+  
-      '<h3>د بنډل پروسس کول</h3>'+  
+      '<h3>بنډل په جريان کې کول</h3>'+  
       '<div class="field"><label>کمینټ (اړین دی)</label><textarea id="proc-comment" rows="3" placeholder="خپل کمینټ دلته ولیکئ..."></textarea></div>'+  
       '<div class="modal-actions">'+  
-        '<button class="btn btn-ok" id="proc-approve">تصویب (Approve)</button>'+  
-        '<button class="btn btn-danger" id="proc-reject">ردول (Reject)</button>'+  
+        '<button class="btn btn-ok" id="proc-approve">تائيد کول (Approve)</button>'+  
+        '<button class="btn btn-danger" id="proc-reject">ردول کول (Reject)</button>'+  
       '</div>'+  
       '<button class="btn btn-ghost btn-block" id="proc-cancel" style="margin-top:10px;">لغوه کول</button>'+  
     '</div>';  
@@ -870,8 +870,8 @@ if(state.modal.type==='process'){
 // ---------------- USERS SECTIONS (managers / ntos) ----------------
 function renderUsersSection(body, targetRole, canToggle, canDelete){
 var list = state.users.filter(function(u){return u.role===targetRole;});
-var roleLabel = targetRole==='manager' ? 'منیجر' : 'NTO';
-var isNto = targetRole==='nto';
+var roleLabel = targetRole==='manager' ? 'منیجر' : 'مشتري';
+var isNto = targetRole==='مشتري';
 
 body.innerHTML =  
   '<div class="card">'+  
