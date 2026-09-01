@@ -530,7 +530,7 @@
   }
 
   function sectionTitle(key){
-    var map = {bundle:'نوى بنډل واستول', managers:'مدير-حسابونه', ntos:'مشتري-اضافه کول', sales:'بنډلونو-حالت', report:'مدير-راپور', nto_report:'مشتري-راپور', rolls:'پيغام-استول', complaints:'راليږل شوي شکایتونه'};
+    var map = {bundle:'نوى بنډل-استول', managers:'مدير-حسابونه', ntos:'مشتري-اضافه کول', sales:'بنډلونو-حالت', report:'فروشاتو -راپور', nto_report:'مشتري-راپور', rolls:'پيغام-استول', complaints:'راليږل شوي شکایتونه'};
     return map[key] || '';
   }
 
@@ -657,10 +657,10 @@
       return;
     }
     body.innerHTML = '<div class="card"><div style="overflow-x:auto;"><table><thead><tr>'+
-      (role!=='nto' ? '<th>د NTO یوزر</th>' : '')+
-      '<th>شمیره</th><th>د بنډل نوم</th><th>حالت</th>'+
-      (canProcess ? '<th>عمل شوی له خوا</th>' : '')+
-      '<th>کمینټ</th>'+
+      (role!=='nto' ? '<th>مشتري-نوم</th>' : '')+
+      '<th>اړيکې-شمیره</th><th>بنډل-نوو</th><th>حالت</th>'+
+      (canProcess ? '<th>تائيد کوونکى-مدير</th>' : '')+
+      '<th>يادونه-شوې</th>'+
       '<th>نیټه</th>'+
       (role==='nto' ? '<th></th>' : '')+
       '</tr></thead><tbody>'+
@@ -787,7 +787,7 @@
     b.processingBy = null;
     b.ntoSeen = false;
     persistBundles().then(function(){
-      showToast(decision==='approved' ? 'بنډل تصویب شو.' : 'بنډل رد شو.');
+      showToast(decision==='approved' ? 'بنډل فعاله شو.' : 'بنډل رد شو.');
       state.modal = null;
       render();
     });
@@ -836,18 +836,18 @@
           '<h3>د بنډل پروسس کول</h3>'+
           '<div class="field"><label>کمینټ (اړین دی)</label><textarea id="proc-comment" rows="3" placeholder="خپل کمینټ دلته ولیکئ..."></textarea></div>'+
           '<div class="modal-actions">'+
-            '<button class="btn btn-ok" id="proc-approve">تصویب (Approve)</button>'+
-            '<button class="btn btn-danger" id="proc-reject">ردول (Reject)</button>'+
+            '<button class="btn btn-ok" id="proc-approve">فعاله کول (Approve)</button>'+
+            '<button class="btn btn-danger" id="proc-reject">رد کول (Reject)</button>'+
           '</div>'+
           '<button class="btn btn-ghost btn-block" id="proc-cancel" style="margin-top:10px;">لغوه کول</button>'+
         '</div>';
     }else if(state.modal.type==='resubmit'){
       layer.innerHTML =
         '<div class="modal-card">'+
-          '<h3>بیا وړاندې کول</h3>'+
+          '<h3>بیا ځلې استول</h3>'+
           '<div class="field"><label>کمینټ</label><textarea id="resub-comment" rows="3" placeholder="خپل کمینټ دلته ولیکئ..."></textarea></div>'+
           '<div class="modal-actions">'+
-            '<button class="btn btn-gold btn-block" id="resub-submit">ریسبمیټ</button>'+
+            '<button class="btn btn-gold btn-block" id="resub-submit">استول</button>'+
           '</div>'+
           '<button class="btn btn-ghost btn-block" id="resub-cancel" style="margin-top:10px;">لغوه کول</button>'+
         '</div>';
@@ -875,9 +875,9 @@
       '<div class="card">'+
         '<h4>نوی '+roleLabel+' حساب جوړ کړئ</h4>'+
         '<div class="row">'+
-          '<div class="field"><label>یوزرنوم</label><input id="nu-user" type="text"></div>'+
+          '<div class="field"><label>یوز رنوم</label><input id="nu-user" type="text"></div>'+
           '<div class="field"><label>پاسورډ</label><input id="nu-pass" type="text"></div>'+
-          (isNto ? '<div class="field"><label>ادرس</label><input id="nu-addr" type="text"></div>'+
+          (isNto ? '<div class="field"><label>مشتري ادرس</label><input id="nu-addr" type="text"></div>'+
                    '<div class="field"><label>اړیکې شمیره</label><input id="nu-contact" type="text"></div>' : '')+
           '<button class="btn btn-gold" id="nu-create">جوړ کړئ</button>'+
         '</div>'+
@@ -906,8 +906,8 @@
       listEl.innerHTML = '<div class="empty-state">تر اوسه هیڅ حساب نشته.</div>';
       return;
     }
-    listEl.innerHTML = '<div style="overflow-x:auto;"><table><thead><tr><th>یوزرنوم</th>'+
-      (isNto ? '<th>ادرس</th><th>اړیکې شمیره</th><th>جوړونکی</th>' : '')+
+    listEl.innerHTML = '<div style="overflow-x:auto;"><table><thead><tr><th>یوزر-نوم</th>'+
+      (isNto ? '<th>مشتري-ادرس</th><th>اړیکې-شمیره</th><th>جوړونکی</th>' : '')+
       '<th>حالت</th>'+(canToggle?'<th></th>':'')+(canDelete?'<th></th>':'')+'</tr></thead><tbody>'+
       list.map(function(u){
         return '<tr><td>'+escapeHtml(u.username)+'</td>'+
