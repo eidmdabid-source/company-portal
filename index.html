@@ -1,4051 +1,1255 @@
-<!DOCTYPE html>
-<html lang="ps" dir="rtl">
-<head>
-
-<meta charset="UTF-8">
-
-<!-- FORCE DESKTOP MODE -->
-<meta name="viewport"
-      content="width=1200, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-
-<title>د شرکت مدیریتي سیسټم</title>
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
-<style>
-
-:root{
-  --bg:#EEF1F4;
-  --surface:#FFFFFF;
-  --ink:#1B2430;
-  --ink-soft:#5B6675;
-  --sidebar:#101826;
-  --sidebar-text:#C9D1DB;
-  --sidebar-text-dim:#7C8698;
-  --accent:#B8862B;
-  --accent-soft:#F3E7CE;
-  --ok:#2E7D5B;
-  --ok-soft:#DFF0E7;
-  --danger:#B3432B;
-  --danger-soft:#F6E1DA;
-  --info:#2E5FA3;
-  --info-soft:#DDE8F6;
-  --border:#DDE2E8;
-  --radius:10px;
-}
-
-*{
-  box-sizing:border-box;
-}
-
-html,
-body{
-  margin:0;
-  padding:0;
-  height:100%;
-  min-width:1200px !important;
-  width:1200px !important;
-  overflow-x:auto !important;
-}
-
-body{
-  font-family:'Vazirmatn','Segoe UI',Tahoma,sans-serif;
-  background:var(--bg);
-  color:var(--ink);
-  direction:rtl;
-  min-height:100vh;
-  min-width:1200px !important;
-  width:1200px !important;
-}
-
-#app{
-  min-height:100vh;
-  min-width:1200px !important;
-  width:1200px !important;
-}
-
-/* ================= LOGIN ================= */
-
+<!DOCTYPE html>  <html lang="ps" dir="rtl">  
+<head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  
+<title>د شرکت مدیریتي سیسټم</title>  
+<link rel="preconnect" href="https://fonts.googleapis.com">  
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">  
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>  
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>  
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>  
+<style>  
+  :root{  
+    --bg:#EEF1F4;  
+    --surface:#FFFFFF;  
+    --ink:#1B2430;  
+    --ink-soft:#5B6675;  
+    --sidebar:#101826;  
+    --sidebar-text:#C9D1DB;  
+    --sidebar-text-dim:#7C8698;  
+    --accent:#B8862B;  
+    --accent-soft:#F3E7CE;  
+    --ok:#2E7D5B;  
+    --ok-soft:#DFF0E7;  
+    --danger:#B3432B;  
+    --danger-soft:#F6E1DA;  
+    --info:#2E5FA3;  
+    --info-soft:#DDE8F6;  
+    --border:#DDE2E8;  
+    --radius:10px;  
+  }  
+  *{box-sizing:border-box;}  
+  html,body{margin:0;padding:0;height:100%;}  
+  body{  
+    font-family:'Vazirmatn','Segoe UI',Tahoma,sans-serif;  
+    background:var(--bg);  
+    color:var(--ink);  
+    direction:rtl;  
+    min-height:100vh;  
+  }  
+  #app{min-height:100vh;}  /* ---------- Login ---------- */
 .login-wrap{
-  min-height:100vh;
-  width:1200px !important;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:24px;
-  background:
-    radial-gradient(circle at 85% 10%,rgba(184,134,43,0.18),transparent 45%),
-    linear-gradient(180deg,#101826 0%,#182234 100%);
+min-height:100vh;
+display:flex;
+align-items:center;
+justify-content:center;
+padding:24px;
+background:
+radial-gradient(circle at 85% 10%, rgba(184,134,43,0.18), transparent 45%),
+linear-gradient(180deg, #101826 0%, #182234 100%);
 }
-
 .login-card{
-  background:var(--surface);
-  width:100%;
-  max-width:380px;
-  border-radius:16px;
-  padding:36px 30px;
-  box-shadow:0 30px 60px rgba(0,0,0,0.35);
+background:var(--surface);
+width:100%;
+max-width:380px;
+border-radius:16px;
+padding:36px 30px;
+box-shadow:0 30px 60px rgba(0,0,0,0.35);
 }
-
 .login-brand{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom:6px;
+display:flex;
+align-items:center;
+gap:10px;
+margin-bottom:6px;
 }
-
 .login-brand .mark{
-  width:34px;
-  height:34px;
-  border-radius:8px;
-  background:linear-gradient(135deg,#B8862B,#8f6a20);
-  flex:none;
+width:34px;height:34px;border-radius:8px;
+background:linear-gradient(135deg,#B8862B,#8f6a20);
+flex:none;
 }
-
-.login-brand span{
-  font-weight:800;
-  font-size:19px;
-  letter-spacing:.2px;
+.login-brand span{font-weight:800;font-size:19px;letter-spacing:.2px;}
+.login-card p.sub{color:var(--ink-soft);font-size:13.5px;margin:0 0 26px 0;}
+.field{margin-bottom:16px;}
+.field label{display:block;font-size:13px;color:var(--ink-soft);margin-bottom:6px;font-weight:600;}
+.field input, .field textarea, .field select{
+width:100%;
+padding:11px 13px;
+border:1.5px solid var(--border);
+border-radius:8px;
+font-family:inherit;
+font-size:14.5px;
+background:#FBFCFD;
+color:var(--ink);
+outline:none;
+transition:border-color .15s;
 }
-
-.login-card p.sub{
-  color:var(--ink-soft);
-  font-size:13.5px;
-  margin:0 0 26px 0;
-}
-
-.field{
-  margin-bottom:16px;
-}
-
-.field label{
-  display:block;
-  font-size:13px;
-  color:var(--ink-soft);
-  margin-bottom:6px;
-  font-weight:600;
-}
-
-.field input,
-.field textarea,
-.field select{
-  width:100%;
-  padding:11px 13px;
-  border:1.5px solid var(--border);
-  border-radius:8px;
-  font-family:inherit;
-  font-size:14.5px;
-  background:#FBFCFD;
-  color:var(--ink);
-  outline:none;
-  transition:border-color .15s;
-}
-
-.field input:focus,
-.field textarea:focus,
-.field select:focus{
-  border-color:var(--accent);
-}
-
-.field input:disabled,
-.btn:disabled{
-  opacity:.5;
-  cursor:not-allowed;
-}
-
+.field input:focus, .field textarea:focus, .field select:focus{border-color:var(--accent);}
+.field input:disabled, .btn:disabled{opacity:.5;cursor:not-allowed;}
 .btn{
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  gap:8px;
-  padding:11px 18px;
-  border-radius:8px;
-  border:none;
-  font-family:inherit;
-  font-weight:700;
-  font-size:14.5px;
-  cursor:pointer;
-  transition:filter .15s,transform .05s;
+display:inline-flex;align-items:center;justify-content:center;gap:8px;
+padding:11px 18px;
+border-radius:8px;
+border:none;
+font-family:inherit;
+font-weight:700;
+font-size:14.5px;
+cursor:pointer;
+transition:filter .15s, transform .05s;
 }
-
-.btn:active{
-  transform:scale(.98);
-}
-
-.btn-primary{
-  background:var(--ink);
-  color:#fff;
-}
-
-.btn-primary:hover{
-  filter:brightness(1.15);
-}
-
-.btn-gold{
-  background:var(--accent);
-  color:#fff;
-}
-
-.btn-gold:hover{
-  filter:brightness(1.08);
-}
-
-.btn-ok{
-  background:var(--ok);
-  color:#fff;
-}
-
-.btn-ok:hover{
-  filter:brightness(1.1);
-}
-
-.btn-danger{
-  background:var(--danger);
-  color:#fff;
-}
-
-.btn-danger:hover{
-  filter:brightness(1.1);
-}
-
-.btn-info{
-  background:var(--info);
-  color:#fff;
-}
-
-.btn-ghost{
-  background:transparent;
-  color:var(--ink-soft);
-  border:1.5px solid var(--border);
-}
-
-.btn-ghost:hover{
-  border-color:var(--ink-soft);
-  color:var(--ink);
-}
-
-.btn-block{
-  width:100%;
-}
-
-.btn-sm{
-  padding:6px 12px;
-  font-size:13px;
-  border-radius:6px;
-}
-
+.btn:active{transform:scale(.98);}
+.btn-primary{background:var(--ink);color:#fff;}
+.btn-primary:hover{filter:brightness(1.15);}
+.btn-gold{background:var(--accent);color:#fff;}
+.btn-gold:hover{filter:brightness(1.08);}
+.btn-ok{background:var(--ok);color:#fff;}
+.btn-ok:hover{filter:brightness(1.1);}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-danger:hover{filter:brightness(1.1);}
+.btn-info{background:var(--info);color:#fff;}
+.btn-ghost{background:transparent;color:var(--ink-soft);border:1.5px solid var(--border);}
+.btn-ghost:hover{border-color:var(--ink-soft);color:var(--ink);}
+.btn-block{width:100%;}
+.btn-sm{padding:6px 12px;font-size:13px;border-radius:6px;}
 .icon-btn{
-  width:34px;
-  height:34px;
-  border-radius:8px;
-  border:1.5px solid var(--border);
-  background:#fff;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  font-size:16px;
+width:34px;height:34px;border-radius:8px;border:1.5px solid var(--border);
+background:#fff;display:inline-flex;align-items:center;justify-content:center;
+cursor:pointer;font-size:16px;
 }
-
-.icon-btn:hover{
-  border-color:var(--accent);
-}
-
+.icon-btn:hover{border-color:var(--accent);}
 .icon-btn-sm{
-  width:28px;
-  height:28px;
-  border-radius:7px;
-  border:1.5px solid var(--border);
-  background:#fff;
-  display:inline-flex;
-  align-items:center;
-  justify-content:center;
-  cursor:pointer;
-  font-size:14px;
-  color:var(--danger);
+width:28px;height:28px;border-radius:7px;border:1.5px solid var(--border);
+background:#fff;display:inline-flex;align-items:center;justify-content:center;
+cursor:pointer;font-size:14px;color:var(--danger);
 }
-
-.icon-btn-sm:hover{
-  border-color:var(--danger);
-  background:var(--danger-soft);
-}
-
+.icon-btn-sm:hover{border-color:var(--danger);background:var(--danger-soft);}
 .icon-btn-copy{
-  border:none;
-  background:transparent;
-  cursor:pointer;
-  font-size:13px;
-  color:var(--ink-soft);
-  padding:2px 4px;
-  vertical-align:middle;
+border:none;background:transparent;cursor:pointer;font-size:13px;
+color:var(--ink-soft);padding:2px 4px;vertical-align:middle;
 }
-
-.icon-btn-copy:hover{
-  color:var(--accent);
-}
-
+.icon-btn-copy:hover{color:var(--accent);}
 .error-box{
-  background:var(--danger-soft);
-  color:var(--danger);
-  border-radius:8px;
-  padding:10px 12px;
-  font-size:13.5px;
-  margin-bottom:16px;
-  font-weight:600;
+background:var(--danger-soft);color:var(--danger);
+border-radius:8px;padding:10px 12px;font-size:13.5px;margin-bottom:16px;font-weight:600;
 }
 
-/* ================= BLOCKED ================= */
-
+/* ---------- Disabled full screen ---------- */
 .blocked-wrap{
-  min-height:100vh;
-  width:1200px !important;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:24px;
-  background:#101826;
+min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+background:#101826;
 }
-
 .blocked-card{
-  background:#fff;
-  border-radius:16px;
-  padding:40px 32px;
-  max-width:420px;
-  text-align:center;
-  box-shadow:0 30px 60px rgba(0,0,0,.35);
+background:#fff;border-radius:16px;padding:40px 32px;max-width:420px;text-align:center;
+box-shadow:0 30px 60px rgba(0,0,0,.35);
 }
-
 .blocked-card .icon{
-  width:56px;
-  height:56px;
-  border-radius:50%;
-  background:var(--danger-soft);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  margin:0 auto 18px auto;
-  font-size:26px;
-  color:var(--danger);
+width:56px;height:56px;border-radius:50%;background:var(--danger-soft);
+display:flex;align-items:center;justify-content:center;margin:0 auto 18px auto;
+font-size:26px;color:var(--danger);
 }
+.blocked-card h3{margin:0 0 10px 0;font-size:17px;}
+.blocked-card p{color:var(--ink-soft);font-size:14px;line-height:1.8;direction:ltr;text-align:center;}
 
-.blocked-card h3{
-  margin:0 0 10px 0;
-  font-size:17px;
-}
-
-.blocked-card p{
-  color:var(--ink-soft);
-  font-size:14px;
-  line-height:1.8;
-  direction:ltr;
-  text-align:center;
-}
-
-/* ================= DASHBOARD ================= */
-
-.shell{
-  display:flex !important;
-  flex-direction:row !important;
-  min-height:100vh;
-  min-width:1200px !important;
-  width:1200px !important;
-}
-
+/* ---------- Dashboard layout ---------- */
+.shell{display:flex;min-height:100vh;}
 .sidebar{
-  width:236px !important;
-  min-width:236px !important;
-  max-width:236px !important;
-  flex:0 0 236px !important;
-  background:var(--sidebar);
-  color:var(--sidebar-text);
-  display:flex;
-  flex-direction:column !important;
-  padding:22px 16px;
+width:236px;flex:none;background:var(--sidebar);color:var(--sidebar-text);
+display:flex;flex-direction:column;padding:22px 16px;
 }
-
-.sidebar .brand{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  padding:0 6px 22px 6px;
-  border-bottom:1px solid rgba(255,255,255,.08);
-  margin-bottom:18px;
-}
-
-.sidebar .brand .mark{
-  width:30px;
-  height:30px;
-  border-radius:7px;
-  background:linear-gradient(135deg,#B8862B,#8f6a20);
-  flex:none;
-}
-
-.sidebar .brand b{
-  font-size:15.5px;
-}
-
+.sidebar .brand{display:flex;align-items:center;gap:10px;padding:0 6px 22px 6px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:18px;}
+.sidebar .brand .mark{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,#B8862B,#8f6a20);flex:none;}
+.sidebar .brand b{font-size:15.5px;}
 .sidebar .role-tag{
-  font-size:11.5px;
-  color:var(--sidebar-text-dim);
-  background:rgba(255,255,255,.06);
-  display:inline-block;
-  padding:3px 10px;
-  border-radius:20px;
-  margin-bottom:18px;
+font-size:11.5px;color:var(--sidebar-text-dim);
+background:rgba(255,255,255,.06);
+display:inline-block;padding:3px 10px;border-radius:20px;margin-bottom:18px;
 }
-
 .nav-item{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:11px 12px;
-  border-radius:8px;
-  margin-bottom:4px;
-  color:var(--sidebar-text);
-  cursor:pointer;
-  font-size:14px;
-  font-weight:600;
-  transition:background .12s;
+display:flex;align-items:center;justify-content:space-between;
+padding:11px 12px;border-radius:8px;margin-bottom:4px;
+color:var(--sidebar-text);cursor:pointer;font-size:14px;font-weight:600;
+transition:background .12s;
 }
-
-.nav-item:hover{
-  background:rgba(255,255,255,.06);
-}
-
-.nav-item.active{
-  background:var(--accent);
-  color:#fff;
-}
-
+.nav-item:hover{background:rgba(255,255,255,.06);}
+.nav-item.active{background:var(--accent);color:#fff;}
 .nav-badge{
-  background:var(--danger);
-  color:#fff;
-  font-size:11px;
-  font-weight:800;
-  min-width:18px;
-  height:18px;
-  border-radius:9px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:0 5px;
+background:var(--danger);color:#fff;font-size:11px;font-weight:800;
+min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px;
 }
-
-.sidebar .spacer{
-  flex:1;
-}
-
+.sidebar .spacer{flex:1;}
 .sidebar .user-box{
-  border-top:1px solid rgba(255,255,255,.08);
-  padding-top:14px;
-  margin-top:8px;
+border-top:1px solid rgba(255,255,255,.08);padding-top:14px;margin-top:8px;
 }
+.sidebar .user-box .uname{font-size:13.5px;font-weight:700;color:#fff;margin-bottom:8px;}
+.main{flex:1;padding:30px 34px;overflow-y:auto;min-width:0;}
+.main-header{margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
+.main-header h2{margin:0 0 4px 0;font-size:21px;}
+.main-header p{margin:0;color:var(--ink-soft);font-size:13.5px;}
+.header-actions{display:flex;gap:8px;}
 
-.sidebar .user-box .uname{
-  font-size:13.5px;
-  font-weight:700;
-  color:#fff;
-  margin-bottom:8px;
-}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:20px;}
+.card h4{margin:0 0 16px 0;font-size:15px;}
+.row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;}
+.row .field{flex:1;min-width:180px;margin-bottom:0;}
 
-.main{
-  flex:0 0 964px !important;
-  width:964px !important;
-  min-width:964px !important;
-  max-width:964px !important;
-  padding:30px 34px;
-  overflow-y:auto;
-}
-
-.main-header{
-  margin-bottom:24px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-  flex-wrap:wrap;
-}
-
-.main-header h2{
-  margin:0 0 4px 0;
-  font-size:21px;
-}
-
-.main-header p{
-  margin:0;
-  color:var(--ink-soft);
-  font-size:13.5px;
-}
-
-.header-actions{
-  display:flex;
-  gap:8px;
-}
-
-.card{
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:var(--radius);
-  padding:22px;
-  margin-bottom:20px;
-}
-
-.card h4{
-  margin:0 0 16px 0;
-  font-size:15px;
-}
-
-.row{
-  display:flex;
-  gap:14px;
-  flex-wrap:wrap;
-  align-items:flex-end;
-}
-
-.row .field{
-  flex:1;
-  min-width:180px;
-  margin-bottom:0;
-}
-
-table{
-  width:100%;
-  border-collapse:collapse;
-  font-size:13.4px;
-}
-
-th,
-td{
-  padding:11px 10px;
-  text-align:right;
-  border-bottom:1px solid var(--border);
-}
-
-th{
-  color:var(--ink-soft);
-  font-weight:700;
-  font-size:12px;
-}
-
-tr:last-child td{
-  border-bottom:none;
-}
-
+table{width:100%;border-collapse:collapse;font-size:13.4px;}
+th,td{padding:11px 10px;text-align:right;border-bottom:1px solid var(--border);}
+th{color:var(--ink-soft);font-weight:700;font-size:12px;}
+tr:last-child td{border-bottom:none;}
 .badge{
-  display:inline-flex;
-  align-items:center;
-  gap:5px;
-  padding:4px 10px;
-  border-radius:20px;
-  font-size:12px;
-  font-weight:700;
-  cursor:default;
+display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;
+cursor:default;
 }
-
-.badge.clickable{
-  cursor:pointer;
-  text-decoration:underline;
-  text-underline-offset:3px;
-}
-
-.badge-pending{
-  background:var(--accent-soft);
-  color:#7a5a17;
-}
-
-.badge-process{
-  background:var(--info-soft);
-  color:var(--info);
-}
-
-.badge-approved{
-  background:var(--ok-soft);
-  color:var(--ok);
-}
-
-.badge-rejected{
-  background:var(--danger-soft);
-  color:var(--danger);
-}
-
-.badge-resubmit{
-  background:#EFE3F7;
-  color:#6b3fa0;
-}
-
-.badge-enabled{
-  background:var(--ok-soft);
-  color:var(--ok);
-}
-
-.badge-disabled{
-  background:var(--danger-soft);
-  color:var(--danger);
-}
-
-.empty-state{
-  color:var(--ink-soft);
-  font-size:13.5px;
-  padding:26px 10px;
-  text-align:center;
-}
-
+.badge.clickable{cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+.badge-pending{background:var(--accent-soft);color:#7a5a17;}
+.badge-process{background:var(--info-soft);color:var(--info);}
+.badge-approved{background:var(--ok-soft);color:var(--ok);}
+.badge-rejected{background:var(--danger-soft);color:var(--danger);}
+.badge-resubmit{background:#EFE3F7;color:#6b3fa0;}
+.badge-enabled{background:var(--ok-soft);color:var(--ok);}
+.badge-disabled{background:var(--danger-soft);color:var(--danger);}
+.empty-state{color:var(--ink-soft);font-size:13.5px;padding:26px 10px;text-align:center;}
 .toast{
-  position:fixed;
-  bottom:22px;
-  left:50%;
-  transform:translateX(-50%);
-  background:var(--ink);
-  color:#fff;
-  padding:12px 22px;
-  border-radius:9px;
-  font-size:13.5px;
-  font-weight:600;
-  box-shadow:0 10px 30px rgba(0,0,0,.25);
-  z-index:999;
+position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+background:var(--ink);color:#fff;padding:12px 22px;border-radius:9px;font-size:13.5px;font-weight:600;
+box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:999;
 }
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+.note-text{color:var(--ink-soft);font-size:12.5px;margin:14px 0 0 0;}
+.small-muted{color:var(--ink-soft);font-size:11.5px;}
 
-.grid-2{
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:20px;
-}
-
-.note-text{
-  color:var(--ink-soft);
-  font-size:12.5px;
-  margin:14px 0 0 0;
-}
-
-.small-muted{
-  color:var(--ink-soft);
-  font-size:11.5px;
-}
-
-/* ================= MODAL ================= */
-
+/* ---------- Modal ---------- */
 .modal-backdrop{
-  position:fixed;
-  inset:0;
-  background:rgba(16,24,38,.55);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-  z-index:500;
+position:fixed;inset:0;background:rgba(16,24,38,.55);
+display:flex;align-items:center;justify-content:center;padding:20px;z-index:500;
 }
-
 .modal-card{
-  background:#fff;
-  border-radius:14px;
-  padding:26px;
-  max-width:460px;
-  width:100%;
-  box-shadow:0 30px 60px rgba(0,0,0,.35);
-  position:relative;
+background:#fff;border-radius:14px;padding:26px;max-width:460px;width:100%;
+box-shadow:0 30px 60px rgba(0,0,0,.35);
 }
-
-.modal-card h3{
-  margin:0 0 14px 0;
-  font-size:16.5px;
-}
-
-.modal-actions{
-  display:flex;
-  gap:10px;
-  margin-top:18px;
-}
-
-.modal-actions .btn{
-  flex:1;
-}
-
+.modal-card h3{margin:0 0 14px 0;font-size:16.5px;}
+.modal-actions{display:flex;gap:10px;margin-top:18px;}
+.modal-actions .btn{flex:1;}
 .modal-close{
-  position:absolute;
-  top:14px;
-  left:14px;
+position:absolute;top:14px;left:14px;
 }
-
-/* ================= FORCE DESKTOP ON SMALL SCREENS ================= */
+.modal-card{position:relative;}
 
 @media (max-width:860px){
-
-  html,
-  body{
-    min-width:1200px !important;
-    width:1200px !important;
-    overflow-x:auto !important;
-  }
-
-  #app{
-    min-width:1200px !important;
-    width:1200px !important;
-  }
-
-  .shell{
-    display:flex !important;
-    flex-direction:row !important;
-    min-width:1200px !important;
-    width:1200px !important;
-  }
-
-  .sidebar{
-    width:236px !important;
-    min-width:236px !important;
-    max-width:236px !important;
-    flex:0 0 236px !important;
-    display:flex !important;
-    flex-direction:column !important;
-    flex-wrap:nowrap !important;
-    padding:22px 16px !important;
-    align-items:stretch !important;
-  }
-
-  .sidebar .brand{
-    width:auto !important;
-    padding:0 6px 22px 6px !important;
-    margin-bottom:18px !important;
-    border-bottom:1px solid rgba(255,255,255,.08) !important;
-  }
-
-  .sidebar .role-tag{
-    margin-bottom:18px !important;
-  }
-
-  .sidebar .spacer{
-    display:block !important;
-  }
-
-  .sidebar .user-box{
-    border-top:1px solid rgba(255,255,255,.08) !important;
-    padding-top:14px !important;
-    margin-top:8px !important;
-    margin-right:0 !important;
-  }
-
-  .nav-item{
-    margin-bottom:4px !important;
-  }
-
-  .main{
-    width:964px !important;
-    min-width:964px !important;
-    max-width:964px !important;
-    flex:0 0 964px !important;
-    padding:30px 34px !important;
-  }
-
-  .grid-2{
-    grid-template-columns:1fr 1fr !important;
-  }
-
-  table{
-    font-size:13.4px !important;
-  }
+.shell{flex-direction:column;}
+.sidebar{width:100%;flex-direction:row;flex-wrap:wrap;padding:14px;align-items:center;}
+.sidebar .brand{border-bottom:none;margin-bottom:0;padding:0;flex:none;width:auto;}
+.sidebar .role-tag{margin-bottom:0;}
+.sidebar .spacer{display:none;}
+.sidebar .user-box{border-top:none;padding-top:0;margin-top:0;margin-right:auto;}
+.nav-item{margin-bottom:0;}
+.main{padding:20px 16px;}
+.grid-2{grid-template-columns:1fr;}
+table{font-size:12px;}
 }
-
 </style>
-</head>
 
-<body>
-
-<div id="app"></div>
-
-<script>
-
-(function(){
-
-"use strict";
-
-/* ================= FIREBASE ================= */
-
+</head>  
+<body>  
+<div id="app"></div>  
+<script>  
+(function(){  
+  "use strict";  // ====== FIREBASE CONFIG ======
 var firebaseConfig = {
-  apiKey:"AIzaSyCFI4CdRV6IwyjmifRjUlzzT_28I47vgh0",
-  authDomain:"companyportal-f52e0.firebaseapp.com",
-  projectId:"companyportal-f52e0",
-  storageBucket:"companyportal-f52e0.firebasestorage.app",
-  messagingSenderId:"314049949289",
-  appId:"1:314049949289:web:889ca48f03540261f5fcf8"
+apiKey: "AIzaSyCFI4CdRV6IwyjmifRjUlzzT_28I47vgh0",
+authDomain: "companyportal-f52e0.firebaseapp.com",
+projectId: "companyportal-f52e0",
+storageBucket: "companyportal-f52e0.firebasestorage.app",
+messagingSenderId: "314049949289",
+appId: "1:314049949289:web:889ca48f03540261f5fcf8"
 };
-
 firebase.initializeApp(firebaseConfig);
+var db = firebase.firestore();
 
-var db=firebase.firestore();
-
-/* ================= STATE ================= */
-
-var state={
-  currentUser:null,
-  users:[],
-  bundles:[],
-  complaints:[],
-  rolls:[],
-  managerResetAt:{},
-  ntoResetAt:{},
-  section:null,
-  loading:true,
-  error:"",
-  unsubs:null,
-  modal:null,
-  mySessionToken:null,
-  knownBundleIds:null
+var state = {
+currentUser:null,
+users:[],
+bundles:[],
+complaints:[],
+rolls:[],
+managerResetAt:{}, // { managerUsername: timestamp }
+ntoResetAt:{}, // { ntoUsername: timestamp }
+section:null,
+loading:true,
+error:"",
+unsubs:null,
+modal:null, // {type:'process'|'resubmit', bundleId, previousStatus}
+mySessionToken:null, // in-memory only; used for single-session manager enforcement
+knownBundleIds:null  // Set of bundle ids seen so far, for new-submission alerts
 };
 
-/* ================= STORAGE ================= */
-
+// ---------------- storage helpers (Firestore) ----------------
 function sGetDoc(name){
-
-  return db.collection("appdata").doc(name).get().then(function(snap){
-
-    return(
-      snap.exists &&
-      snap.data().list
-    )
-    ? snap.data().list
-    : null;
-
-  }).catch(function(){
-    return null;
-  });
-
+return db.collection('appdata').doc(name).get().then(function(snap){
+return (snap.exists && snap.data().list) ? snap.data().list : null;
+}).catch(function(){ return null; });
 }
-
-function sSetDoc(name,list){
-
-  return db.collection("appdata")
-    .doc(name)
-    .set({list:list});
-
+function sSetDoc(name, list){
+return db.collection('appdata').doc(name).set({list:list});
 }
-
-function loadJSON(key,fallback){
-
-  return sGetDoc(key).then(function(v){
-    return v || fallback;
-  });
-
+function loadJSON(key, fallback){
+return sGetDoc(key).then(function(v){ return v || fallback; });
 }
-
-function saveJSON(key,obj){
-
-  return sSetDoc(key,obj);
-
+function saveJSON(key, obj){
+return sSetDoc(key, obj);
 }
+function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 
-function uid(){
-
-  return Date.now().toString(36)+
-    Math.random().toString(36).slice(2,7);
-
-}
-
-/* ================= DEFAULT ADMIN ================= */
-
-var DEFAULT_ADMIN_USER="admin@roshan.af";
-
-var DEFAULT_ADMIN_PASS="Roshan.af.admin@af&786";
-
-/* ================= SEED ================= */
+// ---------------- data bootstrap ----------------
+var DEFAULT_ADMIN_USER = 'admin@roshan.af';
+var DEFAULT_ADMIN_PASS = 'Roshan.af.admin@af&786';
 
 function ensureSeed(){
-
-  return loadJSON("users",null).then(function(users){
-
-    if(users && users.length){
-
-      state.users=users;
-
-      var legacy=state.users.find(function(u){
-
-        return(
-          u.username==="admin" &&
-          u.role==="admin"
-        );
-
-      });
-
-      if(legacy){
-
-        legacy.username=DEFAULT_ADMIN_USER;
-        legacy.password=DEFAULT_ADMIN_PASS;
-
-        return persistUsers();
-
-      }
-
-      return;
-
-    }
-
-    var seeded=[{
-
-      username:DEFAULT_ADMIN_USER,
-      password:DEFAULT_ADMIN_PASS,
-      role:"admin",
-      status:"enabled",
-      createdBy:"system"
-
-    }];
-
-    state.users=seeded;
-
-    return saveJSON("users",seeded);
-
-  });
-
+return loadJSON('users', null).then(function(users){
+if(users && users.length){
+state.users = users;
+// migrate legacy admin account to the configured credentials
+var legacy = state.users.find(function(u){return u.username==='admin' && u.role==='admin';});
+if(legacy){
+legacy.username = DEFAULT_ADMIN_USER;
+legacy.password = DEFAULT_ADMIN_PASS;
+return persistUsers();
 }
-
-/* ================= LOAD ALL ================= */
+return;
+}
+var seeded = [{username:DEFAULT_ADMIN_USER, password:DEFAULT_ADMIN_PASS, role:'admin', status:'enabled', createdBy:'system'}];
+state.users = seeded;
+return saveJSON('users', seeded);
+});
+}
 
 function loadAll(){
-
-  return Promise.all([
-
-    ensureSeed(),
-
-    loadJSON("bundles",[]).then(function(v){
-      state.bundles=v;
-    }),
-
-    loadJSON("complaints",[]).then(function(v){
-      state.complaints=v;
-    }),
-
-    loadJSON("rolls",[]).then(function(v){
-      state.rolls=v;
-    }),
-
-    db.collection("appdata")
-      .doc("reportMeta")
-      .get()
-      .then(function(snap){
-
-        state.managerResetAt=
-          snap.exists &&
-          snap.data().managerResetAt
-          ? snap.data().managerResetAt
-          : {};
-
-        state.ntoResetAt=
-          snap.exists &&
-          snap.data().ntoResetAt
-          ? snap.data().ntoResetAt
-          : {};
-
-      })
-      .catch(function(){
-
-        state.managerResetAt={};
-        state.ntoResetAt={};
-
-      })
-
-  ]);
-
+return Promise.all([
+ensureSeed(),
+loadJSON('bundles', []).then(function(v){ state.bundles = v; }),
+loadJSON('complaints', []).then(function(v){ state.complaints = v; }),
+loadJSON('rolls', []).then(function(v){ state.rolls = v; }),
+db.collection('appdata').doc('reportMeta').get().then(function(snap){
+state.managerResetAt = (snap.exists && snap.data().managerResetAt) ? snap.data().managerResetAt : {};
+state.ntoResetAt = (snap.exists && snap.data().ntoResetAt) ? snap.data().ntoResetAt : {};
+}).catch(function(){ state.managerResetAt = {}; state.ntoResetAt = {}; })
+]);
 }
 
-function persistUsers(){
-  return saveJSON("users",state.users);
-}
+function persistUsers(){ return saveJSON('users', state.users); }
+function persistBundles(){ return saveJSON('bundles', state.bundles); }
+function persistComplaints(){ return saveJSON('complaints', state.complaints); }
+function persistRolls(){ return saveJSON('rolls', state.rolls); }
+function persistReportMeta(){ return db.collection('appdata').doc('reportMeta').set({managerResetAt: state.managerResetAt, ntoResetAt: state.ntoResetAt}); }
 
-function persistBundles(){
-  return saveJSON("bundles",state.bundles);
-}
-
-function persistComplaints(){
-  return saveJSON("complaints",state.complaints);
-}
-
-function persistRolls(){
-  return saveJSON("rolls",state.rolls);
-}
-
-function persistReportMeta(){
-
-  return db.collection("appdata")
-    .doc("reportMeta")
-    .set({
-      managerResetAt:state.managerResetAt,
-      ntoResetAt:state.ntoResetAt
-    });
-
-}
-
-/* ================= MENUS ================= */
-
-var MENUS={
-
-  admin:[
-    {key:"managers",label:"د منیجر یوزران"},
-    {key:"ntos",label:"د NTO یوزران"},
-    {key:"sales",label:"د پلور راپور"},
-    {key:"report",label:"راپور"},
-    {key:"nto_report",label:"د NTO راپور"},
-    {key:"rolls",label:"د شرکت مقررات"},
-    {key:"complaints",label:"شکایتونه"}
-  ],
-
-  manager:[
-    {key:"ntos",label:"د NTO یوزران"},
-    {key:"sales",label:"د پلور راپور"},
-    {key:"report",label:"راپور"}
-  ],
-
-  nto:[
-    {key:"bundle",label:"بنډل"},
-    {key:"sales",label:"د پلور راپور"},
-    {key:"report",label:"راپور"},
-    {key:"complaints",label:"شکایتونه"}
-  ]
-
+// ---------------- role menu config ----------------
+var MENUS = {
+admin:[
+{key:'managers', label:'د منیجر یوزران'},
+{key:'ntos', label:'د NTO یوزران'},
+{key:'sales', label:'د پلور راپور'},
+{key:'report', label:'راپور'},
+{key:'nto_report', label:'د NTO راپور'},
+{key:'rolls', label:'د شرکت مقررات'},
+{key:'complaints', label:'شکایتونه'}
+],
+manager:[
+{key:'ntos', label:'د NTO یوزران'},
+{key:'sales', label:'د پلور راپور'},
+{key:'report', label:'راپور'}
+],
+nto:[
+{key:'bundle', label:'بنډل'},
+{key:'sales', label:'د پلور راپور'},
+{key:'report', label:'راپور'},
+{key:'complaints', label:'شکایتونه'}
+]
 };
+var ROLE_LABEL = {admin:'اډمین', manager:'منیجر', nto:'NTO'};
 
-var ROLE_LABEL={
-  admin:"اډمین",
-  manager:"منیجر",
-  nto:"NTO"
-};
-
-/* ================= RENDER ================= */
-
+// ---------------- render root ----------------
 function render(){
-
-  var root=document.getElementById("app");
-
-  if(state.loading){
-
-    root.innerHTML=
-      '<div class="login-wrap">'+
-      '<div class="login-card">'+
-      '<p class="sub">بار کیږي...</p>'+
-      '</div>'+
-      '</div>';
-
-    return;
-
-  }
-
-  if(!state.currentUser){
-
-    renderLogin(root);
-
-    return;
-
-  }
-
-  var fresh=state.users.find(function(u){
-
-    return(
-      u.username===
-      state.currentUser.username
-    );
-
-  });
-
-  if(!fresh || fresh.status==="disabled"){
-
-    renderBlocked(root);
-
-    return;
-
-  }
-
-  if(
-    fresh.role==="manager" &&
-    state.mySessionToken &&
-    fresh.sessionToken &&
-    fresh.sessionToken!==state.mySessionToken
-  ){
-
-    renderSessionReplaced(root);
-
-    return;
-
-  }
-
-  renderDashboard(root);
-
-  renderModalLayer();
-
+var root = document.getElementById('app');
+if(state.loading){
+root.innerHTML = '<div class="login-wrap"><div class="login-card"><p class="sub">بار کیږي...</p></div></div>';
+return;
+}
+if(!state.currentUser){
+renderLogin(root);
+return;
+}
+var fresh = state.users.find(function(u){return u.username===state.currentUser.username;});
+if(!fresh || fresh.status==='disabled'){
+renderBlocked(root);
+return;
+}
+if(fresh.role==='manager' && state.mySessionToken && fresh.sessionToken && fresh.sessionToken!==state.mySessionToken){
+renderSessionReplaced(root);
+return;
+}
+renderDashboard(root);
+renderModalLayer();
 }
 
-/* ================= LOGIN ================= */
-
+// ---------------- LOGIN VIEW ----------------
 function renderLogin(root){
+root.innerHTML =
+'<div class="login-wrap"><div class="login-card">'+
+'<div class="login-brand"><div class="mark"></div><span>شرکت پورټال</span></div>'+
+'<p class="sub">دننه کیدو لپاره خپل یوزرنوم او پاسورډ ولیکئ</p>'+
+(state.error ? '<div class="error-box">'+escapeHtml(state.error)+'</div>' : '')+
+'<div class="field"><label>یوزرنوم</label><input id="li-user" type="text" autocomplete="username"></div>'+
+'<div class="field"><label>پاسورډ</label><input id="li-pass" type="password" autocomplete="current-password"></div>'+
+'<button class="btn btn-primary btn-block" id="li-btn">دننه شئ</button>'+
+'</div></div>';
 
-  root.innerHTML=
-
-    '<div class="login-wrap">'+
-
-    '<div class="login-card">'+
-
-    '<div class="login-brand">'+
-    '<div class="mark"></div>'+
-    '<span>شرکت پورټال</span>'+
-    '</div>'+
-
-    '<p class="sub">دننه کیدو لپاره خپل یوزرنوم او پاسورډ ولیکئ</p>'+
-
-    (
-      state.error
-      ?
-      '<div class="error-box">'+
-      escapeHtml(state.error)+
-      '</div>'
-      :
-      ''
-    )+
-
-    '<div class="field">'+
-    '<label>یوزرنوم</label>'+
-    '<input id="li-user" type="text" autocomplete="username">'+
-    '</div>'+
-
-    '<div class="field">'+
-    '<label>پاسورډ</label>'+
-    '<input id="li-pass" type="password" autocomplete="current-password">'+
-    '</div>'+
-
-    '<button class="btn btn-primary btn-block" id="li-btn">'+
-    'دننه شئ'+
-    '</button>'+
-
-    '</div>'+
-    '</div>';
-
-  document.getElementById("li-btn").onclick=doLogin;
-
-  document.getElementById("li-pass")
-    .addEventListener("keydown",function(e){
-
-      if(e.key==="Enter"){
-        doLogin();
-      }
-
-    });
+document.getElementById('li-btn').onclick = doLogin;  
+document.getElementById('li-pass').addEventListener('keydown', function(e){  
+  if(e.key==='Enter') doLogin();  
+});
 
 }
-
-/* ================= LOGIN FUNCTION ================= */
 
 function doLogin(){
-
-  var u=document.getElementById("li-user").value.trim();
-
-  var p=document.getElementById("li-pass").value;
-
-  if(!u || !p){
-
-    state.error=
-      "مهرباني وکړئ یوزرنوم او پاسورډ دواړه ولیکئ.";
-
-    render();
-
-    return;
-
-  }
-
-  var found=state.users.find(function(x){
-
-    return x.username===u;
-
-  });
-
-  if(!found || found.password!==p){
-
-    state.error=
-      "یوزرنوم یا پاسورډ سم نه دی.";
-
-    render();
-
-    return;
-
-  }
-
-  state.error="";
-
-  state.currentUser={
-    username:found.username,
-    role:found.role
-  };
-
-  state.section=
-    MENUS[found.role][0].key;
-
-  if(found.role==="manager"){
-
-    var tok=uid();
-
-    found.sessionToken=tok;
-
-    state.mySessionToken=tok;
-
-    persistUsers();
-
-  }
-
-  render();
-
+var u = document.getElementById('li-user').value.trim();
+var p = document.getElementById('li-pass').value;
+if(!u || !p){
+state.error = 'مهرباني وکړئ یوزرنوم او پاسورډ دواړه ولیکئ.';
+render(); return;
+}
+var found = state.users.find(function(x){return x.username===u;});
+if(!found || found.password!==p){
+state.error = 'یوزرنوم یا پاسورډ سم نه دی.';
+render(); return;
+}
+state.error='';
+state.currentUser = {username:found.username, role:found.role};
+state.section = MENUS[found.role][0].key;
+if(found.role==='manager'){
+var tok = uid();
+found.sessionToken = tok;
+state.mySessionToken = tok;
+persistUsers();
+}
+render();
 }
 
-/* ================= BLOCKED ================= */
-
+// ---------------- BLOCKED VIEW ----------------
 function renderBlocked(root){
-
-  root.innerHTML=
-
-    '<div class="blocked-wrap">'+
-    '<div class="blocked-card">'+
-
-    '<div class="icon">&#9888;</div>'+
-
-    '<h3>ستاسو دننه کیدل بند شوي دي</h3>'+
-
-    '<p>'+
-    'Your user has been disabled by the Admin. Please contact them.'+
-    '</p>'+
-
-    '<button class="btn btn-ghost" id="bk-back" style="margin-top:18px;">'+
-    'بیرته لاگ-این ته'+
-    '</button>'+
-
-    '</div>'+
-    '</div>';
-
-  document.getElementById("bk-back").onclick=function(){
-
-    state.currentUser=null;
-
-    render();
-
-  };
-
+root.innerHTML =
+'<div class="blocked-wrap"><div class="blocked-card">'+
+'<div class="icon">⚠</div>'+
+'<h3 style="direction:rtl;">ستاسو دننه کیدل بند شوي دي</h3>'+
+'<p>Your user has been disabled by the Admin. Please contact them.</p>'+
+'<button class="btn btn-ghost" id="bk-back" style="margin-top:18px;">بیرته لاگ-این ته</button>'+
+'</div></div>';
+document.getElementById('bk-back').onclick = function(){
+state.currentUser = null;
+render();
+};
 }
 
-/* ================= SESSION REPLACED ================= */
-
+// ---------------- SESSION REPLACED VIEW (manager single-session) ----------------
 function renderSessionReplaced(root){
-
-  root.innerHTML=
-
-    '<div class="blocked-wrap">'+
-    '<div class="blocked-card">'+
-
-    '<div class="icon">&#9888;</div>'+
-
-    '<h3>ستاسو حساب په بل ځای کې دننه شوی</h3>'+
-
-    '<p style="direction:rtl;">'+
-    'ستاسو منیجر حساب په بل ډیوایس یا براوزر کې دننه شوی، نو دلته له سیسټم څخه وایستل شوئ.'+
-    '</p>'+
-
-    '<button class="btn btn-ghost" id="sr-back" style="margin-top:18px;">'+
-    'بیرته لاگ-این ته'+
-    '</button>'+
-
-    '</div>'+
-    '</div>';
-
-  document.getElementById("sr-back").onclick=function(){
-
-    state.currentUser=null;
-    state.mySessionToken=null;
-
-    render();
-
-  };
-
+root.innerHTML =
+'<div class="blocked-wrap"><div class="blocked-card">'+
+'<div class="icon">⚠</div>'+
+'<h3 style="direction:rtl;">ستاسو حساب په بل ځای کې دننه شوی</h3>'+
+'<p style="direction:rtl;">ستاسو منیجر حساب په بل ډیوایس یا براوزر کې دننه شوی، نو دلته له سیسټم څخه وایستل شوئ.</p>'+
+'<button class="btn btn-ghost" id="sr-back" style="margin-top:18px;">بیرته لاگ-این ته</button>'+
+'</div></div>';
+document.getElementById('sr-back').onclick = function(){
+state.currentUser = null;
+state.mySessionToken = null;
+render();
+};
 }
 
-/* ================= DASHBOARD ================= */
-
+// ---------------- DASHBOARD SHELL ----------------
 function renderDashboard(root){
-
-  var role=state.currentUser.role;
-
-  var menu=MENUS[role];
-
-  if(
-    !state.section ||
-    !menu.find(function(m){
-      return m.key===state.section;
-    })
-  ){
-
-    state.section=menu[0].key;
-
-  }
-
-  var actionableCount=
-    state.bundles.filter(function(b){
-
-      return(
-        b.status==="pending" ||
-        b.status==="resubmit"
-      );
-
-    }).length;
-
-  var myUnseen=
-    state.bundles.filter(function(b){
-
-      return(
-        b.ntoUsername===state.currentUser.username &&
-        (
-          b.status==="approved" ||
-          b.status==="rejected"
-        ) &&
-        !b.ntoSeen
-      );
-
-    }).length;
-
-  var navHtml=menu.map(function(m){
-
-    var badge="";
-
-    if(m.key==="sales"){
-
-      if(
-        (role==="admin" || role==="manager") &&
-        actionableCount>0
-      ){
-
-        badge=
-          '<span class="nav-badge">'+
-          actionableCount+
-          '</span>';
-
-      }else if(
-        role==="nto" &&
-        myUnseen>0
-      ){
-
-        badge=
-          '<span class="nav-badge">'+
-          myUnseen+
-          '</span>';
-
-      }
-
-    }
-
-    return(
-      '<div class="nav-item '+
-      (
-        state.section===m.key
-        ? "active"
-        : ""
-      )+
-      '" data-sec="'+
-      m.key+
-      '">'+
-      '<span>'+
-      m.label+
-      '</span>'+
-      badge+
-      '</div>'
-    );
-
-  }).join("");
-
-  root.innerHTML=
-
-    '<div class="shell">'+
-
-    '<div class="sidebar">'+
-
-    '<div class="brand">'+
-    '<div class="mark"></div>'+
-    '<b>شرکت پورټال</b>'+
-    '</div>'+
-
-    '<div class="role-tag">'+
-    ROLE_LABEL[role]+
-    '</div>'+
-
-    '<div style="display:flex;flex-direction:column;gap:2px;flex:1;">'+
-    navHtml+
-    '</div>'+
-
-    '<div class="spacer"></div>'+
-
-    '<div class="user-box">'+
-
-    '<div class="uname">'+
-    escapeHtml(state.currentUser.username)+
-    '</div>'+
-
-    '<button class="btn btn-ghost btn-sm btn-block" id="logout-btn">'+
-    'وتل (Logout)'+
-    '</button>'+
-
-    '</div>'+
-
-    '</div>'+
-
-    '<div class="main" id="main-area"></div>'+
-
-    '</div>';
-
-  Array.prototype.forEach.call(
-    document.querySelectorAll(".nav-item"),
-    function(el){
-
-      el.onclick=function(){
-
-        state.section=
-          el.getAttribute("data-sec");
-
-        if(
-          state.section==="sales" &&
-          role==="nto"
-        ){
-
-          state.bundles.forEach(function(b){
-
-            if(
-              b.ntoUsername===
-              state.currentUser.username &&
-              (
-                b.status==="approved" ||
-                b.status==="rejected"
-              )
-            ){
-
-              b.ntoSeen=true;
-
-            }
-
-          });
-
-          persistBundles();
-
-        }
-
-        render();
-
-      };
-
-    }
-  );
-
-  document.getElementById("logout-btn")
-    .onclick=function(){
-
-      state.currentUser=null;
-      state.section=null;
-
-      render();
-
-    };
-
-  renderSection(
-    document.getElementById("main-area")
-  );
-
+var role = state.currentUser.role;
+var menu = MENUS[role];
+if(!state.section || !menu.find(function(m){return m.key===state.section;})){
+state.section = menu[0].key;
 }
 
-/* ================= TITLES ================= */
+var actionableCount = state.bundles.filter(function(b){return b.status==='pending' || b.status==='resubmit';}).length;  
+var myUnseen = state.bundles.filter(function(b){  
+  return b.ntoUsername===state.currentUser.username && (b.status==='approved'||b.status==='rejected') && !b.ntoSeen;  
+}).length;  
+
+var navHtml = menu.map(function(m){  
+  var badge = '';  
+  if(m.key==='sales'){  
+    if((role==='admin'||role==='manager') && actionableCount>0){  
+      badge = '<span class="nav-badge">'+actionableCount+'</span>';  
+    }else if(role==='nto' && myUnseen>0){  
+      badge = '<span class="nav-badge">'+myUnseen+'</span>';  
+    }  
+  }  
+  return '<div class="nav-item '+(state.section===m.key?'active':'')+'" data-sec="'+m.key+'">'+  
+    '<span>'+m.label+'</span>'+badge+'</div>';  
+}).join('');  
+
+root.innerHTML =  
+  '<div class="shell">'+  
+    '<div class="sidebar">'+  
+      '<div class="brand"><div class="mark"></div><b>شرکت پورټال</b></div>'+  
+      '<div class="role-tag">'+ROLE_LABEL[role]+'</div>'+  
+      '<div style="display:flex;flex-direction:column;gap:2px;flex:1;">'+navHtml+'</div>'+  
+      '<div class="spacer"></div>'+  
+      '<div class="user-box">'+  
+        '<div class="uname">'+escapeHtml(state.currentUser.username)+'</div>'+  
+        '<button class="btn btn-ghost btn-sm btn-block" id="logout-btn">وتل (Logout)</button>'+  
+      '</div>'+  
+    '</div>'+  
+    '<div class="main" id="main-area"></div>'+  
+  '</div>';  
+
+Array.prototype.forEach.call(document.querySelectorAll('.nav-item'), function(el){  
+  el.onclick = function(){  
+    state.section = el.getAttribute('data-sec');  
+    if(state.section==='sales' && role==='nto'){  
+      state.bundles.forEach(function(b){  
+        if(b.ntoUsername===state.currentUser.username && (b.status==='approved'||b.status==='rejected')) b.ntoSeen = true;  
+      });  
+      persistBundles();  
+    }  
+    render();  
+  };  
+});  
+document.getElementById('logout-btn').onclick = function(){  
+  state.currentUser = null;  
+  state.section = null;  
+  render();  
+};  
+
+renderSection(document.getElementById('main-area'));
+
+}
 
 function sectionTitle(key){
-
-  var map={
-
-    bundle:"بنډل",
-    managers:"د منیجر یوزران",
-    ntos:"د NTO یوزران",
-    sales:"د پلور راپور",
-    report:"راپور",
-    nto_report:"د NTO راپور",
-    rolls:"د شرکت مقررات",
-    complaints:"شکایتونه"
-
-  };
-
-  return map[key] || "";
-
+var map = {bundle:'بنډل', managers:'د منیجر یوزران', ntos:'د NTO یوزران', sales:'د پلور راپور', report:'راپور', nto_report:'د NTO راپور', rolls:'د شرکت مقررات', complaints:'شکایتونه'};
+return map[key] || '';
 }
-
-/* ================= SECTION ================= */
 
 function renderSection(main){
+var role = state.currentUser.role;
+main.innerHTML = '<div class="main-header" id="main-header-row"><div><h2>'+sectionTitle(state.section)+'</h2></div></div><div id="sec-body"></div>';
+var headerRow = document.getElementById('main-header-row');
+var body = document.getElementById('sec-body');
 
-  var role=state.currentUser.role;
+if(state.section==='bundle' && role==='nto') return renderBundleSection(body);  
+if(state.section==='managers' && role==='admin') return renderUsersSection(body, 'manager', true, true);  
+if(state.section==='ntos' && (role==='admin'||role==='manager')) return renderUsersSection(body, 'nto', role==='admin', role==='admin');  
+if(state.section==='sales') return renderSalesSection(body, role, headerRow);  
+if(state.section==='report') return renderReportSection(body, role, headerRow);  
+if(state.section==='nto_report' && role==='admin') return renderNtoReportSection(body);  
+if(state.section==='rolls' && role==='admin') return renderRollsSection(body);  
+if(state.section==='complaints') return renderComplaintsSection(body, role);  
 
-  main.innerHTML=
-
-    '<div class="main-header" id="main-header-row">'+
-    '<div>'+
-    '<h2>'+sectionTitle(state.section)+'</h2>'+
-    '</div>'+
-    '</div>'+
-
-    '<div id="sec-body"></div>';
-
-  var headerRow=
-    document.getElementById("main-header-row");
-
-  var body=
-    document.getElementById("sec-body");
-
-  if(
-    state.section==="bundle" &&
-    role==="nto"
-  )
-    return renderBundleSection(body);
-
-  if(
-    state.section==="managers" &&
-    role==="admin"
-  )
-    return renderUsersSection(body,"manager",true,true);
-
-  if(
-    state.section==="ntos" &&
-    (role==="admin" || role==="manager")
-  )
-    return renderUsersSection(
-      body,
-      "nto",
-      role==="admin",
-      role==="admin"
-    );
-
-  if(state.section==="sales")
-    return renderSalesSection(
-      body,
-      role,
-      headerRow
-    );
-
-  if(state.section==="report")
-    return renderReportSection(
-      body,
-      role,
-      headerRow
-    );
-
-  if(
-    state.section==="nto_report" &&
-    role==="admin"
-  )
-    return renderNtoReportSection(body);
-
-  if(
-    state.section==="rolls" &&
-    role==="admin"
-  )
-    return renderRollsSection(body);
-
-  if(state.section==="complaints")
-    return renderComplaintsSection(
-      body,
-      role
-    );
-
-  body.innerHTML=
-    '<div class="empty-state">لاسرسی نشته.</div>';
+body.innerHTML = '<div class="empty-state">لاسرسی نشته.</div>';
 
 }
 
-/* ================= BUNDLE ================= */
-
+// ---------------- BUNDLE SECTION (NTO only) ----------------
 function renderBundleSection(body){
+var myBundles = state.bundles.filter(function(b){return b.ntoUsername===state.currentUser.username;});
+body.innerHTML =
+'<div class="card">'+
+'<h4>نوی بنډل واستوئ</h4>'+
+'<div class="row">'+
+'<div class="field"><label>شمیره</label><input id="bd-f1" type="text" inputmode="numeric" placeholder="یوازې شمیره"></div>'+
+'<div class="field"><label>د بنډل نوم</label><input id="bd-f2" type="text" placeholder="د بنډل نوم ولیکئ"></div>'+
+'<button class="btn btn-gold" id="bd-submit">واستوئ</button>'+
+'</div>'+
+'</div>'+
+'<div class="card"><h4>ستاسو د بنډل تاریخچه</h4><div id="bd-list"></div></div>';
 
-  var myBundles=
-    state.bundles.filter(function(b){
+var f1 = document.getElementById('bd-f1');  
+f1.addEventListener('input', function(){  
+  var v = f1.value.replace(/[^0-9]/g,'');  
+  v = v.replace(/^0+(?=\d)/,'');  
+  f1.value = v;  
+});  
 
-      return(
-        b.ntoUsername===
-        state.currentUser.username
-      );
+document.getElementById('bd-submit').onclick = function(){  
+  var v1 = f1.value.trim();  
+  var v2 = document.getElementById('bd-f2').value.trim();  
+  if(!v1 || !v2){ showToast('مهرباني وکړئ دواړه خانې ډکې کړئ.'); return; }  
+  var entry = {  
+    id: uid(),  
+    ntoUsername: state.currentUser.username,  
+    field1:v1, field2:v2,  
+    status: 'pending',  
+    createdAt: Date.now(),  
+    comment:null, actionedBy:null, actionedAt:null, processingBy:null,  
+    ntoSeen: true  
+  };  
+  state.bundles.unshift(entry);  
+  persistBundles().then(function(){  
+    showToast('بنډل واستول شو، اوس د تمې په حالت کې دی.');  
+    renderDashboard(document.getElementById('app'));  
+  });  
+};  
 
-    });
-
-  body.innerHTML=
-
-    '<div class="card">'+
-
-    '<h4>نوی بنډل واستوئ</h4>'+
-
-    '<div class="row">'+
-
-    '<div class="field">'+
-    '<label>شمیره</label>'+
-    '<input id="bd-f1" type="text" inputmode="numeric" placeholder="یوازې شمیره">'+
-    '</div>'+
-
-    '<div class="field">'+
-    '<label>د بنډل نوم</label>'+
-    '<input id="bd-f2" type="text" placeholder="د بنډل نوم ولیکئ">'+
-    '</div>'+
-
-    '<button class="btn btn-gold" id="bd-submit">'+
-    'واستوئ'+
-    '</button>'+
-
-    '</div>'+
-    '</div>'+
-
-    '<div class="card">'+
-    '<h4>ستاسو د بنډل تاریخچه</h4>'+
-    '<div id="bd-list"></div>'+
-    '</div>';
-
-  var f1=document.getElementById("bd-f1");
-
-  f1.addEventListener("input",function(){
-
-    var v=f1.value.replace(/[^0-9]/g,"");
-
-    v=v.replace(/^0+(?=\d)/,"");
-
-    f1.value=v;
-
-  });
-
-  document.getElementById("bd-submit")
-    .onclick=function(){
-
-      var v1=f1.value.trim();
-
-      var v2=
-        document.getElementById("bd-f2")
-        .value.trim();
-
-      if(!v1 || !v2){
-
-        showToast(
-          "مهرباني وکړئ دواړه خانې ډکې کړئ."
-        );
-
-        return;
-
-      }
-
-      var entry={
-
-        id:uid(),
-
-        ntoUsername:
-          state.currentUser.username,
-
-        field1:v1,
-        field2:v2,
-
-        status:"pending",
-
-        createdAt:Date.now(),
-
-        comment:null,
-        actionedBy:null,
-        actionedAt:null,
-        processingBy:null,
-
-        ntoSeen:true
-
-      };
-
-      state.bundles.unshift(entry);
-
-      persistBundles().then(function(){
-
-        showToast(
-          "بنډل واستول شو، اوس د تمې په حالت کې دی."
-        );
-
-        renderDashboard(
-          document.getElementById("app")
-        );
-
-      });
-
-    };
-
-  var list=document.getElementById("bd-list");
-
-  if(!myBundles.length){
-
-    list.innerHTML=
-      '<div class="empty-state">'+
-      "تر اوسه هیڅ بنډل نه دی استول شوی."+
-      "</div>";
-
-  }else{
-
-    list.innerHTML=
-
-      '<table>'+
-      '<thead>'+
-      '<tr>'+
-      '<th>شمیره</th>'+
-      '<th>د بنډل نوم</th>'+
-      '<th>حالت</th>'+
-      '<th>نیټه</th>'+
-      '</tr>'+
-      '</thead>'+
-      '<tbody>'+
-
-      myBundles.map(function(b){
-
-        return(
-          "<tr>"+
-          "<td>"+escapeHtml(b.field1)+"</td>"+
-          "<td>"+escapeHtml(b.field2)+"</td>"+
-          "<td>"+statusBadge(b.status)+"</td>"+
-          "<td>"+fmtDate(b.createdAt)+"</td>"+
-          "</tr>"
-        );
-
-      }).join("")+
-
-      "</tbody>"+
-      "</table>";
-
-  }
+var list = document.getElementById('bd-list');  
+if(!myBundles.length){  
+  list.innerHTML = '<div class="empty-state">تر اوسه هیڅ بنډل نه دی استول شوی.</div>';  
+}else{  
+  list.innerHTML = '<table><thead><tr><th>شمیره</th><th>د بنډل نوم</th><th>حالت</th><th>نیټه</th></tr></thead><tbody>'+  
+    myBundles.map(function(b){  
+      return '<tr><td>'+escapeHtml(b.field1)+'</td><td>'+escapeHtml(b.field2)+'</td><td>'+statusBadge(b.status)+'</td><td>'+fmtDate(b.createdAt)+'</td></tr>';  
+    }).join('')+  
+  '</tbody></table>';  
+}
 
 }
 
-/* ================= SALES ================= */
-
-function renderSalesSection(body,role,headerRow){
-
-  var rows=
-
-    role==="nto"
-    ?
-    state.bundles.filter(function(b){
-
-      return(
-        b.ntoUsername===
-        state.currentUser.username
-      );
-
-    })
-    :
-    state.bundles.slice();
-
-  var canProcess=
-    role==="admin" ||
-    role==="manager";
-
-  if(
-    headerRow &&
-    (role==="admin" || role==="manager")
-  ){
-
-    headerRow.innerHTML=
-
-      '<div>'+
-      '<h2>'+
-      sectionTitle("sales")+
-      '</h2>'+
-      '</div>'+
-
-      '<div class="header-actions">'+
-
-      '<button class="icon-btn" id="sales-export" title="اکسیل ډاونلوډ">'+
-      '&#128190;'+
-      '</button>'+
-
-      (
-        role==="admin"
-        ?
-        '<button class="icon-btn" id="sales-reset" title="ریسیټ">'+
-        '&#8635;'+
-        '</button>'
-        :
-        ""
-      )+
-
-      '</div>';
-
-    document.getElementById("sales-export")
-      .onclick=function(){
-
-        if(!rows.length){
-
-          showToast(
-            "هیڅ معلومات نشته چې ډاونلوډ شي."
-          );
-
-          return;
-
-        }
-
-        var data=rows.map(function(b){
-
-          var o={};
-
-          o["د NTO یوزر"]=
-            b.ntoUsername;
-
-          o["شمیره"]=b.field1;
-
-          o["د بنډل نوم"]=b.field2;
-
-          o["حالت"]=
-            statusLabel(b.status);
-
-          o["عمل شوی له خوا"]=
-            b.actionedBy || "";
-
-          o["کمینټ"]=
-            b.comment || "";
-
-          o["نیټه"]=
-            fmtDate(b.createdAt);
-
-          return o;
-
-        });
-
-        try{
-
-          var ws=
-            XLSX.utils.json_to_sheet(data);
-
-          var wb=
-            XLSX.utils.book_new();
-
-          XLSX.utils.book_append_sheet(
-            wb,
-            ws,
-            "SalesReport"
-          );
-
-          XLSX.writeFile(
-            wb,
-            "sales-report-"+Date.now()+".xlsx"
-          );
-
-        }catch(e){
-
-          showToast(
-            "د ډاونلوډ کولو کې تېروتنه."
-          );
-
-        }
-
-      };
-
-    if(role==="admin"){
-
-      document.getElementById("sales-reset")
-        .onclick=function(){
-
-          var ok=window.confirm(
-            "آیا ډاډه یاست چې غواړئ د پلور راپور ټول معلومات بالکل ختم کړئ؟"
-          );
-
-          if(!ok)return;
-
-          state.bundles=[];
-
-          persistBundles().then(function(){
-
-            showToast(
-              "ټول د بنډل معلومات پاک شول."
-            );
-
-            renderDashboard(
-              document.getElementById("app")
-            );
-
-          });
-
-        };
-
-    }
-
-  }
-
-  if(!rows.length){
-
-    body.innerHTML=
-      '<div class="card">'+
-      '<div class="empty-state">'+
-      "هیڅ ثبت شوی معلومات نشته."+
-      "</div>"+
-      "</div>";
-
-    return;
-
-  }
-
-  body.innerHTML=
-
-    '<div class="card">'+
-
-    '<div style="overflow-x:auto;">'+
-
-    '<table>'+
-
-    '<thead><tr>'+
-
-    (
-      role!=="nto"
-      ?
-      "<th>د NTO یوزر</th>"
-      :
-      ""
-    )+
-
-    "<th>شمیره</th>"+
-    "<th>د بنډل نوم</th>"+
-    "<th>حالت</th>"+
-
-    (
-      canProcess
-      ?
-      "<th>عمل شوی له خوا</th>"
-      :
-      ""
-    )+
-
-    "<th>کمینټ</th>"+
-    "<th>نیټه</th>"+
-
-    (
-      role==="nto"
-      ?
-      "<th></th>"
-      :
-      ""
-    )+
-
-    "</tr></thead>"+
-
-    "<tbody>"+
-
-    rows.map(function(b){
-
-      var statusCell=
-        statusBadge(b.status);
-
-      if(
-        canProcess &&
-        (
-          b.status==="pending" ||
-          b.status==="resubmit"
-        )
-      ){
-
-        statusCell=
-          '<span class="badge clickable '+
-          badgeClass(b.status)+
-          '" data-open-process="'+
-          b.id+
-          '">'+
-          statusLabel(b.status)+
-          '</span>';
-
-      }
-
-      return(
-
-        "<tr>"+
-
-        (
-          role!=="nto"
-          ?
-          "<td>"+
-          escapeHtml(b.ntoUsername)+
-          "</td>"
-          :
-          ""
-        )+
-
-        "<td>"+
-        escapeHtml(b.field1)+
-
-        (
-          role==="manager"
-          ?
-          ' <button class="icon-btn-copy" data-copy="'+
-          escapeHtml(b.field1)+
-          '" title="کاپي کول">&#128203;</button>'
-          :
-          ""
-        )+
-
-        "</td>"+
-
-        "<td>"+
-        escapeHtml(b.field2)+
-        "</td>"+
-
-        "<td>"+
-        statusCell+
-        "</td>"+
-
-        (
-          canProcess
-          ?
-          "<td>"+
-          (
-            b.actionedBy
-            ?
-            escapeHtml(b.actionedBy)
-            :
-            "—"
-          )+
-          "</td>"
-          :
-          ""
-        )+
-
-        "<td>"+
-        (
-          b.comment
-          ?
-          escapeHtml(b.comment)
-          :
-          "—"
-        )+
-        "</td>"+
-
-        "<td>"+
-        fmtDate(b.createdAt)+
-        "</td>"+
-
-        (
-          role==="nto"
-          ?
-          "<td>"+
-          (
-            b.status==="rejected"
-            ?
-            '<button class="btn btn-sm btn-info" data-resubmit="'+
-            b.id+
-            '">ریسبمیټ</button>'
-            :
-            ""
-          )+
-          "</td>"
-          :
-          ""
-        )+
-
-        "</tr>"
-
-      );
-
-    }).join("")+
-
-    "</tbody>"+
-    "</table>"+
-    "</div>"+
-    "</div>";
-
-  if(canProcess){
-
-    Array.prototype.forEach.call(
-      document.querySelectorAll("[data-open-process]"),
-      function(el){
-
-        el.onclick=function(){
-
-          openProcessModal(
-            el.getAttribute(
-              "data-open-process"
-            )
-          );
-
-        };
-
-      }
-    );
-
-  }
-
-  if(role==="nto"){
-
-    Array.prototype.forEach.call(
-      document.querySelectorAll("[data-resubmit]"),
-      function(btn){
-
-        btn.onclick=function(){
-
-          openResubmitModal(
-            btn.getAttribute(
-              "data-resubmit"
-            )
-          );
-
-        };
-
-      }
-    );
-
-  }
-
-  if(role==="manager"){
-
-    Array.prototype.forEach.call(
-      document.querySelectorAll("[data-copy]"),
-      function(btn){
-
-        btn.onclick=function(e){
-
-          e.stopPropagation();
-
-          copyToClipboard(
-            btn.getAttribute("data-copy")
-          );
-
-        };
-
-      }
-    );
-
-  }
-
+// ---------------- SALES REPORT SECTION ----------------
+function renderSalesSection(body, role, headerRow){
+var rows = role==='nto' ? state.bundles.filter(function(b){return b.ntoUsername===state.currentUser.username;}) : state.bundles.slice();
+var canProcess = (role==='admin' || role==='manager');
+
+if(headerRow && (role==='admin' || role==='manager')){  
+  headerRow.innerHTML =  
+    '<div><h2>'+sectionTitle('sales')+'</h2></div>'+  
+    '<div class="header-actions">'+  
+      '<button class="icon-btn" id="sales-export" title="اکسیل ډاونلوډ">&#128190;</button>'+  
+      (role==='admin' ? '<button class="icon-btn" id="sales-reset" title="ریسیټ">&#8635;</button>' : '')+  
+    '</div>';  
+
+  document.getElementById('sales-export').onclick = function(){  
+    if(!rows.length){ showToast('هیڅ معلومات نشته چې ډاونلوډ شي.'); return; }  
+    var data = rows.map(function(b){  
+      var o = {};  
+      o['د NTO یوزر'] = b.ntoUsername;  
+      o['شمیره'] = b.field1;  
+      o['د بنډل نوم'] = b.field2;  
+      o['حالت'] = statusLabel(b.status);  
+      o['عمل شوی له خوا'] = b.actionedBy || '';  
+      o['کمینټ'] = b.comment || '';  
+      o['نیټه'] = fmtDate(b.createdAt);  
+      return o;  
+    });  
+    try{  
+      var ws = XLSX.utils.json_to_sheet(data);  
+      var wb = XLSX.utils.book_new();  
+      XLSX.utils.book_append_sheet(wb, ws, 'SalesReport');  
+      XLSX.writeFile(wb, 'sales-report-'+Date.now()+'.xlsx');  
+    }catch(e){ showToast('د ډاونلوډ کولو کې تېروتنه.'); }  
+  };  
+
+  if(role==='admin'){  
+    document.getElementById('sales-reset').onclick = function(){  
+      var ok = window.confirm('آیا ډاډه یاست چې غواړئ د پلور راپور ټول معلومات بالکل ختم کړئ؟ دا به د NTO د بنډل او پلور راپور پاڼې هم پاکې کړي. دا کار بیرته نشي کیدلی.');  
+      if(!ok) return;  
+      state.bundles = [];  
+      persistBundles().then(function(){  
+        showToast('ټول د بنډل معلومات پاک شول.');  
+        renderDashboard(document.getElementById('app'));  
+      });  
+    };  
+  }  
+}  
+
+if(!rows.length){  
+  body.innerHTML = '<div class="card"><div class="empty-state">هیڅ ثبت شوی معلومات نشته.</div></div>';  
+  return;  
+}  
+body.innerHTML = '<div class="card"><div style="overflow-x:auto;"><table><thead><tr>'+  
+  (role!=='nto' ? '<th>د NTO یوزر</th>' : '')+  
+  '<th>شمیره</th><th>د بنډل نوم</th><th>حالت</th>'+  
+  (canProcess ? '<th>عمل شوی له خوا</th>' : '')+  
+  '<th>کمینټ</th>'+  
+  '<th>نیټه</th>'+  
+  (role==='nto' ? '<th></th>' : '')+  
+  '</tr></thead><tbody>'+  
+  rows.map(function(b){  
+    var statusCell = statusBadge(b.status);  
+    if(canProcess && (b.status==='pending' || b.status==='resubmit')){  
+      statusCell = '<span class="badge clickable '+badgeClass(b.status)+'" data-open-process="'+b.id+'">'+statusLabel(b.status)+'</span>';  
+    }  
+    return '<tr>'+  
+      (role!=='nto' ? '<td>'+escapeHtml(b.ntoUsername)+'</td>' : '')+  
+      '<td>'+escapeHtml(b.field1)+(role==='manager' ? ' <button class="icon-btn-copy" data-copy="'+escapeHtml(b.field1)+'" title="کاپي کول">&#128203;</button>' : '')+'</td>'+  
+      '<td>'+escapeHtml(b.field2)+'</td>'+  
+      '<td>'+statusCell+'</td>'+  
+      (canProcess ? '<td>'+(b.actionedBy?escapeHtml(b.actionedBy):'—')+'</td>' : '')+  
+      '<td>'+(b.comment?escapeHtml(b.comment):'—')+'</td>'+  
+      '<td>'+fmtDate(b.createdAt)+'</td>'+  
+      (role==='nto' ? '<td>'+(b.status==='rejected' ? '<button class="btn btn-sm btn-info" data-resubmit="'+b.id+'">ریسبمیټ</button>' : '')+'</td>' : '')+  
+    '</tr>';  
+  }).join('')+  
+'</tbody></table></div></div>';  
+
+if(canProcess){  
+  Array.prototype.forEach.call(document.querySelectorAll('[data-open-process]'), function(el){  
+    el.onclick = function(){ openProcessModal(el.getAttribute('data-open-process')); };  
+  });  
+}  
+if(role==='nto'){  
+  Array.prototype.forEach.call(document.querySelectorAll('[data-resubmit]'), function(btn){  
+    btn.onclick = function(){ openResubmitModal(btn.getAttribute('data-resubmit')); };  
+  });  
+}  
+if(role==='manager'){  
+  Array.prototype.forEach.call(document.querySelectorAll('[data-copy]'), function(btn){  
+    btn.onclick = function(e){  
+      e.stopPropagation();  
+      copyToClipboard(btn.getAttribute('data-copy'));  
+    };  
+  });  
 }
 
-/* ================= COPY ================= */
+}
 
 function copyToClipboard(text){
-
-  var done=function(){
-
-    showToast("شمیره کاپي شوه.");
-
-  };
-
-  var fail=function(){
-
-    try{
-
-      var ta=document.createElement("textarea");
-
-      ta.value=text;
-
-      ta.style.position="fixed";
-      ta.style.opacity="0";
-
-      document.body.appendChild(ta);
-
-      ta.focus();
-      ta.select();
-
-      document.execCommand("copy");
-
-      document.body.removeChild(ta);
-
-      done();
-
-    }catch(e){
-
-      showToast("کاپي نشو کیدلی.");
-
-    }
-
-  };
-
-  if(
-    navigator.clipboard &&
-    navigator.clipboard.writeText
-  ){
-
-    navigator.clipboard
-      .writeText(text)
-      .then(done)
-      .catch(fail);
-
-  }else{
-
-    fail();
-
-  }
-
+var done = function(){ showToast('شمیره کاپي شوه.'); };
+var fail = function(){
+try{
+var ta = document.createElement('textarea');
+ta.value = text;
+ta.style.position='fixed'; ta.style.opacity='0';
+document.body.appendChild(ta);
+ta.focus(); ta.select();
+document.execCommand('copy');
+document.body.removeChild(ta);
+done();
+}catch(e){ showToast('کاپي نشو کیدلی.'); }
+};
+if(navigator.clipboard && navigator.clipboard.writeText){
+navigator.clipboard.writeText(text).then(done).catch(fail);
+}else{
+fail();
 }
-
-/* ================= STATUS ================= */
+}
 
 function badgeClass(status){
-
-  if(status==="pending")
-    return "badge-pending";
-
-  if(status==="in_process")
-    return "badge-process";
-
-  if(status==="approved")
-    return "badge-approved";
-
-  if(status==="rejected")
-    return "badge-rejected";
-
-  if(status==="resubmit")
-    return "badge-resubmit";
-
-  return "";
-
+if(status==='pending') return 'badge-pending';
+if(status==='in_process') return 'badge-process';
+if(status==='approved') return 'badge-approved';
+if(status==='rejected') return 'badge-rejected';
+if(status==='resubmit') return 'badge-resubmit';
+return '';
 }
-
 function statusLabel(status){
-
-  if(status==="pending")
-    return "په تمه (Pending)";
-
-  if(status==="in_process")
-    return "پروسیس کې";
-
-  if(status==="approved")
-    return "تصویب شوی";
-
-  if(status==="rejected")
-    return "ردشوی";
-
-  if(status==="resubmit")
-    return "بیا وړاندې شوی";
-
-  return status;
-
+if(status==='pending') return 'په تمه (Pending)';
+if(status==='in_process') return 'پروسیس کې';
+if(status==='approved') return 'تصویب شوی';
+if(status==='rejected') return 'ردشوی';
+if(status==='resubmit') return 'بیا وړاندې شوی';
+return status;
 }
-
 function statusBadge(status){
-
-  return(
-    '<span class="badge '+
-    badgeClass(status)+
-    '">'+
-    statusLabel(status)+
-    '</span>'
-  );
-
+return '<span class="badge '+badgeClass(status)+'">'+statusLabel(status)+'</span>';
 }
 
-/* ================= PROCESS MODAL ================= */
-
+// ---------------- PROCESS MODAL (admin/manager: approve/reject) ----------------
 function openProcessModal(bundleId){
-
-  var b=state.bundles.find(function(x){
-
-    return x.id===bundleId;
-
-  });
-
-  if(!b)return;
-
-  if(
-    b.status!=="pending" &&
-    b.status!=="resubmit"
-  )
-    return;
-
-  var previousStatus=b.status;
-
-  b.status="in_process";
-
-  b.processingBy=
-    state.currentUser.username;
-
-  persistBundles().then(function(){
-
-    state.modal={
-      type:"process",
-      bundleId:bundleId,
-      previousStatus:previousStatus
-    };
-
-    render();
-
-  });
-
+var b = state.bundles.find(function(x){return x.id===bundleId;});
+if(!b) return;
+if(b.status!=='pending' && b.status!=='resubmit') return;
+var previousStatus = b.status;
+b.status = 'in_process';
+b.processingBy = state.currentUser.username;
+persistBundles().then(function(){
+state.modal = {type:'process', bundleId:bundleId, previousStatus:previousStatus};
+render();
+});
 }
 
 function closeProcessModal(){
-
-  if(!state.modal)return;
-
-  var b=state.bundles.find(function(x){
-
-    return(
-      x.id===state.modal.bundleId
-    );
-
-  });
-
-  if(
-    b &&
-    b.status==="in_process"
-  ){
-
-    b.status=
-      state.modal.previousStatus;
-
-    b.processingBy=null;
-
-    persistBundles().then(function(){
-
-      state.modal=null;
-
-      render();
-
-    });
-
-  }else{
-
-    state.modal=null;
-
-    render();
-
-  }
-
+if(!state.modal) return;
+var b = state.bundles.find(function(x){return x.id===state.modal.bundleId;});
+if(b && b.status==='in_process'){
+b.status = state.modal.previousStatus;
+b.processingBy = null;
+persistBundles().then(function(){
+state.modal = null;
+render();
+});
+}else{
+state.modal = null;
+render();
+}
 }
 
 function submitProcessDecision(decision){
-
-  if(!state.modal)return;
-
-  var commentEl=
-    document.getElementById(
-      "proc-comment"
-    );
-
-  var comment=
-    commentEl
-    ?
-    commentEl.value.trim()
-    :
-    "";
-
-  if(!comment){
-
-    showToast(
-      "مهرباني وکړئ لومړی کمینټ ولیکئ."
-    );
-
-    return;
-
-  }
-
-  var b=state.bundles.find(function(x){
-
-    return(
-      x.id===state.modal.bundleId
-    );
-
-  });
-
-  if(!b)return;
-
-  b.status=decision;
-
-  b.comment=comment;
-
-  b.actionedBy=
-    state.currentUser.username;
-
-  b.actionedAt=Date.now();
-
-  b.processingBy=null;
-
-  b.ntoSeen=false;
-
-  persistBundles().then(function(){
-
-    showToast(
-      decision==="approved"
-      ?
-      "بنډل تصویب شو."
-      :
-      "بنډل رد شو."
-    );
-
-    state.modal=null;
-
-    render();
-
-  });
-
+if(!state.modal) return;
+var commentEl = document.getElementById('proc-comment');
+var comment = commentEl ? commentEl.value.trim() : '';
+if(!comment){ showToast('مهرباني وکړئ لومړی کمینټ ولیکئ.'); return; }
+var b = state.bundles.find(function(x){return x.id===state.modal.bundleId;});
+if(!b) return;
+b.status = decision; // 'approved' or 'rejected'
+b.comment = comment;
+b.actionedBy = state.currentUser.username;
+b.actionedAt = Date.now();
+b.processingBy = null;
+b.ntoSeen = false;
+persistBundles().then(function(){
+showToast(decision==='approved' ? 'بنډل تصویب شو.' : 'بنډل رد شو.');
+state.modal = null;
+render();
+});
 }
 
-/* ================= RESUBMIT ================= */
-
+// ---------------- RESUBMIT MODAL (NTO) ----------------
 function openResubmitModal(bundleId){
-
-  var b=state.bundles.find(function(x){
-
-    return x.id===bundleId;
-
-  });
-
-  if(
-    !b ||
-    b.status!=="rejected"
-  )
-    return;
-
-  state.modal={
-    type:"resubmit",
-    bundleId:bundleId
-  };
-
-  render();
-
+var b = state.bundles.find(function(x){return x.id===bundleId;});
+if(!b || b.status!=='rejected') return;
+state.modal = {type:'resubmit', bundleId:bundleId};
+render();
 }
 
 function submitResubmit(){
-
-  if(!state.modal)return;
-
-  var commentEl=
-    document.getElementById(
-      "resub-comment"
-    );
-
-  var comment=
-    commentEl
-    ?
-    commentEl.value.trim()
-    :
-    "";
-
-  if(!comment){
-
-    showToast(
-      "مهرباني وکړئ کمینټ ولیکئ."
-    );
-
-    return;
-
-  }
-
-  var b=state.bundles.find(function(x){
-
-    return(
-      x.id===state.modal.bundleId
-    );
-
-  });
-
-  if(!b)return;
-
-  b.status="resubmit";
-
-  b.comment=comment;
-
-  b.actionedBy=null;
-  b.actionedAt=null;
-  b.processingBy=null;
-  b.ntoSeen=true;
-
-  persistBundles().then(function(){
-
-    showToast(
-      "بنډل بیا وړاندې شو."
-    );
-
-    state.modal=null;
-
-    render();
-
-  });
-
+if(!state.modal) return;
+var commentEl = document.getElementById('resub-comment');
+var comment = commentEl ? commentEl.value.trim() : '';
+if(!comment){ showToast('مهرباني وکړئ کمینټ ولیکئ.'); return; }
+var b = state.bundles.find(function(x){return x.id===state.modal.bundleId;});
+if(!b) return;
+b.status = 'resubmit';
+b.comment = comment;
+b.actionedBy = null;
+b.actionedAt = null;
+b.processingBy = null;
+b.ntoSeen = true;
+persistBundles().then(function(){
+showToast('بنډل بیا وړاندې شو.');
+state.modal = null;
+render();
+});
 }
-
-/* ================= MODAL LAYER ================= */
 
 function renderModalLayer(){
+var old = document.getElementById('modal-layer');
+if(old) old.remove();
+if(!state.modal) return;
 
-  var old=
-    document.getElementById(
-      "modal-layer"
-    );
+var layer = document.createElement('div');  
+layer.id = 'modal-layer';  
+layer.className = 'modal-backdrop';  
 
-  if(old)old.remove();
+if(state.modal.type==='process'){  
+  layer.innerHTML =  
+    '<div class="modal-card">'+  
+      '<h3>د بنډل پروسس کول</h3>'+  
+      '<div class="field"><label>کمینټ (اړین دی)</label><textarea id="proc-comment" rows="3" placeholder="خپل کمینټ دلته ولیکئ..."></textarea></div>'+  
+      '<div class="modal-actions">'+  
+        '<button class="btn btn-ok" id="proc-approve">تصویب (Approve)</button>'+  
+        '<button class="btn btn-danger" id="proc-reject">ردول (Reject)</button>'+  
+      '</div>'+  
+      '<button class="btn btn-ghost btn-block" id="proc-cancel" style="margin-top:10px;">لغوه کول</button>'+  
+    '</div>';  
+}else if(state.modal.type==='resubmit'){  
+  layer.innerHTML =  
+    '<div class="modal-card">'+  
+      '<h3>بیا وړاندې کول</h3>'+  
+      '<div class="field"><label>کمینټ</label><textarea id="resub-comment" rows="3" placeholder="خپل کمینټ دلته ولیکئ..."></textarea></div>'+  
+      '<div class="modal-actions">'+  
+        '<button class="btn btn-gold btn-block" id="resub-submit">ریسبمیټ</button>'+  
+      '</div>'+  
+      '<button class="btn btn-ghost btn-block" id="resub-cancel" style="margin-top:10px;">لغوه کول</button>'+  
+    '</div>';  
+}  
 
-  if(!state.modal)return;
+document.body.appendChild(layer);  
 
-  var layer=
-    document.createElement("div");
-
-  layer.id="modal-layer";
-
-  layer.className=
-    "modal-backdrop";
-
-  if(state.modal.type==="process"){
-
-    layer.innerHTML=
-
-      '<div class="modal-card">'+
-
-      '<h3>د بنډل پروسس کول</h3>'+
-
-      '<div class="field">'+
-      '<label>کمینټ (اړین دی)</label>'+
-      '<textarea id="proc-comment" rows="3" placeholder="خپل کمینټ دلته ولیکئ..."></textarea>'+
-      '</div>'+
-
-      '<div class="modal-actions">'+
-
-      '<button class="btn btn-ok" id="proc-approve">'+
-      'تصویب (Approve)'+
-      '</button>'+
-
-      '<button class="btn btn-danger" id="proc-reject">'+
-      'ردول (Reject)'+
-      '</button>'+
-
-      '</div>'+
-
-      '<button class="btn btn-ghost btn-block" id="proc-cancel" style="margin-top:10px;">'+
-      'لغوه کول'+
-      '</button>'+
-
-      '</div>';
-
-  }else if(state.modal.type==="resubmit"){
-
-    layer.innerHTML=
-
-      '<div class="modal-card">'+
-
-      '<h3>بیا وړاندې کول</h3>'+
-
-      '<div class="field">'+
-      '<label>کمینټ</label>'+
-      '<textarea id="resub-comment" rows="3" placeholder="خپل کمینټ دلته ولیکئ..."></textarea>'+
-      '</div>'+
-
-      '<div class="modal-actions">'+
-
-      '<button class="btn btn-gold btn-block" id="resub-submit">'+
-      'ریسبمیټ'+
-      '</button>'+
-
-      '</div>'+
-
-      '<button class="btn btn-ghost btn-block" id="resub-cancel" style="margin-top:10px;">'+
-      'لغوه کول'+
-      '</button>'+
-
-      '</div>';
-
-  }
-
-  document.body.appendChild(layer);
-
-  if(state.modal.type==="process"){
-
-    document.getElementById("proc-approve")
-      .onclick=function(){
-
-        submitProcessDecision(
-          "approved"
-        );
-
-      };
-
-    document.getElementById("proc-reject")
-      .onclick=function(){
-
-        submitProcessDecision(
-          "rejected"
-        );
-
-      };
-
-    document.getElementById("proc-cancel")
-      .onclick=closeProcessModal;
-
-  }else if(
-    state.modal.type==="resubmit"
-  ){
-
-    document.getElementById("resub-submit")
-      .onclick=submitResubmit;
-
-    document.getElementById("resub-cancel")
-      .onclick=function(){
-
-        state.modal=null;
-
-        render();
-
-      };
-
-  }
+if(state.modal.type==='process'){  
+  document.getElementById('proc-approve').onclick = function(){ submitProcessDecision('approved'); };  
+  document.getElementById('proc-reject').onclick = function(){ submitProcessDecision('rejected'); };  
+  document.getElementById('proc-cancel').onclick = closeProcessModal;  
+}else if(state.modal.type==='resubmit'){  
+  document.getElementById('resub-submit').onclick = submitResubmit;  
+  document.getElementById('resub-cancel').onclick = function(){ state.modal=null; render(); };  
+}
 
 }
 
-/* ================= USERS ================= */
-
-function renderUsersSection(
-  body,
-  targetRole,
-  canToggle,
-  canDelete
-){
-
-  var list=
-    state.users.filter(function(u){
-
-      return u.role===targetRole;
-
-    });
-
-  var roleLabel=
-    targetRole==="manager"
-    ?
-    "منیجر"
-    :
-    "NTO";
-
-  var isNto=
-    targetRole==="nto";
-
-  body.innerHTML=
-
-    '<div class="card">'+
-
-    '<h4>نوی '+
-    roleLabel+
-    ' حساب جوړ کړئ</h4>'+
-
-    '<div class="row">'+
-
-    '<div class="field">'+
-    '<label>یوزرنوم</label>'+
-    '<input id="nu-user" type="text">'+
-    '</div>'+
-
-    '<div class="field">'+
-    '<label>پاسورډ</label>'+
-    '<input id="nu-pass" type="text">'+
-    '</div>'+
-
-    (
-      isNto
-      ?
-      '<div class="field">'+
-      '<label>ادرس</label>'+
-      '<input id="nu-addr" type="text">'+
-      '</div>'+
-
-      '<div class="field">'+
-      '<label>اړیکې شمیره</label>'+
-      '<input id="nu-contact" type="text">'+
-      '</div>'
-      :
-      ""
-    )+
-
-    '<button class="btn btn-gold" id="nu-create">'+
-    'جوړ کړئ'+
-    '</button>'+
-
-    '</div>'+
-    '</div>'+
-
-    '<div class="card">'+
-    '<h4>د '+roleLabel+' حسابونه</h4>'+
-    '<div id="nu-list"></div>'+
-    '</div>';
-
-  document.getElementById("nu-create")
-    .onclick=function(){
-
-      var u=
-        document.getElementById(
-          "nu-user"
-        ).value.trim();
-
-      var p=
-        document.getElementById(
-          "nu-pass"
-        ).value.trim();
-
-      var addr=
-        isNto
-        ?
-        document.getElementById(
-          "nu-addr"
-        ).value.trim()
-        :
-        "";
-
-      var contact=
-        isNto
-        ?
-        document.getElementById(
-          "nu-contact"
-        ).value.trim()
-        :
-        "";
-
-      if(!u || !p){
-
-        showToast(
-          "یوزرنوم او پاسورډ دواړه ولیکئ."
-        );
-
-        return;
-
-      }
-
-      if(
-        isNto &&
-        (!addr || !contact)
-      ){
-
-        showToast(
-          "ادرس او اړیکې شمیره هم ولیکئ."
-        );
-
-        return;
-
-      }
-
-      if(
-        state.users.find(function(x){
-          return x.username===u;
-        })
-      ){
-
-        showToast(
-          "دا یوزرنوم مخکې شتون لري."
-        );
-
-        return;
-
-      }
-
-      var newUser={
-
-        username:u,
-        password:p,
-        role:targetRole,
-        status:"enabled",
-        createdBy:
-          state.currentUser.username
-
-      };
-
-      if(isNto){
-
-        newUser.address=addr;
-        newUser.contact=contact;
-
-      }
-
-      state.users.push(newUser);
-
-      persistUsers().then(function(){
-
-        showToast(
-          roleLabel+" حساب جوړ شو."
-        );
-
-        renderSection(
-          document.getElementById(
-            "main-area"
-          )
-        );
-
-      });
-
-    };
-
-  var listEl=
-    document.getElementById(
-      "nu-list"
-    );
-
-  if(!list.length){
-
-    listEl.innerHTML=
-      '<div class="empty-state">'+
-      "تر اوسه هیڅ حساب نشته."+
-      "</div>";
-
-    return;
-
-  }
-
-  listEl.innerHTML=
-
-    '<div style="overflow-x:auto;">'+
-
-    '<table>'+
-
-    '<thead><tr>'+
-
-    '<th>یوزرنوم</th>'+
-
-    (
-      isNto
-      ?
-      '<th>ادرس</th>'+
-      '<th>اړیکې شمیره</th>'+
-      '<th>جوړونکی</th>'
-      :
-      ""
-    )+
-
-    '<th>حالت</th>'+
-
-    (
-      canToggle
-      ?
-      "<th></th>"
-      :
-      ""
-    )+
-
-    (
-      canDelete
-      ?
-      "<th></th>"
-      :
-      ""
-    )+
-
-    '</tr></thead>'+
-
-    '<tbody>'+
-
-    list.map(function(u){
-
-      return(
-
-        "<tr>"+
-
-        "<td>"+
-        escapeHtml(u.username)+
-        "</td>"+
-
-        (
-          isNto
-          ?
-          "<td>"+
-          escapeHtml(u.address||"—")+
-          "</td>"+
-
-          "<td>"+
-          escapeHtml(u.contact||"—")+
-          "</td>"+
-
-          "<td>"+
-          escapeHtml(u.createdBy||"—")+
-          "</td>"
-          :
-          ""
-        )+
-
-        "<td>"+
-        statusBadge(
-          u.status==="enabled"
-          ?
-          "enabled"
-          :
-          "disabled"
-        )+
-        "</td>"+
-
-        (
-          canToggle
-          ?
-          '<td>'+
-          '<button class="btn btn-sm '+
-          (
-            u.status==="enabled"
-            ?
-            "btn-danger"
-            :
-            "btn-ok"
-          )+
-          '" data-toggle="'+
-          u.username+
-          '">'+
-          (
-            u.status==="enabled"
-            ?
-            "ډیسیبل"
-            :
-            "انیبل"
-          )+
-          '</button>'+
-          '</td>'
-          :
-          ""
-        )+
-
-        (
-          canDelete
-          ?
-          '<td>'+
-          '<button class="icon-btn-sm" data-delete-user="'+
-          u.username+
-          '" title="ډیلیټ">&#128465;</button>'+
-          '</td>'
-          :
-          ""
-        )+
-
-        "</tr>"
-
-      );
-
-    }).join("")+
-
-    "</tbody>"+
-    "</table>"+
-    "</div>";
-
-  if(canToggle){
-
-    Array.prototype.forEach.call(
-      document.querySelectorAll(
-        "[data-toggle]"
-      ),
-      function(btn){
-
-        btn.onclick=function(){
-
-          var uname=
-            btn.getAttribute(
-              "data-toggle"
-            );
-
-          var u=state.users.find(function(x){
-
-            return x.username===uname;
-
-          });
-
-          if(u){
-
-            u.status=
-              u.status==="enabled"
-              ?
-              "disabled"
-              :
-              "enabled";
-
-            persistUsers().then(function(){
-
-              showToast(
-                "د "+uname+" حالت بدل شو."
-              );
-
-              renderSection(
-                document.getElementById(
-                  "main-area"
-                )
-              );
-
-            });
-
-          }
-
-        };
-
-      }
-    );
-
-  }
-
-  if(canDelete){
-
-    Array.prototype.forEach.call(
-      document.querySelectorAll(
-        "[data-delete-user]"
-      ),
-      function(btn){
-
-        btn.onclick=function(){
-
-          var uname=
-            btn.getAttribute(
-              "data-delete-user"
-            );
-
-          var ok=window.confirm(
-            "آیا ډاډه یاست چې غواړئ "+
-            uname+
-            " حساب بالکل ډیلیټ کړئ؟"
-          );
-
-          if(!ok)return;
-
-          state.users=
-            state.users.filter(function(x){
-
-              return x.username!==uname;
-
-            });
-
-          persistUsers().then(function(){
-
-            showToast(
-              uname+" حساب ډیلیټ شو."
-            );
-
-            renderSection(
-              document.getElementById(
-                "main-area"
-              )
-            );
-
-          });
-
-        };
-
-      }
-    );
-
-  }
+// ---------------- USERS SECTIONS (managers / ntos) ----------------
+function renderUsersSection(body, targetRole, canToggle, canDelete){
+var list = state.users.filter(function(u){return u.role===targetRole;});
+var roleLabel = targetRole==='manager' ? 'منیجر' : 'NTO';
+var isNto = targetRole==='nto';
+
+body.innerHTML =  
+  '<div class="card">'+  
+    '<h4>نوی '+roleLabel+' حساب جوړ کړئ</h4>'+  
+    '<div class="row">'+  
+      '<div class="field"><label>یوزرنوم</label><input id="nu-user" type="text"></div>'+  
+      '<div class="field"><label>پاسورډ</label><input id="nu-pass" type="text"></div>'+  
+      (isNto ? '<div class="field"><label>ادرس</label><input id="nu-addr" type="text"></div>'+  
+               '<div class="field"><label>اړیکې شمیره</label><input id="nu-contact" type="text"></div>' : '')+  
+      '<button class="btn btn-gold" id="nu-create">جوړ کړئ</button>'+  
+    '</div>'+  
+  '</div>'+  
+  '<div class="card"><h4>د '+roleLabel+' حسابونه</h4><div id="nu-list"></div></div>';  
+
+document.getElementById('nu-create').onclick = function(){  
+  var u = document.getElementById('nu-user').value.trim();  
+  var p = document.getElementById('nu-pass').value.trim();  
+  var addr = isNto ? document.getElementById('nu-addr').value.trim() : '';  
+  var contact = isNto ? document.getElementById('nu-contact').value.trim() : '';  
+  if(!u || !p){ showToast('یوزرنوم او پاسورډ دواړه ولیکئ.'); return; }  
+  if(isNto && (!addr || !contact)){ showToast('ادرس او اړیکې شمیره هم ولیکئ.'); return; }  
+  if(state.users.find(function(x){return x.username===u;})){ showToast('دا یوزرنوم مخکې شتون لري.'); return; }  
+  var newUser = {username:u, password:p, role:targetRole, status:'enabled', createdBy:state.currentUser.username};  
+  if(isNto){ newUser.address = addr; newUser.contact = contact; }  
+  state.users.push(newUser);  
+  persistUsers().then(function(){  
+    showToast(roleLabel+' حساب جوړ شو.');  
+    renderSection(document.getElementById('main-area'));  
+  });  
+};  
+
+var listEl = document.getElementById('nu-list');  
+if(!list.length){  
+  listEl.innerHTML = '<div class="empty-state">تر اوسه هیڅ حساب نشته.</div>';  
+  return;  
+}  
+listEl.innerHTML = '<div style="overflow-x:auto;"><table><thead><tr><th>یوزرنوم</th>'+  
+  (isNto ? '<th>ادرس</th><th>اړیکې شمیره</th><th>جوړونکی</th>' : '')+  
+  '<th>حالت</th>'+(canToggle?'<th></th>':'')+(canDelete?'<th></th>':'')+'</tr></thead><tbody>'+  
+  list.map(function(u){  
+    return '<tr><td>'+escapeHtml(u.username)+'</td>'+  
+      (isNto ? '<td>'+escapeHtml(u.address||'—')+'</td><td>'+escapeHtml(u.contact||'—')+'</td><td>'+escapeHtml(u.createdBy||'—')+'</td>' : '')+  
+      '<td>'+statusBadge(u.status==='enabled'?'enabled':'disabled')+'</td>'+  
+      (canToggle ? '<td><button class="btn btn-sm '+(u.status==='enabled'?'btn-danger':'btn-ok')+'" data-toggle="'+u.username+'">'+(u.status==='enabled'?'ډیسیبل':'انیبل')+'</button></td>' : '')+  
+      (canDelete ? '<td><button class="icon-btn-sm" data-delete-user="'+u.username+'" title="ډیلیټ">&#128465;</button></td>' : '')+  
+    '</tr>';  
+  }).join('')+  
+'</tbody></table></div>';  
+
+if(canToggle){  
+  Array.prototype.forEach.call(document.querySelectorAll('[data-toggle]'), function(btn){  
+    btn.onclick = function(){  
+      var uname = btn.getAttribute('data-toggle');  
+      var u = state.users.find(function(x){return x.username===uname;});  
+      if(u){  
+        u.status = u.status==='enabled' ? 'disabled' : 'enabled';  
+        persistUsers().then(function(){  
+          showToast('د '+uname+' حالت بدل شو.');  
+          renderSection(document.getElementById('main-area'));  
+        });  
+      }  
+    };  
+  });  
+}  
+if(canDelete){  
+  Array.prototype.forEach.call(document.querySelectorAll('[data-delete-user]'), function(btn){  
+    btn.onclick = function(){  
+      var uname = btn.getAttribute('data-delete-user');  
+      var ok = window.confirm('آیا ډاډه یاست چې غواړئ '+uname+' حساب بالکل ډیلیټ کړئ؟ دا کار بیرته نشي کیدلی.');  
+      if(!ok) return;  
+      state.users = state.users.filter(function(x){return x.username!==uname;});  
+      persistUsers().then(function(){  
+        showToast(uname+' حساب ډیلیټ شو.');  
+        renderSection(document.getElementById('main-area'));  
+      });  
+    };  
+  });  
+}
 
 }
 
-/* ================= REPORT ================= */
-
+// ---------------- REPORT SECTION ----------------
 function extractNumber(str){
-
-  if(!str)return 0;
-
-  var m=
-    String(str).match(
-      /\d+(\.\d+)?/
-    );
-
-  return m
-    ?
-    parseFloat(m[0])
-    :
-    0;
-
+if(!str) return 0;
+var m = String(str).match(/\d+(.\d+)?/);
+return m ? parseFloat(m[0]) : 0;
 }
-
 function dateKeyOf(ts){
-
-  var d=new Date(ts);
-
-  return(
-    d.getFullYear()+
-    "-"+
-    String(d.getMonth()+1).padStart(2,"0")+
-    "-"+
-    String(d.getDate()).padStart(2,"0")
-  );
-
+var d = new Date(ts);
+return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
 }
-
+// Sum/count of bundles approved BY a specific manager username, respecting that manager's own reset threshold
 function managerStats(managerUsername){
-
-  var resetAt=
-    state.managerResetAt[
-      managerUsername
-    ] || 0;
-
-  var total=0;
-  var count=0;
-
-  state.bundles.forEach(function(b){
-
-    if(
-      b.status==="approved" &&
-      b.actionedBy===managerUsername &&
-      b.actionedAt &&
-      b.actionedAt>resetAt
-    ){
-
-      total+=extractNumber(
-        b.comment
-      );
-
-      count++;
-
-    }
-
-  });
-
-  return{
-    total:total,
-    count:count
-  };
-
+var resetAt = state.managerResetAt[managerUsername] || 0;
+var total=0, count=0;
+state.bundles.forEach(function(b){
+if(b.status==='approved' && b.actionedBy===managerUsername && b.actionedAt && b.actionedAt > resetAt){
+total += extractNumber(b.comment);
+count++;
+}
+});
+return {total:total, count:count};
 }
 
+// Sum/count of bundles belonging to a specific NTO username that were approved, respecting that NTO's own reset threshold
 function ntoStats(ntoUsername){
-
-  var resetAt=
-    state.ntoResetAt[
-      ntoUsername
-    ] || 0;
-
-  var total=0;
-  var count=0;
-
-  state.bundles.forEach(function(b){
-
-    if(
-      b.status==="approved" &&
-      b.ntoUsername===ntoUsername &&
-      b.actionedAt &&
-      b.actionedAt>resetAt
-    ){
-
-      total+=extractNumber(
-        b.comment
-      );
-
-      count++;
-
-    }
-
-  });
-
-  return{
-    total:total,
-    count:count
-  };
-
+var resetAt = state.ntoResetAt[ntoUsername] || 0;
+var total=0, count=0;
+state.bundles.forEach(function(b){
+if(b.status==='approved' && b.ntoUsername===ntoUsername && b.actionedAt && b.actionedAt > resetAt){
+total += extractNumber(b.comment);
+count++;
+}
+});
+return {total:total, count:count};
 }
 
-/* ================= NTO REPORT ================= */
-
+// ---------------- ADMIN: PER-NTO REPORT ----------------
 function renderNtoReportSection(body){
+var ntoUsers = state.users.filter(function(u){return u.role==='nto';});
+if(!ntoUsers.length){
+body.innerHTML = '<div class="card"><div class="empty-state">تر اوسه هیڅ NTO حساب نشته.</div></div>';
+return;
+}
+var rows = ntoUsers.map(function(u){
+var s = ntoStats(u.username);
+return {username:u.username, count:s.count, total:s.total};
+});
+body.innerHTML = '<div class="card"><div style="overflow-x:auto;"><table><thead><tr>'+
+'<th>د NTO یوزر</th><th>د تصویب شمیر</th><th>ټول (افغانۍ)</th><th></th>'+
+'</tr></thead><tbody>'+
+rows.map(function(r){
+return '<tr><td>'+escapeHtml(r.username)+'</td><td>'+r.count+'</td><td>'+r.total.toLocaleString()+' افغانۍ</td>'+
+'<td><button class="icon-btn-sm" data-nto-reset="'+escapeHtml(r.username)+'" title="ریسیټ">↻</button></td></tr>';
+}).join('')+
+'</tbody></table></div></div>';
 
-  var ntoUsers=
-    state.users.filter(function(u){
-
-      return u.role==="nto";
-
-    });
-
-  if(!ntoUsers.length){
-
-    body.innerHTML=
-      '<div class="card">'+
-      '<div class="empty-state">'+
-      "تر اوسه هیڅ NTO حساب نشته."+
-      "</div>"+
-      "</div>";
-
-    return;
-
-  }
-
-  var rows=ntoUsers.map(function(u){
-
-    var s=ntoStats(u.username);
-
-    return{
-
-      username:u.username,
-      count:s.count,
-      total:s.total
-
-    };
-
-  });
-
-  body.innerHTML=
-
-    '<div class="card">'+
-    '<div style="overflow-x:auto;">'+
-
-    '<table>'+
-    '<thead><tr>'+
-
-    '<th>د NTO یوزر</th>'+
-    '<th>د تصویب شمیر</th>'+
-    '<th>ټول (افغانۍ)</th>'+
-    '<th></th>'+
-
-    '</tr></thead>'+
-
-    '<tbody>'+
-
-    rows.map(function(r){
-
-      return(
-
-        "<tr>"+
-
-        "<td>"+
-        escapeHtml(r.username)+
-        "</td>"+
-
-        "<td>"+
-        r.count+
-        "</td>"+
-
-        "<td>"+
-        r.total.toLocaleString()+
-        " افغانۍ</td>"+
-
-        "<td>"+
-
-        '<button class="icon-btn-sm" data-nto-reset="'+
-        escapeHtml(r.username)+
-        '" title="ریسیټ">&#8635;</button>'+
-
-        "</td>"+
-
-        "</tr>"
-
-      );
-
-    }).join("")+
-
-    "</tbody>"+
-    "</table>"+
-
-    "</div>"+
-    "</div>";
-
-  Array.prototype.forEach.call(
-    document.querySelectorAll(
-      "[data-nto-reset]"
-    ),
-    function(btn){
-
-      btn.onclick=function(){
-
-        var nu=
-          btn.getAttribute(
-            "data-nto-reset"
-          );
-
-        var ok=window.confirm(
-          "آیا ډاډه یاست چې غواړئ د "+
-          nu+
-          " د راپور معلومات پاک کړئ؟"
-        );
-
-        if(!ok)return;
-
-        state.ntoResetAt[nu]=Date.now();
-
-        persistReportMeta().then(function(){
-
-          showToast(
-            "د "+nu+" راپور پاک شو."
-          );
-
-          renderSection(
-            document.getElementById(
-              "main-area"
-            )
-          );
-
-        });
-
-      };
-
-    }
-  );
+Array.prototype.forEach.call(document.querySelectorAll('[data-nto-reset]'), function(btn){  
+  btn.onclick = function(){  
+    var nu = btn.getAttribute('data-nto-reset');  
+    var ok = window.confirm('آیا ډاډه یاست چې غواړئ د '+nu+' د راپور معلومات پاک کړئ؟');  
+    if(!ok) return;  
+    state.ntoResetAt[nu] = Date.now();  
+    persistReportMeta().then(function(){  
+      showToast('د '+nu+' راپور پاک شو.');  
+      renderSection(document.getElementById('main-area'));  
+    });  
+  };  
+});
 
 }
 
-/* ================= REPORT SECTION ================= */
-
-function renderReportSection(
-  body,
-  role,
-  headerRow
-){
-
-  if(role==="admin"){
-
-    var managers=
-      state.users.filter(function(u){
-
-        return u.role==="manager";
-
-      });
-
-    if(!managers.length){
-
-      body.innerHTML=
-        '<div class="card">'+
-        '<div class="empty-state">'+
-        "تر اوسه هیڅ منیجر حساب نشته."+
-        "</div>"+
-        "</div>";
-
-    }else{
-
-      var rows=managers.map(function(m){
-
-        var s=managerStats(
-          m.username
-        );
-
-        return{
-
-          username:m.username,
-          count:s.count,
-          total:s.total
-
-        };
-
-      });
-
-      body.innerHTML=
-
-        '<div class="card">'+
-        '<div style="overflow-x:auto;">'+
-
-        '<table>'+
-        '<thead><tr>'+
-
-        '<th>د منیجر نوم</th>'+
-        '<th>د تصویب شمیر</th>'+
-        '<th>ټول (افغانۍ)</th>'+
-        '<th></th>'+
-
-        '</tr></thead>'+
-
-        '<tbody>'+
-
-        rows.map(function(r){
-
-          return(
-
-            "<tr>"+
-
-            "<td>"+
-            escapeHtml(r.username)+
-            "</td>"+
-
-            "<td>"+
-            r.count+
-            "</td>"+
-
-            "<td>"+
-            r.total.toLocaleString()+
-            " افغانۍ</td>"+
-
-            "<td>"+
-
-            '<button class="icon-btn-sm" data-mgr-reset="'+
-            escapeHtml(r.username)+
-            '" title="ریسیټ">&#8635;</button>'+
-
-            "</td>"+
-
-            "</tr>"
-
-          );
-
-        }).join("")+
-
-        "</tbody>"+
-        "</table>"+
-
-        "</div>"+
-        "</div>";
-
-      Array.prototype.forEach.call(
-        document.querySelectorAll(
-          "[data-mgr-reset]"
-        ),
-        function(btn){
-
-          btn.onclick=function(){
-
-            var mgr=
-              btn.getAttribute(
-                "data-mgr-reset"
-              );
-
-            var ok=window.confirm(
-              "آیا ډاډه یاست چې غواړئ د "+
-              mgr+
-              " د راپور معلومات پاک کړئ؟"
-            );
-
-            if(!ok)return;
-
-            state.managerResetAt[mgr]=
-              Date.now();
-
-            persistReportMeta()
-              .then(function(){
-
-                showToast(
-                  "د "+mgr+" راپور پاک شو."
-                );
-
-                renderSection(
-                  document.getElementById(
-                    "main-area"
-                  )
-                );
-
-              });
-
-          };
-
-        }
-      );
-
-    }
-
-  }else if(role==="manager"){
-
-    var s=
-      managerStats(
-        state.currentUser.username
-      );
-
-    body.innerHTML=
-
-      '<div class="card">'+
-
-      '<h4>ستاسو د تصویب شویو راپور</h4>'+
-
-      '<div style="font-size:28px;font-weight:800;color:var(--ok);">'+
-      s.total.toLocaleString()+
-      " افغانۍ"+
-      "</div>"+
-
-      '<div class="small-muted" style="margin-top:6px;">'+
-      "د تصویب شویو شمیر: "+
-      s.count+
-      "</div>"+
-
-      "</div>";
-
-  }else if(role==="nto"){
-
-    var ns=
-      ntoStats(
-        state.currentUser.username
-      );
-
-    body.innerHTML=
-
-      '<div class="card">'+
-
-      '<h4>ستاسو د تصویب شویو راپور</h4>'+
-
-      '<div style="font-size:28px;font-weight:800;color:var(--ok);">'+
-      ns.total.toLocaleString()+
-      " افغانۍ"+
-      "</div>"+
-
-      '<div class="small-muted" style="margin-top:6px;">'+
-      "د تصویب شویو شمیر: "+
-      ns.count+
-      "</div>"+
-
-      "</div>";
-
-  }
+function renderReportSection(body, role, headerRow){
+if(role==='admin'){
+// ---- Admin: per-manager summary table ----
+var managers = state.users.filter(function(u){return u.role==='manager';});
+if(!managers.length){
+body.innerHTML = '<div class="card"><div class="empty-state">تر اوسه هیڅ منیجر حساب نشته.</div></div>';
+}else{
+var rows = managers.map(function(m){
+var s = managerStats(m.username);
+return {username:m.username, count:s.count, total:s.total};
+});
+body.innerHTML = '<div class="card"><div style="overflow-x:auto;"><table><thead><tr>'+
+'<th>د منیجر نوم</th><th>د تصویب شمیر</th><th>ټول (افغانۍ)</th><th></th>'+
+'</tr></thead><tbody>'+
+rows.map(function(r){
+return '<tr><td>'+escapeHtml(r.username)+'</td><td>'+r.count+'</td><td>'+r.total.toLocaleString()+' افغانۍ</td>'+
+'<td><button class="icon-btn-sm" data-mgr-reset="'+escapeHtml(r.username)+'" title="ریسیټ">↻</button></td></tr>';
+}).join('')+
+'</tbody></table></div></div>';
+
+Array.prototype.forEach.call(document.querySelectorAll('[data-mgr-reset]'), function(btn){  
+      btn.onclick = function(){  
+        var mgr = btn.getAttribute('data-mgr-reset');  
+        var ok = window.confirm('آیا ډاډه یاست چې غواړئ د '+mgr+' د راپور معلومات پاک کړئ؟');  
+        if(!ok) return;  
+        state.managerResetAt[mgr] = Date.now();  
+        persistReportMeta().then(function(){  
+          showToast('د '+mgr+' راپور پاک شو.');  
+          renderSection(document.getElementById('main-area'));  
+        });  
+      };  
+    });  
+  }  
+}else if(role==='manager'){  
+  // ---- Manager: only their own approvals ----  
+  var s = managerStats(state.currentUser.username);  
+  body.innerHTML =  
+    '<div class="card">'+  
+      '<h4>ستاسو د تصویب شویو راپور</h4>'+  
+      '<div style="font-size:28px;font-weight:800;color:var(--ok);">'+s.total.toLocaleString()+' افغانۍ</div>'+  
+      '<div class="small-muted" style="margin-top:6px;">د تصویب شویو شمیر: '+s.count+'</div>'+  
+    '</div>';  
+}else if(role==='nto'){  
+  var ns = ntoStats(state.currentUser.username);  
+  body.innerHTML =  
+    '<div class="card">'+  
+      '<h4>ستاسو د تصویب شویو راپور</h4>'+  
+      '<div style="font-size:28px;font-weight:800;color:var(--ok);">'+ns.total.toLocaleString()+' افغانۍ</div>'+  
+      '<div class="small-muted" style="margin-top:6px;">د تصویب شویو شمیر: '+ns.count+'</div>'+  
+    '</div>';  
+}
 
 }
 
-/* ================= ROLLS ================= */
-
+// ---------------- COMPANY ROLLS (admin only) ----------------
 function renderRollsSection(body){
+body.innerHTML =
+'<div class="card">'+
+'<h4>نوی مقرره اضافه کړئ</h4>'+
+'<div class="row"><div class="field"><textarea id="rl-text" rows="3" placeholder="د مقررې متن ولیکئ..."></textarea></div>'+
+'<button class="btn btn-gold" id="rl-add">اضافه کړئ</button></div>'+
+'</div>'+
+'<div class="card"><h4>موجوده مقررات</h4><div id="rl-list"></div></div>';
 
-  body.innerHTML=
+document.getElementById('rl-add').onclick = function(){  
+  var t = document.getElementById('rl-text').value.trim();  
+  if(!t) return;  
+  state.rolls.unshift({id:uid(), text:t, createdAt:Date.now(), createdBy:state.currentUser.username});  
+  persistRolls().then(function(){ renderSection(document.getElementById('main-area')); });  
+};  
 
-    '<div class="card">'+
-
-    '<h4>نوی مقرره اضافه کړئ</h4>'+
-
-    '<div class="row">'+
-
-    '<div class="field">'+
-
-    '<textarea id="rl-text" rows="3" placeholder="د مقررې متن ولیکئ..."></textarea>'+
-
-    "</div>"+
-
-    '<button class="btn btn-gold" id="rl-add">'+
-    "اضافه کړئ"+
-    "</button>"+
-
-    "</div>"+
-
-    "</div>"+
-
-    '<div class="card">'+
-
-    "<h4>موجوده مقررات</h4>"+
-    '<div id="rl-list"></div>'+
-    "</div>";
-
-  document.getElementById("rl-add")
-    .onclick=function(){
-
-      var t=
-        document.getElementById(
-          "rl-text"
-        ).value.trim();
-
-      if(!t)return;
-
-      state.rolls.unshift({
-
-        id:uid(),
-        text:t,
-        createdAt:Date.now(),
-        createdBy:
-          state.currentUser.username
-
-      });
-
-      persistRolls().then(function(){
-
-        renderSection(
-          document.getElementById(
-            "main-area"
-          )
-        );
-
-      });
-
-    };
-
-  var list=
-    document.getElementById(
-      "rl-list"
-    );
-
-  if(!state.rolls.length){
-
-    list.innerHTML=
-      '<div class="empty-state">'+
-      "تر اوسه هیڅ مقرره نشته."+
-      "</div>";
-
-  }else{
-
-    list.innerHTML=
-      state.rolls.map(function(r){
-
-        return(
-
-          '<div style="padding:12px 0;border-bottom:1px solid var(--border);">'+
-
-          '<div style="font-size:14px;">'+
-          escapeHtml(r.text)+
-          "</div>"+
-
-          '<div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">'+
-          fmtDate(r.createdAt)+
-          "</div>"+
-
-          "</div>"
-
-        );
-
-      }).join("");
-
-  }
+var list = document.getElementById('rl-list');  
+if(!state.rolls.length){  
+  list.innerHTML = '<div class="empty-state">تر اوسه هیڅ مقرره نشته.</div>';  
+}else{  
+  list.innerHTML = state.rolls.map(function(r){  
+    return '<div style="padding:12px 0;border-bottom:1px solid var(--border);">'+  
+      '<div style="font-size:14px;">'+escapeHtml(r.text)+'</div>'+  
+      '<div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">'+fmtDate(r.createdAt)+'</div>'+  
+    '</div>';  
+  }).join('');  
+}
 
 }
 
-/* ================= COMPLAINTS ================= */
+// ---------------- COMPLAINTS ----------------
+function renderComplaintsSection(body, role){
+var canSubmit = role==='nto';
+var rows = role==='nto' ? state.complaints.filter(function(c){return c.fromUsername===state.currentUser.username;}) : state.complaints.slice();
 
-function renderComplaintsSection(
-  body,
-  role
-){
+body.innerHTML =  
+  (canSubmit ? '<div class="card"><h4>نوی شکایت ولیکئ</h4><div class="row">'+  
+    '<div class="field"><textarea id="cp-text" rows="3" placeholder="خپل شکایت دلته ولیکئ..."></textarea></div>'+  
+    '<button class="btn btn-gold" id="cp-add">واستوئ</button></div></div>' : '')+  
+  '<div class="card"><h4>شکایتونه</h4><div id="cp-list"></div></div>';  
 
-  var canSubmit=
-    role==="nto";
+if(canSubmit){  
+  document.getElementById('cp-add').onclick = function(){  
+    var t = document.getElementById('cp-text').value.trim();  
+    if(!t) return;  
+    state.complaints.unshift({id:uid(), fromUsername:state.currentUser.username, text:t, createdAt:Date.now()});  
+    persistComplaints().then(function(){ renderSection(document.getElementById('main-area')); });  
+  };  
+}  
 
-  var rows=
-    role==="nto"
-    ?
-    state.complaints.filter(function(c){
-
-      return(
-        c.fromUsername===
-        state.currentUser.username
-      );
-
-    })
-    :
-    state.complaints.slice();
-
-  body.innerHTML=
-
-    (
-      canSubmit
-      ?
-      '<div class="card">'+
-
-      '<h4>نوی شکایت ولیکئ</h4>'+
-
-      '<div class="row">'+
-
-      '<div class="field">'+
-      '<textarea id="cp-text" rows="3" placeholder="خپل شکایت دلته ولیکئ..."></textarea>'+
-      "</div>"+
-
-      '<button class="btn btn-gold" id="cp-add">'+
-      "واستوئ"+
-      "</button>"+
-
-      "</div>"+
-
-      "</div>"
-      :
-      ""
-    )+
-
-    '<div class="card">'+
-    "<h4>شکایتونه</h4>"+
-    '<div id="cp-list"></div>'+
-    "</div>";
-
-  if(canSubmit){
-
-    document.getElementById("cp-add")
-      .onclick=function(){
-
-        var t=
-          document.getElementById(
-            "cp-text"
-          ).value.trim();
-
-        if(!t)return;
-
-        state.complaints.unshift({
-
-          id:uid(),
-
-          fromUsername:
-            state.currentUser.username,
-
-          text:t,
-
-          createdAt:Date.now()
-
-        });
-
-        persistComplaints()
-          .then(function(){
-
-            renderSection(
-              document.getElementById(
-                "main-area"
-              )
-            );
-
-          });
-
-      };
-
-  }
-
-  var list=
-    document.getElementById(
-      "cp-list"
-    );
-
-  if(!rows.length){
-
-    list.innerHTML=
-      '<div class="empty-state">'+
-      "هیڅ شکایت نشته."+
-      "</div>";
-
-  }else{
-
-    list.innerHTML=
-
-      rows.map(function(c){
-
-        return(
-
-          '<div style="padding:12px 0;border-bottom:1px solid var(--border);">'+
-
-          (
-            role!=="nto"
-            ?
-            '<div style="font-size:12px;color:var(--ink-soft);margin-bottom:4px;">له: '+
-            escapeHtml(c.fromUsername)+
-            "</div>"
-            :
-            ""
-          )+
-
-          '<div style="font-size:14px;">'+
-          escapeHtml(c.text)+
-          "</div>"+
-
-          '<div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">'+
-          fmtDate(c.createdAt)+
-          "</div>"+
-
-          "</div>"
-
-        );
-
-      }).join("");
-
-  }
+var list = document.getElementById('cp-list');  
+if(!rows.length){  
+  list.innerHTML = '<div class="empty-state">هیڅ شکایت نشته.</div>';  
+}else{  
+  list.innerHTML = rows.map(function(c){  
+    return '<div style="padding:12px 0;border-bottom:1px solid var(--border);">'+  
+      (role!=='nto' ? '<div style="font-size:12px;color:var(--ink-soft);margin-bottom:4px;">له: '+escapeHtml(c.fromUsername)+'</div>' : '')+  
+      '<div style="font-size:14px;">'+escapeHtml(c.text)+'</div>'+  
+      '<div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">'+fmtDate(c.createdAt)+'</div>'+  
+    '</div>';  
+  }).join('');  
+}
 
 }
 
-/* ================= UTILITIES ================= */
-
+// ---------------- utils ----------------
 function fmtDate(ts){
-
-  var d=new Date(ts);
-
-  return(
-    d.toLocaleDateString("en-GB")+
-    " "+
-    d.toLocaleTimeString(
-      "en-GB",
-      {
-        hour:"2-digit",
-        minute:"2-digit"
-      }
-    )
-  );
-
+var d = new Date(ts);
+return d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
 }
-
 function escapeHtml(s){
-
-  return String(
-    s==null ? "" : s
-  ).replace(
-    /[&<>"']/g,
-    function(c){
-
-      return{
-
-        "&":"&amp;",
-        "<":"&lt;",
-        ">":"&gt;",
-        '"':"&quot;",
-        "'":"&#39;"
-
-      }[c];
-
-    }
-  );
-
+return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+return {'&':'&','<':'<','>':'>','"':'"',"'":'''}[c];
+});
 }
-
 var toastTimer=null;
-
 function showToast(msg){
-
-  var el=
-    document.querySelector(".toast");
-
-  if(el)el.remove();
-
-  el=document.createElement("div");
-
-  el.className="toast";
-
-  el.textContent=msg;
-
-  document.body.appendChild(el);
-
-  clearTimeout(toastTimer);
-
-  toastTimer=setTimeout(function(){
-
-    if(el)el.remove();
-
-  },2600);
-
+var el = document.querySelector('.toast');
+if(el) el.remove();
+el = document.createElement('div');
+el.className='toast';
+el.textContent=msg;
+document.body.appendChild(el);
+clearTimeout(toastTimer);
+toastTimer = setTimeout(function(){ el.remove(); }, 2600);
 }
 
-/* ================= REAL TIME FIREBASE ================= */
-
+// ---------------- real-time sync ----------------
 function attachListeners(){
-
-  if(state.unsubs)return;
-
-  state.unsubs=[];
-
-  state.unsubs.push(
-
-    db.collection("appdata")
-      .doc("users")
-      .onSnapshot(function(snap){
-
-        if(
-          snap.exists &&
-          snap.data().list
-        ){
-
-          state.users=
-            snap.data().list;
-
-          render();
-
-        }
-
-      })
-
-  );
-
-  state.unsubs.push(
-
-    db.collection("appdata")
-      .doc("bundles")
-      .onSnapshot(function(snap){
-
-        if(
-          snap.exists &&
-          snap.data().list
-        ){
-
-          var newList=
-            snap.data().list;
-
-          checkForNewNtoActivity(
-            newList
-          );
-
-          state.bundles=
-            newList;
-
-          render();
-
-        }
-
-      })
-
-  );
-
-  state.unsubs.push(
-
-    db.collection("appdata")
-      .doc("complaints")
-      .onSnapshot(function(snap){
-
-        if(
-          snap.exists &&
-          snap.data().list
-        ){
-
-          state.complaints=
-            snap.data().list;
-
-          render();
-
-        }
-
-      })
-
-  );
-
-  state.unsubs.push(
-
-    db.collection("appdata")
-      .doc("rolls")
-      .onSnapshot(function(snap){
-
-        if(
-          snap.exists &&
-          snap.data().list
-        ){
-
-          state.rolls=
-            snap.data().list;
-
-          render();
-
-        }
-
-      })
-
-  );
-
-  state.unsubs.push(
-
-    db.collection("appdata")
-      .doc("reportMeta")
-      .onSnapshot(function(snap){
-
-        if(snap.exists){
-
-          state.managerResetAt=
-            snap.data().managerResetAt || {};
-
-          state.ntoResetAt=
-            snap.data().ntoResetAt || {};
-
-          render();
-
-        }
-
-      })
-
-  );
-
+if(state.unsubs) return;
+state.unsubs = [];
+state.unsubs.push(db.collection('appdata').doc('users').onSnapshot(function(snap){
+if(snap.exists && snap.data().list){ state.users = snap.data().list; render(); }
+}));
+state.unsubs.push(db.collection('appdata').doc('bundles').onSnapshot(function(snap){
+if(snap.exists && snap.data().list){
+var newList = snap.data().list;
+checkForNewNtoActivity(newList);
+state.bundles = newList;
+render();
+}
+}));
+state.unsubs.push(db.collection('appdata').doc('complaints').onSnapshot(function(snap){
+if(snap.exists && snap.data().list){ state.complaints = snap.data().list; render(); }
+}));
+state.unsubs.push(db.collection('appdata').doc('rolls').onSnapshot(function(snap){
+if(snap.exists && snap.data().list){ state.rolls = snap.data().list; render(); }
+}));
+state.unsubs.push(db.collection('appdata').doc('reportMeta').onSnapshot(function(snap){
+if(snap.exists){
+state.managerResetAt = snap.data().managerResetAt || {};
+state.ntoResetAt = snap.data().ntoResetAt || {};
+render();
+}
+}));
 }
 
-/* ================= NEW NTO ACTIVITY ================= */
+// ---------------- notify manager of new NTO activity (submit / resubmit) ----------------
+function checkForNewNtoActivity(newBundles){
+var prevMap = {};
+state.bundles.forEach(function(b){ prevMap[b.id] = b.status; });
 
-function checkForNewNtoActivity(
-  newBundles
-){
+if(state.knownBundleIds===null){  
+  // first load: just record current state, don't alert  
+  state.knownBundleIds = true;  
+  return;  
+}  
 
-  var prevMap={};
+var isNewActivity = false;  
+newBundles.forEach(function(b){  
+  if(b.status==='pending' || b.status==='resubmit'){  
+    if(prevMap[b.id]===undefined || prevMap[b.id]!==b.status){  
+      isNewActivity = true;  
+    }  
+  }  
+});  
 
-  state.bundles.forEach(function(b){
-
-    prevMap[b.id]=b.status;
-
-  });
-
-  if(state.knownBundleIds===null){
-
-    state.knownBundleIds=true;
-
-    return;
-
-  }
-
-  var isNewActivity=false;
-
-  newBundles.forEach(function(b){
-
-    if(
-      b.status==="pending" ||
-      b.status==="resubmit"
-    ){
-
-      if(
-        prevMap[b.id]===undefined ||
-        prevMap[b.id]!==b.status
-      ){
-
-        isNewActivity=true;
-
-      }
-
-    }
-
-  });
-
-  if(
-    isNewActivity &&
-    state.currentUser &&
-    state.currentUser.role==="manager"
-  ){
-
-    playNotificationSound();
-
-    showToast(
-      "نوی بنډل معلومات راغلل."
-    );
-
-  }
-
+if(isNewActivity && state.currentUser && state.currentUser.role==='manager'){  
+  playNotificationSound();  
+  showToast('نوی بنډل معلومات راغلل.');  
 }
 
-/* ================= SOUND ================= */
+}
 
 function playNotificationSound(){
-
-  try{
-
-    var Ctx=
-      window.AudioContext ||
-      window.webkitAudioContext;
-
-    if(!Ctx)return;
-
-    var ctx=new Ctx();
-
-    var o=
-      ctx.createOscillator();
-
-    var g=
-      ctx.createGain();
-
-    o.type="sine";
-
-    o.frequency.value=880;
-
-    g.gain.value=0.18;
-
-    o.connect(g);
-
-    g.connect(ctx.destination);
-
-    o.start();
-
-    setTimeout(function(){
-
-      o.frequency.value=660;
-
-    },130);
-
-    setTimeout(function(){
-
-      try{
-
-        o.stop();
-        ctx.close();
-
-      }catch(e){}
-
-    },280);
-
-  }catch(e){}
-
-  if(navigator.vibrate){
-
-    try{
-
-      navigator.vibrate([
-        200,
-        80,
-        200
-      ]);
-
-    }catch(e){}
-
-  }
-
+try{
+var Ctx = window.AudioContext || window.webkitAudioContext;
+if(!Ctx) return;
+var ctx = new Ctx();
+var o = ctx.createOscillator();
+var g = ctx.createGain();
+o.type = 'sine';
+o.frequency.value = 880;
+g.gain.value = 0.18;
+o.connect(g); g.connect(ctx.destination);
+o.start();
+setTimeout(function(){ o.frequency.value = 660; }, 130);
+setTimeout(function(){ try{ o.stop(); ctx.close(); }catch(e){} }, 280);
+}catch(e){}
+if(navigator.vibrate){ try{ navigator.vibrate([200,80,200]); }catch(e){} }
 }
 
-/* ================= START ================= */
-
+// ---------------- init ----------------
 loadAll().then(function(){
-
-  state.loading=false;
-
-  attachListeners();
-
-  render();
-
-}).catch(function(){
-
-  state.loading=false;
-
-  state.error=
-    "د سیستم د معلوماتو په لوډ کولو کې ستونزه راغله.";
-
-  render();
-
+state.loading = false;
+attachListeners();
+render();
 });
 
 })();
-
 </script>
 
-</body>
+</body>  
 </html>
