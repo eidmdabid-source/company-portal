@@ -344,8 +344,8 @@ function persistReportMeta(){ return db.collection('appdata').doc('reportMeta').
 // ---------------- role menu config ----------------
 var MENUS = {
 admin:[
-{key:'managers', label:' منیجر يوﺯر'},
-{key:'ntos', label:' مشتري یوزران'},
+{key:'managers', label:'منیجر يوﺯر'},
+{key:'ntos', label:'مشتري یوزر'},
 {key:'sales', label:'بنډلونه'},
 {key:'report', label:'منيجر راپور'},
 {key:'nto_report', label:'مشتري راپور'},
@@ -355,13 +355,13 @@ admin:[
 manager:[
 {key:'ntos', label:'مشتري يوﺯر'},
 {key:'sales', label:'بنډلونه'},
-{key:'report', label:'راپور'}
+{key:'report', label:'منيجر راپور'}
 ],
 nto:[
 {key:'bundle', label:'بنډل ليږل'},
-{key:'sales', label:'د بنډلونه'},
-{key:'report', label:'راپور'},
-{key:'complaints', label:'شکایت ثبتول'}
+{key:'sales', label:'بنډلونه'},
+{key:'report', label:'مشتري راپور'},
+{key:'complaints', label:'شکایت'}
 ]
 };
 var ROLE_LABEL = {admin:'اډمین', manager:'منیجر', nto:'مشتري'};
