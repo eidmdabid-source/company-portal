@@ -588,7 +588,7 @@
       };
       state.bundles.unshift(entry);
       persistBundles().then(function(){
-        showToast('بنډل واستول شو، اوس د تمې په حالت کې دی.');
+        showToast('بنډل واستول شو، اوس د انتظار په حالت کې دی.');
         renderDashboard(document.getElementById('app'));
       });
     };
@@ -597,7 +597,7 @@
     if(!myBundles.length){
       list.innerHTML = '<div class="empty-state">تر اوسه هیڅ بنډل نه دی استول شوی.</div>';
     }else{
-      list.innerHTML = '<table><thead><tr><th>شمیره</th><th>د بنډل نوم</th><th>حالت</th><th>نیټه</th></tr></thead><tbody>'+
+      list.innerHTML = '<table><thead><tr><th>اړيکې شمیره</th><th>بنډل نوم</th><th>حالت</th><th>نیټه</th></tr></thead><tbody>'+
         myBundles.map(function(b){
           return '<tr><td>'+escapeHtml(b.field1)+'</td><td>'+escapeHtml(b.field2)+'</td><td>'+statusBadge(b.status)+'</td><td>'+fmtDate(b.createdAt)+'</td></tr>';
         }).join('')+
@@ -622,12 +622,12 @@
         if(!rows.length){ showToast('هیڅ معلومات نشته چې ډاونلوډ شي.'); return; }
         var data = rows.map(function(b){
           var o = {};
-          o['د NTO یوزر'] = b.ntoUsername;
-          o['شمیره'] = b.field1;
-          o['د بنډل نوم'] = b.field2;
+          o['مشتري نوم'] = b.ntoUsername;
+          o['اړيکې شمیره'] = b.field1;
+          o['بنډل نوم'] = b.field2;
           o['حالت'] = statusLabel(b.status);
-          o['عمل شوی له خوا'] = b.actionedBy || '';
-          o['کمینټ'] = b.comment || '';
+          o['تائيد-مدير'] = b.actionedBy || '';
+          o['يادونه شوې'] = b.comment || '';
           o['نیټه'] = fmtDate(b.createdAt);
           return o;
         });
@@ -641,7 +641,7 @@
 
       if(role==='admin'){
         document.getElementById('sales-reset').onclick = function(){
-          var ok = window.confirm('آیا ډاډه یاست چې غواړئ د پلور راپور ټول معلومات بالکل ختم کړئ؟ دا به د NTO د بنډل او پلور راپور پاڼې هم پاکې کړي. دا کار بیرته نشي کیدلی.');
+          var ok = window.confirm('آیا ډاډه یاست چې غواړئ د پلور راپور ټول معلومات بالکل ختم کړئ؟ دا به د مشتري د بنډلونو راپور پاڼې هم پاکې کړي. دا معلومات بیرته نشې راتلاى.');
           if(!ok) return;
           state.bundles = [];
           persistBundles().then(function(){
@@ -657,10 +657,10 @@
       return;
     }
     body.innerHTML = '<div class="card"><div style="overflow-x:auto;"><table><thead><tr>'+
-      (role!=='nto' ? '<th>د NTO یوزر</th>' : '')+
-      '<th>شمیره</th><th>د بنډل نوم</th><th>حالت</th>'+
-      (canProcess ? '<th>عمل شوی له خوا</th>' : '')+
-      '<th>کمینټ</th>'+
+      (role!=='nto' ? '<th>مشتري نوم</th>' : '')+
+      '<th>شمیره</th><th>بنډل نوم</th><th>حالت</th>'+
+      (canProcess ? '<th>عمل(role==='nto' ? '\u003Ctd>'+(b.status==='rejected' ? '\u003Cbutton class=\"btn btn-sm btn-info\" data-resubmit=\"'+b.id+'\">ریسبمیټ\u003C/button>' : '')+'\u003C/td>' : '')+ شوی له خوا</th>' : '')+
+      '<th>يادونه شوې</th>'+
       '<th>نیټه</th>'+
       (role==='nto' ? '<th></th>' : '')+
       '</tr></thead><tbody>'+
@@ -677,7 +677,7 @@
           (canProcess ? '<td>'+(b.actionedBy?escapeHtml(b.actionedBy):'—')+'</td>' : '')+
           '<td>'+(b.comment?escapeHtml(b.comment):'—')+'</td>'+
           '<td>'+fmtDate(b.createdAt)+'</td>'+
-          (role==='nto' ? '<td>'+(b.status==='rejected' ? '<button class="btn btn-sm btn-info" data-resubmit="'+b.id+'">ریسبمیټ</button>' : '')+'</td>' : '')+
+          (role==='nto' ? '<td>'+(b.status==='rejected' ? '<button class="btn btn-sm btn-info" data-resubmit="'+b.id+'">بيا ځلې استول</button>' : '')+'</td>' : '')+
         '</tr>';
       }).join('')+
     '</tbody></table></div></div>';
@@ -732,11 +732,11 @@
     return '';
   }
   function statusLabel(status){
-    if(status==='pending') return 'په تمه (Pending)';
-    if(status==='in_process') return 'پروسیس کې';
-    if(status==='approved') return 'تصویب شوی';
-    if(status==='rejected') return 'ردشوی';
-    if(status==='resubmit') return 'بیا وړاندې شوی';
+    if(status==='pending') return 'په انتظار کې';
+    if(status==='in_process') return 'په جريان کې';
+    if(status==='approved') return 'تائيد شوي';
+    if(status==='rejected') return 'رد شوې';
+    if(status==='resubmit') return 'بیا استول شوي';
     return status;
   }
   function statusBadge(status){
@@ -787,7 +787,7 @@
     b.processingBy = null;
     b.ntoSeen = false;
     persistBundles().then(function(){
-      showToast(decision==='approved' ? 'بنډل تصویب شو.' : 'بنډل رد شو.');
+      showToast(decision==='approved' ? 'بنډل تائيد شو.' : 'بنډل رد شو.');
       state.modal = null;
       render();
     });
@@ -815,7 +815,7 @@
     b.processingBy = null;
     b.ntoSeen = true;
     persistBundles().then(function(){
-      showToast('بنډل بیا وړاندې شو.');
+      showToast('بنډل بیا واستول شو.');
       state.modal = null;
       render();
     });
@@ -836,18 +836,18 @@
           '<h3>د بنډل پروسس کول</h3>'+
           '<div class="field"><label>کمینټ (اړین دی)</label><textarea id="proc-comment" rows="3" placeholder="خپل کمینټ دلته ولیکئ..."></textarea></div>'+
           '<div class="modal-actions">'+
-            '<button class="btn btn-ok" id="proc-approve">تصویب (Approve)</button>'+
-            '<button class="btn btn-danger" id="proc-reject">ردول (Reject)</button>'+
+            '<button class="btn btn-ok" id="proc-approve">تائيد کول (Approve)</button>'+
+            '<button class="btn btn-danger" id="proc-reject">ردول کول (Reject)</button>'+
           '</div>'+
-          '<button class="btn btn-ghost btn-block" id="proc-cancel" style="margin-top:10px;">لغوه کول</button>'+
+          '<button class="btn btn-ghost btn-block" id="proc-cancel" style="margin-top:10px;">پريښودل</button>'+
         '</div>';
     }else if(state.modal.type==='resubmit'){
       layer.innerHTML =
         '<div class="modal-card">'+
-          '<h3>بیا وړاندې کول</h3>'+
+          '<h3>بیا ځلې استول </h3>'+
           '<div class="field"><label>کمینټ</label><textarea id="resub-comment" rows="3" placeholder="خپل کمینټ دلته ولیکئ..."></textarea></div>'+
           '<div class="modal-actions">'+
-            '<button class="btn btn-gold btn-block" id="resub-submit">ریسبمیټ</button>'+
+            '<button class="btn btn-gold btn-block" id="resub-submit">بيا ځلې ليږل</button>'+
           '</div>'+
           '<button class="btn btn-ghost btn-block" id="resub-cancel" style="margin-top:10px;">لغوه کول</button>'+
         '</div>';
