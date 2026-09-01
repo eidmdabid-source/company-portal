@@ -2,8 +2,8 @@
 <head>  
 <meta charset="UTF-8">  
 <meta name="viewport" content="width=device-width, initial-scale=1.0">  
-<title>د شرکت مدیریتي سیسټم</title>  
-<link rel="preconnect" href="https://fonts.googleapis.com">  
+<title>د روشن بنډلونه</title>  
+<link rel=\u003Cscript src=\"https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js\">\u003C/script>"preconnect" href="https://fonts.googleapis.com">  
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">  
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>  
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>  
@@ -344,27 +344,27 @@ function persistReportMeta(){ return db.collection('appdata').doc('reportMeta').
 // ---------------- role menu config ----------------
 var MENUS = {
 admin:[
-{key:'managers', label:'د منیجر یوزران'},
-{key:'ntos', label:'د NTO یوزران'},
-{key:'sales', label:'د پلور راپور'},
-{key:'report', label:'راپور'},
-{key:'nto_report', label:'د NTO راپور'},
-{key:'rolls', label:'د شرکت مقررات'},
-{key:'complaints', label:'شکایتونه'}
+{key:'managers', label:' منیجر يوﺯر'},
+{key:'ntos', label:' مشتري یوزران'},
+{key:'sales', label:'بنډلونه'},
+{key:'report', label:'منيجر راپور'},
+{key:'nto_report', label:'مشتري راپور'},
+{key:'rolls', label:'شرکت مقررات'},
+{key:'complaints', label:'شکايت'}
 ],
 manager:[
-{key:'ntos', label:'د NTO یوزران'},
-{key:'sales', label:'د پلور راپور'},
+{key:'ntos', label:'مشتري يوﺯر'},
+{key:'sales', label:'بنډلونه'},
 {key:'report', label:'راپور'}
 ],
 nto:[
-{key:'bundle', label:'بنډل'},
-{key:'sales', label:'د پلور راپور'},
+{key:'bundle', label:'بنډل ليږل'},
+{key:'sales', label:'د بنډلونه'},
 {key:'report', label:'راپور'},
-{key:'complaints', label:'شکایتونه'}
+{key:'complaints', label:'شکایت ثبتول'}
 ]
 };
-var ROLE_LABEL = {admin:'اډمین', manager:'منیجر', nto:'NTO'};
+var ROLE_LABEL = {admin:'اډمین', manager:'منیجر', nto:'مشتري'};
 
 // ---------------- render root ----------------
 function render(){
