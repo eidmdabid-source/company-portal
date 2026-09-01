@@ -1,0 +1,735 @@
+<!DOCTYPE html>
+<html lang="ps" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>د شرکت مدیریتي سیسټم</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-firestore-compat.js"></script>
+<style>
+  :root{
+    --bg:#EEF1F4;
+    --surface:#FFFFFF;
+    --ink:#1B2430;
+    --ink-soft:#5B6675;
+    --sidebar:#101826;
+    --sidebar-text:#C9D1DB;
+    --sidebar-text-dim:#7C8698;
+    --accent:#B8862B;
+    --accent-soft:#F3E7CE;
+    --ok:#2E7D5B;
+    --ok-soft:#DFF0E7;
+    --danger:#B3432B;
+    --danger-soft:#F6E1DA;
+    --border:#DDE2E8;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    font-family:'Vazirmatn','Segoe UI',Tahoma,sans-serif;
+    background:var(--bg);
+    color:var(--ink);
+    direction:rtl;
+    min-height:100vh;
+  }
+  #app{min-height:100vh;}
+
+  /* ---------- Login ---------- */
+  .login-wrap{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+    background:
+      radial-gradient(circle at 85% 10%, rgba(184,134,43,0.18), transparent 45%),
+      linear-gradient(180deg, #101826 0%, #182234 100%);
+  }
+  .login-card{
+    background:var(--surface);
+    width:100%;
+    max-width:380px;
+    border-radius:16px;
+    padding:36px 30px;
+    box-shadow:0 30px 60px rgba(0,0,0,0.35);
+  }
+  .login-brand{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:6px;
+  }
+  .login-brand .mark{
+    width:34px;height:34px;border-radius:8px;
+    background:linear-gradient(135deg,#B8862B,#8f6a20);
+    flex:none;
+  }
+  .login-brand span{font-weight:800;font-size:19px;letter-spacing:.2px;}
+  .login-card p.sub{color:var(--ink-soft);font-size:13.5px;margin:0 0 26px 0;}
+  .field{margin-bottom:16px;}
+  .field label{display:block;font-size:13px;color:var(--ink-soft);margin-bottom:6px;font-weight:600;}
+  .field input, .field textarea, .field select{
+    width:100%;
+    padding:11px 13px;
+    border:1.5px solid var(--border);
+    border-radius:8px;
+    font-family:inherit;
+    font-size:14.5px;
+    background:#FBFCFD;
+    color:var(--ink);
+    outline:none;
+    transition:border-color .15s;
+  }
+  .field input:focus, .field textarea:focus, .field select:focus{border-color:var(--accent);}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    padding:11px 18px;
+    border-radius:8px;
+    border:none;
+    font-family:inherit;
+    font-weight:700;
+    font-size:14.5px;
+    cursor:pointer;
+    transition:filter .15s, transform .05s;
+  }
+  .btn:active{transform:scale(.98);}
+  .btn-primary{background:var(--ink);color:#fff;}
+  .btn-primary:hover{filter:brightness(1.15);}
+  .btn-gold{background:var(--accent);color:#fff;}
+  .btn-gold:hover{filter:brightness(1.08);}
+  .btn-ok{background:var(--ok);color:#fff;}
+  .btn-ok:hover{filter:brightness(1.1);}
+  .btn-danger{background:var(--danger);color:#fff;}
+  .btn-danger:hover{filter:brightness(1.1);}
+  .btn-ghost{background:transparent;color:var(--ink-soft);border:1.5px solid var(--border);}
+  .btn-ghost:hover{border-color:var(--ink-soft);color:var(--ink);}
+  .btn-block{width:100%;}
+  .btn-sm{padding:6px 12px;font-size:13px;border-radius:6px;}
+  .error-box{
+    background:var(--danger-soft);color:var(--danger);
+    border-radius:8px;padding:10px 12px;font-size:13.5px;margin-bottom:16px;font-weight:600;
+  }
+  .hint-box{
+    background:var(--accent-soft);color:#7a5a17;
+    border-radius:8px;padding:10px 12px;font-size:12.5px;margin-top:18px;line-height:1.9;
+  }
+
+  /* ---------- Disabled full screen ---------- */
+  .blocked-wrap{
+    min-height:100vh;display:flex;align-items:center;justify-content:center;padding:24px;
+    background:#101826;
+  }
+  .blocked-card{
+    background:#fff;border-radius:16px;padding:40px 32px;max-width:420px;text-align:center;
+    box-shadow:0 30px 60px rgba(0,0,0,.35);
+  }
+  .blocked-card .icon{
+    width:56px;height:56px;border-radius:50%;background:var(--danger-soft);
+    display:flex;align-items:center;justify-content:center;margin:0 auto 18px auto;
+    font-size:26px;color:var(--danger);
+  }
+  .blocked-card h3{margin:0 0 10px 0;font-size:17px;}
+  .blocked-card p{color:var(--ink-soft);font-size:14px;line-height:1.8;direction:ltr;text-align:center;}
+
+  /* ---------- Dashboard layout ---------- */
+  .shell{display:flex;min-height:100vh;}
+  .sidebar{
+    width:236px;flex:none;background:var(--sidebar);color:var(--sidebar-text);
+    display:flex;flex-direction:column;padding:22px 16px;
+  }
+  .sidebar .brand{display:flex;align-items:center;gap:10px;padding:0 6px 22px 6px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:18px;}
+  .sidebar .brand .mark{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,#B8862B,#8f6a20);flex:none;}
+  .sidebar .brand b{font-size:15.5px;}
+  .sidebar .role-tag{
+    font-size:11.5px;color:var(--sidebar-text-dim);
+    background:rgba(255,255,255,.06);
+    display:inline-block;padding:3px 10px;border-radius:20px;margin-bottom:18px;
+  }
+  .nav-item{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:11px 12px;border-radius:8px;margin-bottom:4px;
+    color:var(--sidebar-text);cursor:pointer;font-size:14px;font-weight:600;
+    transition:background .12s;
+  }
+  .nav-item:hover{background:rgba(255,255,255,.06);}
+  .nav-item.active{background:var(--accent);color:#fff;}
+  .nav-badge{
+    background:var(--danger);color:#fff;font-size:11px;font-weight:800;
+    min-width:18px;height:18px;border-radius:9px;display:flex;align-items:center;justify-content:center;padding:0 5px;
+  }
+  .sidebar .spacer{flex:1;}
+  .sidebar .user-box{
+    border-top:1px solid rgba(255,255,255,.08);padding-top:14px;margin-top:8px;
+  }
+  .sidebar .user-box .uname{font-size:13.5px;font-weight:700;color:#fff;margin-bottom:8px;}
+  .main{flex:1;padding:30px 34px;overflow-y:auto;min-width:0;}
+  .main-header{margin-bottom:24px;}
+  .main-header h2{margin:0 0 4px 0;font-size:21px;}
+  .main-header p{margin:0;color:var(--ink-soft);font-size:13.5px;}
+
+  .card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:22px;margin-bottom:20px;}
+  .card h4{margin:0 0 16px 0;font-size:15px;}
+  .row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;}
+  .row .field{flex:1;min-width:180px;margin-bottom:0;}
+
+  table{width:100%;border-collapse:collapse;font-size:13.8px;}
+  th,td{padding:11px 10px;text-align:right;border-bottom:1px solid var(--border);}
+  th{color:var(--ink-soft);font-weight:700;font-size:12.5px;}
+  tr:last-child td{border-bottom:none;}
+  .badge{
+    display:inline-flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:12px;font-weight:700;
+  }
+  .badge-pending{background:var(--accent-soft);color:#7a5a17;}
+  .badge-approved{background:var(--ok-soft);color:var(--ok);}
+  .badge-enabled{background:var(--ok-soft);color:var(--ok);}
+  .badge-disabled{background:var(--danger-soft);color:var(--danger);}
+  .empty-state{color:var(--ink-soft);font-size:13.5px;padding:26px 10px;text-align:center;}
+  .toast{
+    position:fixed;bottom:22px;left:50%;transform:translateX(-50%);
+    background:var(--ink);color:#fff;padding:12px 22px;border-radius:9px;font-size:13.5px;font-weight:600;
+    box-shadow:0 10px 30px rgba(0,0,0,.25);z-index:999;
+  }
+  .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:20px;}
+  @media (max-width:860px){
+    .shell{flex-direction:column;}
+    .sidebar{width:100%;flex-direction:row;flex-wrap:wrap;padding:14px;align-items:center;}
+    .sidebar .brand{border-bottom:none;margin-bottom:0;padding:0;flex:none;width:auto;}
+    .sidebar .role-tag{margin-bottom:0;}
+    .sidebar .spacer{display:none;}
+    .sidebar .user-box{border-top:none;padding-top:0;margin-top:0;margin-right:auto;}
+    .nav-item{margin-bottom:0;}
+    .main{padding:20px 16px;}
+    .grid-2{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+(function(){
+  "use strict";
+
+  // ====== FIREBASE CONFIG — replace with YOUR project's config ======
+  // Get this from: Firebase Console > Project settings > General > Your apps > SDK setup
+  var firebaseConfig = {
+    apiKey: "AIzaSyCFI4CdRV6IwyjmifRjUlzzT_28I47vgh0",
+    authDomain: "companyportal-f52e0.firebaseapp.com",
+    projectId: "companyportal-f52e0",
+    storageBucket: "companyportal-f52e0.firebasestorage.app",
+    messagingSenderId: "314049949289",
+    appId: "1:314049949289:web:889ca48f03540261f5fcf8"
+  };
+  firebase.initializeApp(firebaseConfig);
+  var db = firebase.firestore();
+
+  var state = {
+    currentUser:null,
+    users:[],
+    bundles:[],
+    complaints:[],
+    rolls:[],
+    section:null,
+    loading:true,
+    error:"",
+    unsubs:null
+  };
+
+  // ---------------- storage helpers (Firestore) ----------------
+  function sGetDoc(name){
+    return db.collection('appdata').doc(name).get().then(function(snap){
+      return (snap.exists && snap.data().list) ? snap.data().list : null;
+    }).catch(function(){ return null; });
+  }
+  function sSetDoc(name, list){
+    return db.collection('appdata').doc(name).set({list:list});
+  }
+  function loadJSON(key, fallback){
+    return sGetDoc(key).then(function(v){ return v || fallback; });
+  }
+  function saveJSON(key, obj){
+    return sSetDoc(key, obj);
+  }
+  function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+  // ---------------- data bootstrap ----------------
+  function ensureSeed(){
+    return loadJSON('users', null).then(function(users){
+      if(users && users.length){ state.users = users; return; }
+      var seeded = [{username:'admin', password:'admin123', role:'admin', status:'enabled', createdBy:'system'}];
+      state.users = seeded;
+      return saveJSON('users', seeded);
+    });
+  }
+
+  function loadAll(){
+    return Promise.all([
+      ensureSeed(),
+      loadJSON('bundles', []).then(function(v){ state.bundles = v; }),
+      loadJSON('complaints', []).then(function(v){ state.complaints = v; }),
+      loadJSON('rolls', []).then(function(v){ state.rolls = v; })
+    ]);
+  }
+
+  function persistUsers(){ return saveJSON('users', state.users); }
+  function persistBundles(){ return saveJSON('bundles', state.bundles); }
+  function persistComplaints(){ return saveJSON('complaints', state.complaints); }
+  function persistRolls(){ return saveJSON('rolls', state.rolls); }
+
+  // ---------------- role menu config ----------------
+  var MENUS = {
+    admin:[
+      {key:'bundle', label:'بنډل'},
+      {key:'managers', label:'د منیجر یوزران'},
+      {key:'ntos', label:'د NTO یوزران'},
+      {key:'sales', label:'د پلور راپور'},
+      {key:'rolls', label:'د شرکت مقررات'},
+      {key:'complaints', label:'شکایتونه'}
+    ],
+    manager:[
+      {key:'bundle', label:'بنډل'},
+      {key:'ntos', label:'د NTO یوزران'},
+      {key:'sales', label:'د پلور راپور'}
+    ],
+    nto:[
+      {key:'bundle', label:'بنډل'},
+      {key:'sales', label:'د پلور راپور'},
+      {key:'complaints', label:'شکایتونه'}
+    ]
+  };
+  var ROLE_LABEL = {admin:'اډمین', manager:'منیجر', nto:'NTO'};
+
+  // ---------------- render root ----------------
+  function render(){
+    var root = document.getElementById('app');
+    if(state.loading){
+      root.innerHTML = '<div class="login-wrap"><div class="login-card"><p class="sub">بار کیږي...</p></div></div>';
+      return;
+    }
+    if(!state.currentUser){
+      renderLogin(root);
+      return;
+    }
+    // re-check current user still enabled (in case cache stale)
+    var fresh = state.users.find(function(u){return u.username===state.currentUser.username;});
+    if(!fresh || fresh.status==='disabled'){
+      renderBlocked(root);
+      return;
+    }
+    renderDashboard(root);
+  }
+
+  // ---------------- LOGIN VIEW ----------------
+  function renderLogin(root){
+    root.innerHTML =
+      '<div class="login-wrap"><div class="login-card">'+
+        '<div class="login-brand"><div class="mark"></div><span>شرکت پورټال</span></div>'+
+        '<p class="sub">دننه کیدو لپاره خپل یوزرنوم او پاسورډ ولیکئ</p>'+
+        (state.error ? '<div class="error-box">'+escapeHtml(state.error)+'</div>' : '')+
+        '<div class="field"><label>یوزرنوم</label><input id="li-user" type="text" autocomplete="username"></div>'+
+        '<div class="field"><label>پاسورډ</label><input id="li-pass" type="password" autocomplete="current-password"></div>'+
+        '<button class="btn btn-primary btn-block" id="li-btn">دننه شئ</button>'+
+        '<div class="hint-box">لومړنی د اډمین حساب: <b>admin</b> / <b>admin123</b></div>'+
+      '</div></div>';
+
+    document.getElementById('li-btn').onclick = doLogin;
+    document.getElementById('li-pass').addEventListener('keydown', function(e){
+      if(e.key==='Enter') doLogin();
+    });
+  }
+
+  function doLogin(){
+    var u = document.getElementById('li-user').value.trim();
+    var p = document.getElementById('li-pass').value;
+    if(!u || !p){
+      state.error = 'مهرباني وکړئ یوزرنوم او پاسورډ دواړه ولیکئ.';
+      render(); return;
+    }
+    var found = state.users.find(function(x){return x.username===u;});
+    if(!found || found.password!==p){
+      state.error = 'یوزرنوم یا پاسورډ سم نه دی.';
+      render(); return;
+    }
+    if(found.status==='disabled'){
+      state.currentUser = {username:found.username, role:found.role};
+      state.error='';
+      render();
+      return;
+    }
+    state.error='';
+    state.currentUser = {username:found.username, role:found.role};
+    state.section = MENUS[found.role][0].key;
+    render();
+  }
+
+  // ---------------- BLOCKED VIEW ----------------
+  function renderBlocked(root){
+    root.innerHTML =
+      '<div class="blocked-wrap"><div class="blocked-card">'+
+        '<div class="icon">&#9888;</div>'+
+        '<h3 style="direction:rtl;">ستاسو دننه کیدل بند شوي دي</h3>'+
+        '<p>Your user has been disabled by the Admin. Please contact them.</p>'+
+        '<button class="btn btn-ghost" id="bk-back" style="margin-top:18px;">بیرته لاگ-این ته</button>'+
+      '</div></div>';
+    document.getElementById('bk-back').onclick = function(){
+      state.currentUser = null;
+      render();
+    };
+  }
+
+  // ---------------- DASHBOARD SHELL ----------------
+  function renderDashboard(root){
+    var role = state.currentUser.role;
+    var menu = MENUS[role];
+    if(!state.section || !menu.find(function(m){return m.key===state.section;})){
+      state.section = menu[0].key;
+    }
+
+    var pendingCount = state.bundles.filter(function(b){return b.status==='pending';}).length;
+    var myApprovedUnseen = state.bundles.filter(function(b){
+      return b.ntoUsername===state.currentUser.username && b.status==='approved' && !b.ntoSeen;
+    }).length;
+
+    var navHtml = menu.map(function(m){
+      var badge = '';
+      if(m.key==='sales'){
+        if((role==='admin'||role==='manager') && pendingCount>0){
+          badge = '<span class="nav-badge">'+pendingCount+'</span>';
+        }else if(role==='nto' && myApprovedUnseen>0){
+          badge = '<span class="nav-badge">'+myApprovedUnseen+'</span>';
+        }
+      }
+      return '<div class="nav-item '+(state.section===m.key?'active':'')+'" data-sec="'+m.key+'">'+
+        '<span>'+m.label+'</span>'+badge+'</div>';
+    }).join('');
+
+    root.innerHTML =
+      '<div class="shell">'+
+        '<div class="sidebar">'+
+          '<div class="brand"><div class="mark"></div><b>شرکت پورټال</b></div>'+
+          '<div class="role-tag">'+ROLE_LABEL[role]+'</div>'+
+          '<div style="display:flex;flex-direction:column;gap:2px;flex:1;">'+navHtml+'</div>'+
+          '<div class="spacer"></div>'+
+          '<div class="user-box">'+
+            '<div class="uname">'+escapeHtml(state.currentUser.username)+'</div>'+
+            '<button class="btn btn-ghost btn-sm btn-block" id="logout-btn">وتل (Logout)</button>'+
+          '</div>'+
+        '</div>'+
+        '<div class="main" id="main-area"></div>'+
+      '</div>';
+
+    Array.prototype.forEach.call(document.querySelectorAll('.nav-item'), function(el){
+      el.onclick = function(){
+        state.section = el.getAttribute('data-sec');
+        if(state.section==='sales' && role==='nto'){
+          state.bundles.forEach(function(b){
+            if(b.ntoUsername===state.currentUser.username && b.status==='approved') b.ntoSeen = true;
+          });
+          persistBundles();
+        }
+        render();
+      };
+    });
+    document.getElementById('logout-btn').onclick = function(){
+      state.currentUser = null;
+      state.section = null;
+      render();
+    };
+
+    renderSection(document.getElementById('main-area'));
+  }
+
+  function sectionTitle(key){
+    var map = {bundle:'بنډل', managers:'د منیجر یوزران', ntos:'د NTO یوزران', sales:'د پلور راپور', rolls:'د شرکت مقررات', complaints:'شکایتونه'};
+    return map[key] || '';
+  }
+
+  function renderSection(main){
+    var role = state.currentUser.role;
+    main.innerHTML = '<div class="main-header"><h2>'+sectionTitle(state.section)+'</h2></div><div id="sec-body"></div>';
+    var body = document.getElementById('sec-body');
+
+    if(state.section==='bundle') return renderBundleSection(body, role);
+    if(state.section==='managers') return renderUsersSection(body, 'manager', true);
+    if(state.section==='ntos') return renderUsersSection(body, 'nto', role==='admin');
+    if(state.section==='sales') return renderSalesSection(body, role);
+    if(state.section==='rolls') return renderRollsSection(body, role);
+    if(state.section==='complaints') return renderComplaintsSection(body, role);
+  }
+
+  // ---------------- BUNDLE SECTION ----------------
+  function renderBundleSection(body, role){
+    var myBundles = state.bundles.filter(function(b){return b.ntoUsername===state.currentUser.username;});
+    body.innerHTML =
+      '<div class="card">'+
+        '<h4>نوی بنډل واستوئ</h4>'+
+        '<div class="row">'+
+          '<div class="field"><label>لومړی معلومات</label><input id="bd-f1" type="text" placeholder="لومړی ارزښت ولیکئ"></div>'+
+          '<div class="field"><label>دوهم معلومات</label><input id="bd-f2" type="text" placeholder="دوهم ارزښت ولیکئ"></div>'+
+          '<button class="btn btn-gold" id="bd-submit">واستوئ</button>'+
+        '</div>'+
+        (role!=='nto' ? '<p style="color:var(--ink-soft);font-size:12.5px;margin:14px 0 0 0;">ستاسو د '+ROLE_LABEL[role]+' په توګه استول شوي بنډلونه سمدلاسه تصویب شوي ګڼل کیږي.</p>' : '')+
+      '</div>'+
+      '<div class="card"><h4>ستاسو د بنډل تاریخچه</h4><div id="bd-list"></div></div>';
+
+    document.getElementById('bd-submit').onclick = function(){
+      var f1 = document.getElementById('bd-f1').value.trim();
+      var f2 = document.getElementById('bd-f2').value.trim();
+      if(!f1 || !f2){ showToast('مهرباني وکړئ دواړه خانې ډکې کړئ.'); return; }
+      var entry = {
+        id: uid(),
+        ntoUsername: state.currentUser.username,
+        submittedByRole: role,
+        field1:f1, field2:f2,
+        status: role==='nto' ? 'pending' : 'approved',
+        createdAt: Date.now(),
+        approvedBy: role==='nto' ? null : state.currentUser.username,
+        ntoSeen: role==='nto' ? true : true
+      };
+      state.bundles.unshift(entry);
+      persistBundles().then(function(){
+        showToast(role==='nto' ? 'بنډل واستول شو، اوس د تصویب په حالت کې دی.' : 'بنډل واستول شو او تصویب شو.');
+        renderDashboard(document.getElementById('app'));
+      });
+    };
+
+    var list = document.getElementById('bd-list');
+    if(!myBundles.length){
+      list.innerHTML = '<div class="empty-state">تر اوسه هیڅ بنډل نه دی استول شوی.</div>';
+    }else{
+      list.innerHTML = '<table><thead><tr><th>لومړی معلومات</th><th>دوهم معلومات</th><th>حالت</th><th>نیټه</th></tr></thead><tbody>'+
+        myBundles.map(function(b){
+          return '<tr><td>'+escapeHtml(b.field1)+'</td><td>'+escapeHtml(b.field2)+'</td><td>'+statusBadge(b.status)+'</td><td>'+fmtDate(b.createdAt)+'</td></tr>';
+        }).join('')+
+      '</tbody></table>';
+    }
+  }
+
+  // ---------------- SALES REPORT SECTION ----------------
+  function renderSalesSection(body, role){
+    var rows = role==='nto' ? state.bundles.filter(function(b){return b.ntoUsername===state.currentUser.username;}) : state.bundles.slice();
+    var canApprove = (role==='admin' || role==='manager');
+
+    if(!rows.length){
+      body.innerHTML = '<div class="card"><div class="empty-state">هیڅ ثبت شوی معلومات نشته.</div></div>';
+      return;
+    }
+    body.innerHTML = '<div class="card"><table><thead><tr>'+
+      (role!=='nto' ? '<th>د NTO یوزر</th>' : '')+
+      '<th>لومړی معلومات</th><th>دوهم معلومات</th><th>حالت</th><th>نیټه</th>'+
+      (canApprove ? '<th></th>' : '')+
+      '</tr></thead><tbody>'+
+      rows.map(function(b){
+        return '<tr>'+
+          (role!=='nto' ? '<td>'+escapeHtml(b.ntoUsername)+'</td>' : '')+
+          '<td>'+escapeHtml(b.field1)+'</td><td>'+escapeHtml(b.field2)+'</td>'+
+          '<td>'+statusBadge(b.status)+'</td>'+
+          '<td>'+fmtDate(b.createdAt)+'</td>'+
+          (canApprove ? '<td>'+(b.status==='pending' ? '<button class="btn btn-ok btn-sm" data-approve="'+b.id+'">تصویب</button>' : '')+'</td>' : '')+
+        '</tr>';
+      }).join('')+
+    '</tbody></table></div>';
+
+    if(canApprove){
+      Array.prototype.forEach.call(document.querySelectorAll('[data-approve]'), function(btn){
+        btn.onclick = function(){
+          var id = btn.getAttribute('data-approve');
+          var b = state.bundles.find(function(x){return x.id===id;});
+          if(b){
+            b.status='approved';
+            b.approvedBy=state.currentUser.username;
+            b.approvedAt=Date.now();
+            b.ntoSeen=false;
+            persistBundles().then(function(){
+              showToast('بنډل تصویب شو.');
+              renderDashboard(document.getElementById('app'));
+            });
+          }
+        };
+      });
+    }
+  }
+
+  // ---------------- USERS SECTIONS (managers / ntos) ----------------
+  function renderUsersSection(body, targetRole, canToggle){
+    var list = state.users.filter(function(u){return u.role===targetRole;});
+    var canCreate = true; // admin always; manager only for nto (handled by caller routing)
+    var roleLabel = targetRole==='manager' ? 'منیجر' : 'NTO';
+
+    body.innerHTML =
+      '<div class="card">'+
+        '<h4>نوی '+roleLabel+' حساب جوړ کړئ</h4>'+
+        '<div class="row">'+
+          '<div class="field"><label>یوزرنوم</label><input id="nu-user" type="text"></div>'+
+          '<div class="field"><label>پاسورډ</label><input id="nu-pass" type="text"></div>'+
+          '<button class="btn btn-gold" id="nu-create">جوړ کړئ</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="card"><h4>د '+roleLabel+' حسابونه</h4><div id="nu-list"></div></div>';
+
+    document.getElementById('nu-create').onclick = function(){
+      var u = document.getElementById('nu-user').value.trim();
+      var p = document.getElementById('nu-pass').value.trim();
+      if(!u || !p){ showToast('یوزرنوم او پاسورډ دواړه ولیکئ.'); return; }
+      if(state.users.find(function(x){return x.username===u;})){ showToast('دا یوزرنوم مخکې شتون لري.'); return; }
+      state.users.push({username:u, password:p, role:targetRole, status:'enabled', createdBy:state.currentUser.username});
+      persistUsers().then(function(){
+        showToast(roleLabel+' حساب جوړ شو.');
+        renderSection(document.getElementById('main-area'));
+      });
+    };
+
+    var listEl = document.getElementById('nu-list');
+    if(!list.length){
+      listEl.innerHTML = '<div class="empty-state">تر اوسه هیڅ حساب نشته.</div>';
+      return;
+    }
+    listEl.innerHTML = '<table><thead><tr><th>یوزرنوم</th><th>حالت</th>'+(canToggle?'<th></th>':'')+'</tr></thead><tbody>'+
+      list.map(function(u){
+        return '<tr><td>'+escapeHtml(u.username)+'</td><td>'+statusBadge(u.status==='enabled'?'enabled':'disabled')+'</td>'+
+          (canToggle ? '<td><button class="btn btn-sm '+(u.status==='enabled'?'btn-danger':'btn-ok')+'" data-toggle="'+u.username+'">'+(u.status==='enabled'?'ډیسیبل':'انیبل')+'</button></td>' : '')+
+        '</tr>';
+      }).join('')+
+    '</tbody></table>';
+
+    if(canToggle){
+      Array.prototype.forEach.call(document.querySelectorAll('[data-toggle]'), function(btn){
+        btn.onclick = function(){
+          var uname = btn.getAttribute('data-toggle');
+          var u = state.users.find(function(x){return x.username===uname;});
+          if(u){
+            u.status = u.status==='enabled' ? 'disabled' : 'enabled';
+            persistUsers().then(function(){
+              showToast('د '+uname+' حالت بدل شو.');
+              renderSection(document.getElementById('main-area'));
+            });
+          }
+        };
+      });
+    }
+  }
+
+  // ---------------- COMPANY ROLLS ----------------
+  function renderRollsSection(body, role){
+    body.innerHTML =
+      '<div class="card">'+
+        '<h4>نوی مقرره اضافه کړئ</h4>'+
+        '<div class="row"><div class="field"><textarea id="rl-text" rows="3" placeholder="د مقررې متن ولیکئ..."></textarea></div>'+
+        '<button class="btn btn-gold" id="rl-add">اضافه کړئ</button></div>'+
+      '</div>'+
+      '<div class="card"><h4>موجوده مقررات</h4><div id="rl-list"></div></div>';
+
+    document.getElementById('rl-add').onclick = function(){
+      var t = document.getElementById('rl-text').value.trim();
+      if(!t) return;
+      state.rolls.unshift({id:uid(), text:t, createdAt:Date.now(), createdBy:state.currentUser.username});
+      persistRolls().then(function(){ renderSection(document.getElementById('main-area')); });
+    };
+
+    var list = document.getElementById('rl-list');
+    if(!state.rolls.length){
+      list.innerHTML = '<div class="empty-state">تر اوسه هیڅ مقرره نشته.</div>';
+    }else{
+      list.innerHTML = state.rolls.map(function(r){
+        return '<div style="padding:12px 0;border-bottom:1px solid var(--border);">'+
+          '<div style="font-size:14px;">'+escapeHtml(r.text)+'</div>'+
+          '<div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">'+fmtDate(r.createdAt)+'</div>'+
+        '</div>';
+      }).join('');
+    }
+  }
+
+  // ---------------- COMPLAINTS ----------------
+  function renderComplaintsSection(body, role){
+    var canSubmit = role==='nto';
+    var rows = role==='nto' ? state.complaints.filter(function(c){return c.fromUsername===state.currentUser.username;}) : state.complaints.slice();
+
+    body.innerHTML =
+      (canSubmit ? '<div class="card"><h4>نوی شکایت ولیکئ</h4><div class="row">'+
+        '<div class="field"><textarea id="cp-text" rows="3" placeholder="خپل شکایت دلته ولیکئ..."></textarea></div>'+
+        '<button class="btn btn-gold" id="cp-add">واستوئ</button></div></div>' : '')+
+      '<div class="card"><h4>شکایتونه</h4><div id="cp-list"></div></div>';
+
+    if(canSubmit){
+      document.getElementById('cp-add').onclick = function(){
+        var t = document.getElementById('cp-text').value.trim();
+        if(!t) return;
+        state.complaints.unshift({id:uid(), fromUsername:state.currentUser.username, text:t, createdAt:Date.now()});
+        persistComplaints().then(function(){ renderSection(document.getElementById('main-area')); });
+      };
+    }
+
+    var list = document.getElementById('cp-list');
+    if(!rows.length){
+      list.innerHTML = '<div class="empty-state">هیڅ شکایت نشته.</div>';
+    }else{
+      list.innerHTML = rows.map(function(c){
+        return '<div style="padding:12px 0;border-bottom:1px solid var(--border);">'+
+          (role!=='nto' ? '<div style="font-size:12px;color:var(--ink-soft);margin-bottom:4px;">له: '+escapeHtml(c.fromUsername)+'</div>' : '')+
+          '<div style="font-size:14px;">'+escapeHtml(c.text)+'</div>'+
+          '<div style="font-size:11.5px;color:var(--ink-soft);margin-top:4px;">'+fmtDate(c.createdAt)+'</div>'+
+        '</div>';
+      }).join('');
+    }
+  }
+
+  // ---------------- utils ----------------
+  function statusBadge(status){
+    if(status==='pending') return '<span class="badge badge-pending">په تمه (Pending)</span>';
+    if(status==='approved') return '<span class="badge badge-approved">تصویب شوی</span>';
+    if(status==='enabled') return '<span class="badge badge-enabled">فعال</span>';
+    if(status==='disabled') return '<span class="badge badge-disabled">غیرفعال</span>';
+    return status;
+  }
+  function fmtDate(ts){
+    var d = new Date(ts);
+    return d.toLocaleDateString('en-GB')+' '+d.toLocaleTimeString('en-GB',{hour:'2-digit',minute:'2-digit'});
+  }
+  function escapeHtml(s){
+    return String(s==null?'':s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+  var toastTimer=null;
+  function showToast(msg){
+    var el = document.querySelector('.toast');
+    if(el) el.remove();
+    el = document.createElement('div');
+    el.className='toast';
+    el.textContent=msg;
+    document.body.appendChild(el);
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ el.remove(); }, 2600);
+  }
+
+  // ---------------- real-time sync (also drives instant forced-logout on disable) ----------------
+  function attachListeners(){
+    if(state.unsubs) return; // already attached
+    state.unsubs = [];
+    state.unsubs.push(db.collection('appdata').doc('users').onSnapshot(function(snap){
+      if(snap.exists && snap.data().list){ state.users = snap.data().list; render(); }
+    }));
+    state.unsubs.push(db.collection('appdata').doc('bundles').onSnapshot(function(snap){
+      if(snap.exists && snap.data().list){ state.bundles = snap.data().list; render(); }
+    }));
+    state.unsubs.push(db.collection('appdata').doc('complaints').onSnapshot(function(snap){
+      if(snap.exists && snap.data().list){ state.complaints = snap.data().list; render(); }
+    }));
+    state.unsubs.push(db.collection('appdata').doc('rolls').onSnapshot(function(snap){
+      if(snap.exists && snap.data().list){ state.rolls = snap.data().list; render(); }
+    }));
+  }
+
+  // ---------------- init ----------------
+  loadAll().then(function(){
+    state.loading = false;
+    attachListeners();
+    render();
+  });
+
+})();
+</script>
+</body>
+</html>
