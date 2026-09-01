@@ -872,12 +872,12 @@
     var isNto = targetRole==='nto';
 
     body.innerHTML =
-      '<div class="card">'+'
-      <h4>نوی '+roleLabe+' حساب جوړ کړئ</h4>'+
+      '<div class="card">'+
+        '<h4>نوی '+roleLabel+' حساب جوړ کړئ</h4>'+
         '<div class="row">'+
-          '<div class="field"><label>یوز رنوم</label><input id="nu-user" type="text"></div>'+
+          '<div class="field"><label>یوزرنوم</label><input id="nu-user" type="text"></div>'+
           '<div class="field"><label>پاسورډ</label><input id="nu-pass" type="text"></div>'+
-          (isNto ? '<div class="field"><label>مشتري ادرس</label><input id="nu-addr" type="text"></div>'+
+          (isNto ? '<div class="field"><label>ادرس</label><input id="nu-addr" type="text"></div>'+
                    '<div class="field"><label>اړیکې شمیره</label><input id="nu-contact" type="text"></div>' : '')+
           '<button class="btn btn-gold" id="nu-create">جوړ کړئ</button>'+
         '</div>'+
