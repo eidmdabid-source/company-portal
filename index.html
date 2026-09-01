@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>roshan bundle sales</title>
+<title>Roshan Bundles Sales</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
@@ -398,10 +398,10 @@
   function renderLogin(root){
     root.innerHTML =
       '<div class="login-wrap"><div class="login-card">'+
-        '<div class="login-brand"><div class="mark"></div><span>شرکت پورټال</span></div>'+
-        '<p class="sub">دننه کیدو لپاره خپل یوزرنوم او پاسورډ ولیکئ</p>'+
+        '<div class="login-brand"><div class="mark"></div><span>روشن مخابراتي شرکت</span></div>'+
+        '<p class="sub">دننه کیدو لپاره خپل یوزر نوم او پاسورډ ولیکئ</p>'+
         (state.error ? '<div class="error-box">'+escapeHtml(state.error)+'</div>' : '')+
-        '<div class="field"><label>یوزرنوم</label><input id="li-user" type="text" autocomplete="username"></div>'+
+        '<div class="field"><label>یوزر نوم</label><input id="li-user" type="text" autocomplete="username"></div>'+
         '<div class="field"><label>پاسورډ</label><input id="li-pass" type="password" autocomplete="current-password"></div>'+
         '<button class="btn btn-primary btn-block" id="li-btn">دننه شئ</button>'+
       '</div></div>';
@@ -416,12 +416,12 @@
     var u = document.getElementById('li-user').value.trim();
     var p = document.getElementById('li-pass').value;
     if(!u || !p){
-      state.error = 'مهرباني وکړئ یوزرنوم او پاسورډ دواړه ولیکئ.';
+      state.error = 'مهرباني وکړئ یوزر نوم او پاسورډ دواړه ولیکئ.';
       render(); return;
     }
     var found = state.users.find(function(x){return x.username===u;});
     if(!found || found.password!==p){
-      state.error = 'یوزرنوم یا پاسورډ سم نه دی.';
+      state.error = 'یوزر نوم یا پاسورډ سم نه دی.';
       render(); return;
     }
     state.error='';
@@ -441,9 +441,9 @@
     root.innerHTML =
       '<div class="blocked-wrap"><div class="blocked-card">'+
         '<div class="icon">&#9888;</div>'+
-        '<h3 style="direction:rtl;">ستاسو دننه کیدل بند شوي دي</h3>'+
-        '<p>Your user has been disabled by the Admin. Please contact them.</p>'+
-        '<button class="btn btn-ghost" id="bk-back" style="margin-top:18px;">بیرته لاگ-این ته</button>'+
+        '<h3 style="direction:rtl;">تاسو نشئ دننه کيدلى</h3>'+
+        '<p>ستاسو اکونټ د اډمين لخوا تړل شوى دى مهرباني وکړئ اډمين سره اړيکه کې شئp>'+
+        '<button class="btn btn-ghost" id="bk-back" style="margin-top:18px;">شاته لاړ شه</button>'+
       '</div></div>';
     document.getElementById('bk-back').onclick = function(){
       state.currentUser = null;
@@ -456,9 +456,9 @@
     root.innerHTML =
       '<div class="blocked-wrap"><div class="blocked-card">'+
         '<div class="icon">&#9888;</div>'+
-        '<h3 style="direction:rtl;">ستاسو حساب په بل ځای کې دننه شوی</h3>'+
-        '<p style="direction:rtl;">ستاسو منیجر حساب په بل ډیوایس یا براوزر کې دننه شوی، نو دلته له سیسټم څخه وایستل شوئ.</p>'+
-        '<button class="btn btn-ghost" id="sr-back" style="margin-top:18px;">بیرته لاگ-این ته</button>'+
+        '<h3 style="direction:rtl;">ستاسو يوﺯر په بل ځای کې لوګ ان شوی</h3>'+
+        '<p style="direction:rtl;">ستاسو د مدير حساب په بل ډیوایس یا براوزر کې دننه شوی، نو دلته له سیسټم څخه وایستل شوئ.</p>'+
+        '<button class="btn btn-ghost" id="sr-back" style="margin-top:18px;">بیا لاګ-این شئ</button>'+
       '</div></div>';
     document.getElementById('sr-back').onclick = function(){
       state.currentUser = null;
@@ -502,7 +502,7 @@
           '<div class="spacer"></div>'+
           '<div class="user-box">'+
             '<div class="uname">'+escapeHtml(state.currentUser.username)+'</div>'+
-            '<button class="btn btn-ghost btn-sm btn-block" id="logout-btn">وتل (Logout)</button>'+
+            '<button class="btn btn-ghost btn-sm btn-block" id="logout-btn">له اکونټ څخه وتل</button>'+
           '</div>'+
         '</div>'+
         '<div class="main" id="main-area"></div>'+
