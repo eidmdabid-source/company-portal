@@ -357,18 +357,18 @@
       {key:'complaints', label:'شکایتونه'}
     ],
     manager:[
-      {key:'ntos', label:'د NTO یوزران'},
-      {key:'sales', label:'د پلور راپور'},
+      {key:'ntos', label:'مشتري يوﺯر جوړول'},
+      {key:'sales', label: 'بنډلونه'},
       {key:'report', label:'راپور'}
     ],
     nto:[
-      {key:'bundle', label:'بنډل'},
-      {key:'sales', label:'د پلور راپور'},
-      {key:'report', label:'راپور'},
-      {key:'complaints', label:'شکایتونه'}
+      {key:'bundle', label:'بنډل ليږل'},
+      {key:'sales', label:'بنډلونه'},
+      {key:'report', label:'راپور'if(fresh.role==='manager' && state.mySessionToken && fresh.sessionToken && fresh.sessionToken!==state.mySessionToken){},
+      {key:'complaints', label:'شکایت ليږل'}
     ]
   };
-  var ROLE_LABEL = {admin:'اډمین', manager:'منیجر', nto:'NTO'};
+  var ROLE_LABEL = {admin:'اډمین', manager:'منیجر', nto:'مشتري'};
 
   // ---------------- render root ----------------
   function render(){
