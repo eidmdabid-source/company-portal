@@ -938,7 +938,7 @@
       Array.prototype.forEach.call(document.querySelectorAll('[data-delete-user]'), function(btn){
         btn.onclick = function(){
           var uname = btn.getAttribute('data-delete-user');
-          var ok = window.confirm('آیا ډاډه یاست چې غواړئ '+uname+' حساب بالکل ډیلیټ کړئ؟ دا کار بیرته نشي کیدلی.');
+          var ok = window.confirm('آیا ډاډه یاست چې غواړئ '+uname+'حساب ډیلیټ کړئ.');
           if(!ok) return;
           state.users = state.users.filter(function(x){return x.username!==uname;});
           persistUsers().then(function(){
@@ -990,7 +990,7 @@
   function renderNtoReportSection(body){
     var ntoUsers = state.users.filter(function(u){return u.role==='nto';});
     if(!ntoUsers.length){
-      body.innerHTML = '<div class="card"><div class="empty-state">تر اوسه هیڅ NTO حساب نشته.</div></div>';
+      body.innerHTML = '<div class="card"><div class="empty-state">تر اوسه هیڅ مشتري حساب نشته.</div></div>';
       return;
     }
     var rows = ntoUsers.map(function(u){
@@ -998,7 +998,7 @@
       return {username:u.username, count:s.count, total:s.total};
     });
     body.innerHTML = '<div class="card"><div style="overflow-x:auto;"><table><thead><tr>'+
-      '<th>د NTO یوزر</th><th>د تصویب شمیر</th><th>ټول (افغانۍ)</th><th></th>'+
+      '<th>مشتري</th><th>فعاله شويو بنډلونو شمير</th><th>فروشات</th><th></th>'+
       '</tr></thead><tbody>'+
       rows.map(function(r){
         return '<tr><td>'+escapeHtml(r.username)+'</td><td>'+r.count+'</td><td>'+r.total.toLocaleString()+' افغانۍ</td>'+
@@ -1025,14 +1025,14 @@
       // ---- Admin: per-manager summary table ----
       var managers = state.users.filter(function(u){return u.role==='manager';});
       if(!managers.length){
-        body.innerHTML = '<div class="card"><div class="empty-state">تر اوسه هیڅ منیجر حساب نشته.</div></div>';
+        body.innerHTML = '<div class="card"><div class="empty-state">تر اوسه د هيڅ مدير حساب نشته.</div></div>';
       }else{
         var rows = managers.map(function(m){
           var s = managerStats(m.username);
           return {username:m.username, count:s.count, total:s.total};
         });
         body.innerHTML = '<div class="card"><div style="overflow-x:auto;"><table><thead><tr>'+
-          '<th>د منیجر نوم</th><th>د تصویب شمیر</th><th>ټول (افغانۍ)</th><th></th>'+
+          '<th>مدير</th><th>د فعاله شويو بنډلونو شمير</th><th>فروشات</th><th></th>'+
           '</tr></thead><tbody>'+
           rows.map(function(r){
             return '<tr><td>'+escapeHtml(r.username)+'</td><td>'+r.count+'</td><td>'+r.total.toLocaleString()+' افغانۍ</td>'+
@@ -1077,11 +1077,11 @@
   function renderRollsSection(body){
     body.innerHTML =
       '<div class="card">'+
-        '<h4>نوی مقرره اضافه کړئ</h4>'+
-        '<div class="row"><div class="field"><textarea id="rl-text" rows="3" placeholder="د مقررې متن ولیکئ..."></textarea></div>'+
+        '<h4>نوی پيغام اضافه کړئ</h4>'+
+        '<div class="row"><div class="field"><textarea id="rl-text" rows="3" placeholder="د پيغام متن ولیکئ..."></textarea></div>'+
         '<button class="btn btn-gold" id="rl-add">اضافه کړئ</button></div>'+
       '</div>'+
-      '<div class="card"><h4>موجوده مقررات</h4><div id="rl-list"></div></div>';
+      '<div class="card"><h4>موجوده پيغامونه</h4><div id="rl-list"></div></div>';
 
     document.getElementById('rl-add').onclick = function(){
       var t = document.getElementById('rl-text').value.trim();
@@ -1092,7 +1092,7 @@
 
     var list = document.getElementById('rl-list');
     if(!state.rolls.length){
-      list.innerHTML = '<div class="empty-state">تر اوسه هیڅ مقرره نشته.</div>';
+      list.innerHTML = '<div class="empty-state">تر اوسه هیڅ پيغام نشته.</div>';
     }else{
       list.innerHTML = state.rolls.map(function(r){
         return '<div style="padding:12px 0;border-bottom:1px solid var(--border);">'+
@@ -1211,7 +1211,7 @@
 
     if(isNewActivity && state.currentUser && state.currentUser.role==='manager'){
       playNotificationSound();
-      showToast('نوی بنډل معلومات راغلل.');
+      showToast('بنډل راغى');
     }
   }
 
