@@ -891,7 +891,7 @@
       var contact = isNto ? document.getElementById('nu-contact').value.trim() : '';
       if(!u || !p){ showToast('یوزرنوم او پاسورډ دواړه ولیکئ.'); return; }
       if(isNto && (!addr || !contact)){ showToast('ادرس او اړیکې شمیره هم ولیکئ.'); return; }
-      if(state.users.find(function(x){return x.username===u;})){ showToast('دا یوزرنوم مخکې شتون لري.'); return; }
+      if(state.users.find(function(x){return x.username===u;})){ showToast('دا یوزر نوم مخکې شتون لري.'); return; }
       var newUser = {username:u, password:p, role:targetRole, status:'enabled', createdBy:state.currentUser.username};
       if(isNto){ newUser.address = addr; newUser.contact = contact; }
       state.users.push(newUser);
@@ -990,7 +990,7 @@
   function renderNtoReportSection(body){
     var ntoUsers = state.users.filter(function(u){return u.role==='nto';});
     if(!ntoUsers.length){
-      body.innerHTML = '<div class="card"><div class="empty-state">تر اوسه هیڅ NTO حساب نشته.</div></div>';
+      body.innerHTML = '<div class="card"><div class="empty-state">تر اوسه د هیڅ مشتري حساب نشته.</div></div>';
       return;
     }
     var rows = ntoUsers.map(function(u){
@@ -998,7 +998,7 @@
       return {username:u.username, count:s.count, total:s.total};
     });
     body.innerHTML = '<div class="card"><div style="overflow-x:auto;"><table><thead><tr>'+
-      '<th>د NTO یوزر</th><th>د تصویب شمیر</th><th>ټول (افغانۍ)</th><th></th>'+
+      '<th>مشتري</th><th>د تائيد شمیر</th><th>ټول (افغانۍ)</th><th></th>'+
       '</tr></thead><tbody>'+
       rows.map(function(r){
         return '<tr><td>'+escapeHtml(r.username)+'</td><td>'+r.count+'</td><td>'+r.total.toLocaleString()+' افغانۍ</td>'+
@@ -1009,7 +1009,7 @@
     Array.prototype.forEach.call(document.querySelectorAll('[data-nto-reset]'), function(btn){
       btn.onclick = function(){
         var nu = btn.getAttribute('data-nto-reset');
-        var ok = window.confirm('آیا ډاډه یاست چې غواړئ د '+nu+' د راپور معلومات پاک کړئ؟');
+        var ok = window.confirm('آیا ډاډه یاست چې غواړئ د '+nu+' د بنډلونو معلومات پاک کړئ؟');
         if(!ok) return;
         state.ntoResetAt[nu] = Date.now();
         persistReportMeta().then(function(){
@@ -1032,7 +1032,7 @@
           return {username:m.username, count:s.count, total:s.total};
         });
         body.innerHTML = '<div class="card"><div style="overflow-x:auto;"><table><thead><tr>'+
-          '<th>د منیجر نوم</th><th>د تصویب شمیر</th><th>ټول (افغانۍ)</th><th></th>'+
+          '<th>مدير</th><th>فروشات</th><th>ټول (افغانۍ)</th><th></th>'+
           '</tr></thead><tbody>'+
           rows.map(function(r){
             return '<tr><td>'+escapeHtml(r.username)+'</td><td>'+r.count+'</td><td>'+r.total.toLocaleString()+' افغانۍ</td>'+
@@ -1058,7 +1058,7 @@
       var s = managerStats(state.currentUser.username);
       body.innerHTML =
         '<div class="card">'+
-          '<h4>ستاسو د تصویب شویو راپور</h4>'+
+          '<h4>ستاسو د تائيد شویو راپور</h4>'+
           '<div style="font-size:28px;font-weight:800;color:var(--ok);">'+s.total.toLocaleString()+' افغانۍ</div>'+
           '<div class="small-muted" style="margin-top:6px;">د تصویب شویو شمیر: '+s.count+'</div>'+
         '</div>';
@@ -1066,9 +1066,9 @@
       var ns = ntoStats(state.currentUser.username);
       body.innerHTML =
         '<div class="card">'+
-          '<h4>ستاسو د تصویب شویو راپور</h4>'+
+          '<h4>د فروشاتو راپور</h4>'+
           '<div style="font-size:28px;font-weight:800;color:var(--ok);">'+ns.total.toLocaleString()+' افغانۍ</div>'+
-          '<div class="small-muted" style="margin-top:6px;">د تصویب شویو شمیر: '+ns.count+'</div>'+
+          '<div class="small-muted" style="margin-top:6px;">فروشات : '+ns.count+'</div>'+
         '</div>';
     }
   }
@@ -1077,11 +1077,11 @@
   function renderRollsSection(body){
     body.innerHTML =
       '<div class="card">'+
-        '<h4>نوی مقرره اضافه کړئ</h4>'+
-        '<div class="row"><div class="field"><textarea id="rl-text" rows="3" placeholder="د مقررې متن ولیکئ..."></textarea></div>'+
+        '<h4>نوی پيغام اضافه کړئ</h4>'+
+        '<div class="row"><div class="field"><textarea id="rl-text" rows="3" placeholder="د پيغام متن ولیکئ..."></textarea></div>'+
         '<button class="btn btn-gold" id="rl-add">اضافه کړئ</button></div>'+
       '</div>'+
-      '<div class="card"><h4>موجوده مقررات</h4><div id="rl-list"></div></div>';
+      '<div class="card"><h4>موجوده پيغامونه</h4><div id="rl-list"></div></div>';
 
     document.getElementById('rl-add').onclick = function(){
       var t = document.getElementById('rl-text').value.trim();
@@ -1092,7 +1092,7 @@
 
     var list = document.getElementById('rl-list');
     if(!state.rolls.length){
-      list.innerHTML = '<div class="empty-state">تر اوسه هیڅ مقرره نشته.</div>';
+      list.innerHTML = '<div class="empty-state">تر اوسه هیڅ پيغام نشته.</div>';
     }else{
       list.innerHTML = state.rolls.map(function(r){
         return '<div style="padding:12px 0;border-bottom:1px solid var(--border);">'+
