@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>د شرکت مدیریتي سیسټم</title>
+<title>roshan bundle sales</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
@@ -18,7 +18,7 @@
     --sidebar:#101826;
     --sidebar-text:#C9D1DB;
     --sidebar-text-dim:#7C8698;
-    --accent:#B8862B;
+    --accent:#B8862B
     --accent-soft:#F3E7CE;
     --ok:#2E7D5B;
     --ok-soft:#DFF0E7;
@@ -348,27 +348,27 @@
   // ---------------- role menu config ----------------
   var MENUS = {
     admin:[
-      {key:'managers', label:'د منیجر یوزران'},
-      {key:'ntos', label:'د NTO یوزران'},
-      {key:'sales', label:'د پلور راپور'},
-      {key:'report', label:'راپور'},
-      {key:'nto_report', label:'د NTO راپور'},
-      {key:'rolls', label:'د شرکت مقررات'},
+      {key:'managers', label:'مديران'},
+      {key:'ntos', label:'مشتريان'},
+      {key:'sales', label:'بنډلونه'},
+      {key:'report', label:'مدير-راپور'},
+      {key:'nto_report', label:'مشتري-راپور'},
+      {key:'rolls', label:'پيغام ليږل'},
       {key:'complaints', label:'شکایتونه'}
     ],
     manager:[
-      {key:'ntos', label:'د NTO یوزران'},
-      {key:'sales', label:'د پلور راپور'},
-      {key:'report', label:'راپور'}
+      {key:'ntos', label:'مشتريان'},
+      {key:'sales', label:'بنډلونه'},
+      {key:'report', label:'فروشاتو راپور'}
     ],
     nto:[
-      {key:'bundle', label:'بنډل'},
-      {key:'sales', label:'د پلور راپور'},
-      {key:'report', label:'راپور'},
-      {key:'complaints', label:'شکایتونه'}
+      {key:'bundle', label:'بنډل ليږل'},
+      {key:'sales', label:'بنډلونه'},
+      {key:'report', label:'فروشاتو راپور'},
+      {key:'complaints', label:'شکایت ليږل'}
     ]
   };
-  var ROLE_LABEL = {admin:'اډمین', manager:'منیجر', nto:'NTO'};
+  var ROLE_LABEL = {admin:'اډمین', manager:'مدير', nto:'مشتري'};
 
   // ---------------- render root ----------------
   function render(){
