@@ -363,8 +363,8 @@
     ],
     nto:[
       {key:'bundle', label:'نوى بنډل استول'},
-      {key:'sales', label:'فروشاتو راپور'},
-      {key:'report', label:'راپور'},
+      {key:'sales', label:'بنډلونه'},
+      {key:'report', label:'فروشاتو راپور'},
       {key:'complaints', label:'شکایت استول'}
     ]
   };
@@ -398,8 +398,8 @@
   function renderLogin(root){
     root.innerHTML =
       '<div class="login-wrap"><div class="login-card">'+
-        '<div class="login-brand"><div class="mark"></div><span>شرکت پورټال</span></div>'+
-        '<p class="sub">دننه کیدو لپاره خپل یوزرنوم او پاسورډ ولیکئ</p>'+
+        '<div class="login-brand"><div class="mark"></div><span>روشن-نزديک شدن</span></div>'+
+        '<p class="sub">دننه کیدو لپاره خپل یوزر نوم او پاسورډ ولیکئ</p>'+
         (state.error ? '<div class="error-box">'+escapeHtml(state.error)+'</div>' : '')+
         '<div class="field"><label>یوزرنوم</label><input id="li-user" type="text" autocomplete="username"></div>'+
         '<div class="field"><label>پاسورډ</label><input id="li-pass" type="password" autocomplete="current-password"></div>'+
@@ -416,12 +416,12 @@
     var u = document.getElementById('li-user').value.trim();
     var p = document.getElementById('li-pass').value;
     if(!u || !p){
-      state.error = 'مهرباني وکړئ یوزرنوم او پاسورډ دواړه ولیکئ.';
+      state.error = 'مهرباني وکړئ یوزر نوم او پاسورډ دواړه ولیکئ.';
       render(); return;
     }
     var found = state.users.find(function(x){return x.username===u;});
     if(!found || found.password!==p){
-      state.error = 'یوزرنوم یا پاسورډ سم نه دی.';
+      state.error = 'یوزر نوم یا پاسورډ سم نه دی.';
       render(); return;
     }
     state.error='';
@@ -496,7 +496,7 @@
     root.innerHTML =
       '<div class="shell">'+
         '<div class="sidebar">'+
-          '<div class="brand"><div class="mark"></div><b>شرکت پورټال</b></div>'+
+          '<div class="brand"><div class="mark"></div><b>روشن-نزديک شدن</b></div>'+
           '<div class="role-tag">'+ROLE_LABEL[role]+'</div>'+
           '<div style="display:flex;flex-direction:column;gap:2px;flex:1;">'+navHtml+'</div>'+
           '<div class="spacer"></div>'+
