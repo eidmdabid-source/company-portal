@@ -868,7 +868,7 @@
   // ---------------- USERS SECTIONS (managers / ntos) ----------------
   function renderUsersSection(body, targetRole, canToggle, canDelete){
     var list = state.users.filter(function(u){return u.role===targetRole;});
-    var roleLabel = targetRole==='manager' ? 'منیجر' : 'مشتري';
+    var roleLabel = targetRole==='manager' ? 'مدير' : 'مشتري';
     var isNto = targetRole==='nto';
 
     body.innerHTML =
