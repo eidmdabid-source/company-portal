@@ -363,7 +363,7 @@
     ],
     nto:[
       {key:'bundle', label:'نوى بنډل استول'},
-      {key:'sales', label:'بنډلونه'},
+      {key:'sales', label:'بنډلونه حالت'},
       {key:'report', label:'فروشاتو راپور'},
       {key:'complaints', label:'شکایت استول'}
     ]
@@ -657,10 +657,10 @@
       return;
     }
     body.innerHTML = '<div class="card"><div style="overflow-x:auto;"><table><thead><tr>'+
-      (role!=='nto' ? '<th>د NTO یوزر</th>' : '')+
-      '<th>شمیره</th><th>د بنډل نوم</th><th>حالت</th>'+
-      (canProcess ? '<th>عمل شوی له خوا</th>' : '')+
-      '<th>کمینټ</th>'+
+      (role!=='nto' ? '<th>مشتري نوم</th>' : '')+
+      '<th>شمیره</th><th>بنډل نوم</th><th>حالت</th>'+
+      (canProcess ? '<th>تائيد-مدير</th>' : '')+
+      '<th>يادونه پرې شوې</th>'+(role==='nto' ? '\u003Ctd>'+(b.status==='rejected' ? '\u003Cbutton class=\"btn btn-sm btn-info\" data-resubmit=\"'+b.id+'\">ریسبمیټ\u003C/button>' : '')+'\u003C/td>' : '')+
       '<th>نیټه</th>'+
       (role==='nto' ? '<th></th>' : '')+
       '</tr></thead><tbody>'+
@@ -732,11 +732,11 @@
     return '';
   }
   function statusLabel(status){
-    if(status==='pending') return 'په تمه (Pending)';
-    if(status==='in_process') return 'پروسیس کې';
-    if(status==='approved') return 'تصویب شوی';
-    if(status==='rejected') return 'ردشوی';
-    if(status==='resubmit') return 'بیا وړاندې شوی';
+    if(status==='pending') return 'انتظار کې';
+    if(status==='in_process') return 'جريان کې';
+    if(status==='approved') return 'تائيد شوې';
+    if(status==='rejected') return 'رد شوې';
+    if(status==='resubmit') return 'بیا استول شوې';
     return status;
   }
   function statusBadge(status){
