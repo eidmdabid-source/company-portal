@@ -125,6 +125,11 @@
     cursor:pointer;font-size:14px;color:var(--danger);
   }
   .icon-btn-sm:hover{border-color:var(--danger);background:var(--danger-soft);}
+  .icon-btn-copy{
+    border:none;background:transparent;cursor:pointer;font-size:13px;
+    color:var(--ink-soft);padding:2px 4px;vertical-align:middle;
+  }
+  .icon-btn-copy:hover{color:var(--accent);}
   .error-box{
     background:var(--danger-soft);color:var(--danger);
     border-radius:8px;padding:10px 12px;font-size:13.5px;margin-bottom:16px;font-weight:600;
@@ -271,6 +276,7 @@
     complaints:[],
     rolls:[],
     managerResetAt:{}, // { managerUsername: timestamp }
+    ntoResetAt:{}, // { ntoUsername: timestamp }
     section:null,
     loading:true,
     error:"",
@@ -328,7 +334,8 @@
       loadJSON('rolls', []).then(function(v){ state.rolls = v; }),
       db.collection('appdata').doc('reportMeta').get().then(function(snap){
         state.managerResetAt = (snap.exists && snap.data().managerResetAt) ? snap.data().managerResetAt : {};
-      }).catch(function(){ state.managerResetAt = {}; })
+        state.ntoResetAt = (snap.exists && snap.data().ntoResetAt) ? snap.data().ntoResetAt : {};
+      }).catch(function(){ state.managerResetAt = {}; state.ntoResetAt = {}; })
     ]);
   }
 
@@ -336,7 +343,7 @@
   function persistBundles(){ return saveJSON('bundles', state.bundles); }
   function persistComplaints(){ return saveJSON('complaints', state.complaints); }
   function persistRolls(){ return saveJSON('rolls', state.rolls); }
-  function persistReportMeta(){ return db.collection('appdata').doc('reportMeta').set({managerResetAt: state.managerResetAt}); }
+  function persistReportMeta(){ return db.collection('appdata').doc('reportMeta').set({managerResetAt: state.managerResetAt, ntoResetAt: state.ntoResetAt}); }
 
   // ---------------- role menu config ----------------
   var MENUS = {
@@ -345,6 +352,7 @@
       {key:'ntos', label:'د NTO یوزران'},
       {key:'sales', label:'د پلور راپور'},
       {key:'report', label:'راپور'},
+      {key:'nto_report', label:'د NTO راپور'},
       {key:'rolls', label:'د شرکت مقررات'},
       {key:'complaints', label:'شکایتونه'}
     ],
@@ -522,7 +530,7 @@
   }
 
   function sectionTitle(key){
-    var map = {bundle:'بنډل', managers:'د منیجر یوزران', ntos:'د NTO یوزران', sales:'د پلور راپور', report:'راپور', rolls:'د شرکت مقررات', complaints:'شکایتونه'};
+    var map = {bundle:'بنډل', managers:'د منیجر یوزران', ntos:'د NTO یوزران', sales:'د پلور راپور', report:'راپور', nto_report:'د NTO راپور', rolls:'د شرکت مقررات', complaints:'شکایتونه'};
     return map[key] || '';
   }
 
@@ -537,6 +545,7 @@
     if(state.section==='ntos' && (role==='admin'||role==='manager')) return renderUsersSection(body, 'nto', role==='admin', role==='admin');
     if(state.section==='sales') return renderSalesSection(body, role, headerRow);
     if(state.section==='report') return renderReportSection(body, role, headerRow);
+    if(state.section==='nto_report' && role==='admin') return renderNtoReportSection(body);
     if(state.section==='rolls' && role==='admin') return renderRollsSection(body);
     if(state.section==='complaints') return renderComplaintsSection(body, role);
 
@@ -662,7 +671,8 @@
         }
         return '<tr>'+
           (role!=='nto' ? '<td>'+escapeHtml(b.ntoUsername)+'</td>' : '')+
-          '<td>'+escapeHtml(b.field1)+'</td><td>'+escapeHtml(b.field2)+'</td>'+
+          '<td>'+escapeHtml(b.field1)+(role==='manager' ? ' <button class="icon-btn-copy" data-copy="'+escapeHtml(b.field1)+'" title="کاپي کول">&#128203;</button>' : '')+'</td>'+
+          '<td>'+escapeHtml(b.field2)+'</td>'+
           '<td>'+statusCell+'</td>'+
           (canProcess ? '<td>'+(b.actionedBy?escapeHtml(b.actionedBy):'—')+'</td>' : '')+
           '<td>'+(b.comment?escapeHtml(b.comment):'—')+'</td>'+
@@ -681,6 +691,35 @@
       Array.prototype.forEach.call(document.querySelectorAll('[data-resubmit]'), function(btn){
         btn.onclick = function(){ openResubmitModal(btn.getAttribute('data-resubmit')); };
       });
+    }
+    if(role==='manager'){
+      Array.prototype.forEach.call(document.querySelectorAll('[data-copy]'), function(btn){
+        btn.onclick = function(e){
+          e.stopPropagation();
+          copyToClipboard(btn.getAttribute('data-copy'));
+        };
+      });
+    }
+  }
+
+  function copyToClipboard(text){
+    var done = function(){ showToast('شمیره کاپي شوه.'); };
+    var fail = function(){
+      try{
+        var ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position='fixed'; ta.style.opacity='0';
+        document.body.appendChild(ta);
+        ta.focus(); ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        done();
+      }catch(e){ showToast('کاپي نشو کیدلی.'); }
+    };
+    if(navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(text).then(done).catch(fail);
+    }else{
+      fail();
     }
   }
 
@@ -934,6 +973,53 @@
     return {total:total, count:count};
   }
 
+  // Sum/count of bundles belonging to a specific NTO username that were approved, respecting that NTO's own reset threshold
+  function ntoStats(ntoUsername){
+    var resetAt = state.ntoResetAt[ntoUsername] || 0;
+    var total=0, count=0;
+    state.bundles.forEach(function(b){
+      if(b.status==='approved' && b.ntoUsername===ntoUsername && b.actionedAt && b.actionedAt > resetAt){
+        total += extractNumber(b.comment);
+        count++;
+      }
+    });
+    return {total:total, count:count};
+  }
+
+  // ---------------- ADMIN: PER-NTO REPORT ----------------
+  function renderNtoReportSection(body){
+    var ntoUsers = state.users.filter(function(u){return u.role==='nto';});
+    if(!ntoUsers.length){
+      body.innerHTML = '<div class="card"><div class="empty-state">تر اوسه هیڅ NTO حساب نشته.</div></div>';
+      return;
+    }
+    var rows = ntoUsers.map(function(u){
+      var s = ntoStats(u.username);
+      return {username:u.username, count:s.count, total:s.total};
+    });
+    body.innerHTML = '<div class="card"><div style="overflow-x:auto;"><table><thead><tr>'+
+      '<th>د NTO یوزر</th><th>د تصویب شمیر</th><th>ټول (افغانۍ)</th><th></th>'+
+      '</tr></thead><tbody>'+
+      rows.map(function(r){
+        return '<tr><td>'+escapeHtml(r.username)+'</td><td>'+r.count+'</td><td>'+r.total.toLocaleString()+' افغانۍ</td>'+
+          '<td><button class="icon-btn-sm" data-nto-reset="'+escapeHtml(r.username)+'" title="ریسیټ">&#8635;</button></td></tr>';
+      }).join('')+
+    '</tbody></table></div></div>';
+
+    Array.prototype.forEach.call(document.querySelectorAll('[data-nto-reset]'), function(btn){
+      btn.onclick = function(){
+        var nu = btn.getAttribute('data-nto-reset');
+        var ok = window.confirm('آیا ډاډه یاست چې غواړئ د '+nu+' د راپور معلومات پاک کړئ؟');
+        if(!ok) return;
+        state.ntoResetAt[nu] = Date.now();
+        persistReportMeta().then(function(){
+          showToast('د '+nu+' راپور پاک شو.');
+          renderSection(document.getElementById('main-area'));
+        });
+      };
+    });
+  }
+
   function renderReportSection(body, role, headerRow){
     if(role==='admin'){
       // ---- Admin: per-manager summary table ----
@@ -977,18 +1063,12 @@
           '<div class="small-muted" style="margin-top:6px;">د تصویب شویو شمیر: '+s.count+'</div>'+
         '</div>';
     }else if(role==='nto'){
-      var total = 0, count=0;
-      state.bundles.forEach(function(b){
-        if(b.ntoUsername===state.currentUser.username && b.status==='approved'){
-          total += extractNumber(b.comment);
-          count++;
-        }
-      });
+      var ns = ntoStats(state.currentUser.username);
       body.innerHTML =
         '<div class="card">'+
           '<h4>ستاسو د تصویب شویو راپور</h4>'+
-          '<div style="font-size:28px;font-weight:800;color:var(--ok);">'+total.toLocaleString()+' افغانۍ</div>'+
-          '<div class="small-muted" style="margin-top:6px;">د تصویب شویو شمیر: '+count+'</div>'+
+          '<div style="font-size:28px;font-weight:800;color:var(--ok);">'+ns.total.toLocaleString()+' افغانۍ</div>'+
+          '<div class="small-muted" style="margin-top:6px;">د تصویب شویو شمیر: '+ns.count+'</div>'+
         '</div>';
     }
   }
@@ -1101,7 +1181,11 @@
       if(snap.exists && snap.data().list){ state.rolls = snap.data().list; render(); }
     }));
     state.unsubs.push(db.collection('appdata').doc('reportMeta').onSnapshot(function(snap){
-      if(snap.exists){ state.managerResetAt = snap.data().managerResetAt || {}; render(); }
+      if(snap.exists){
+        state.managerResetAt = snap.data().managerResetAt || {};
+        state.ntoResetAt = snap.data().ntoResetAt || {};
+        render();
+      }
     }));
   }
 
