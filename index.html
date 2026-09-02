@@ -2,16 +2,8 @@
 <html lang="ps" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Roshan Bundle Activation</title>
-<link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#101826">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="روشن-نزردیک شدن">
-<link rel="apple-touch-icon" href="icon-192.png">
-<link rel="icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://www.gstatic.com/firebasejs/10.13.2/firebase-app-compat.js"></script>
@@ -245,21 +237,6 @@
   }
   .modal-card{position:relative;}
 
-  /* ---------- Desktop view toggle (forces wide layout even on phones) ---------- */
-  body.force-desktop .shell{flex-direction:row !important;}
-  body.force-desktop .sidebar{
-    width:236px !important;flex-direction:column !important;flex-wrap:nowrap !important;
-    padding:22px 16px !important;align-items:stretch !important;
-  }
-  body.force-desktop .sidebar .brand{border-bottom:1px solid rgba(255,255,255,.08) !important;margin-bottom:18px !important;padding:0 6px 22px 6px !important;width:auto !important;}
-  body.force-desktop .sidebar .role-tag{margin-bottom:18px !important;}
-  body.force-desktop .sidebar .spacer{display:block !important;}
-  body.force-desktop .sidebar .user-box{border-top:1px solid rgba(255,255,255,.08) !important;padding-top:14px !important;margin-top:8px !important;margin-right:0 !important;}
-  body.force-desktop .nav-item{margin-bottom:4px !important;}
-  body.force-desktop .main{padding:30px 34px !important;}
-  body.force-desktop table{font-size:13.4px !important;}
-  body.force-desktop{min-width:900px;}
-
   @media (max-width:860px){
     .shell{flex-direction:column;}
     .sidebar{width:100%;flex-direction:row;flex-wrap:wrap;padding:14px;align-items:center;}
@@ -306,8 +283,7 @@
     unsubs:null,
     modal:null, // {type:'process'|'resubmit', bundleId, previousStatus}
     mySessionToken:null, // in-memory only; used for single-session manager enforcement
-    knownBundleIds:null,  // sentinel: null = not yet initialized, true = initialized
-    forceDesktop:false
+    knownBundleIds:null  // Set of bundle ids seen so far, for new-submission alerts
   };
 
   // ---------------- storage helpers (Firestore) ----------------
@@ -329,12 +305,13 @@
 
   // ---------------- data bootstrap ----------------
   var DEFAULT_ADMIN_USER = 'admin@roshan.af';
-  var DEFAULT_ADMIN_PASS = 'Roshan.af.admin@af&786'firebase.initializeApp(firebaseConfig);;
+  var DEFAULT_ADMIN_PASS = 'Roshan.af.admin@af&786';
 
   function ensureSeed(){
     return loadJSON('users', null).then(function(users){
       if(users && users.length){
         state.users = users;
+        // migrate legacy admin account to the configured credentials
         var legacy = state.users.find(function(u){return u.username==='admin' && u.role==='admin';});
         if(legacy){
           legacy.username = DEFAULT_ADMIN_USER;
@@ -456,7 +433,6 @@
       state.mySessionToken = tok;
       persistUsers();
     }
-    requestNotificationPermission();
     render();
   }
 
@@ -526,7 +502,6 @@
           '<div class="spacer"></div>'+
           '<div class="user-box">'+
             '<div class="uname">'+escapeHtml(state.currentUser.username)+'</div>'+
-            '<button class="btn btn-ghost btn-sm btn-block" id="desktop-toggle-btn" style="margin-bottom:8px;">'+(state.forceDesktop?'&#128241; موبایل لید':'&#128421; ډیسک-ټاپ لید')+'</button>'+
             '<button class="btn btn-ghost btn-sm btn-block" id="logout-btn">وتل (Logout)</button>'+
           '</div>'+
         '</div>'+
@@ -545,11 +520,6 @@
         render();
       };
     });
-    document.getElementById('desktop-toggle-btn').onclick = function(){
-      state.forceDesktop = !state.forceDesktop;
-      document.body.classList.toggle('force-desktop', state.forceDesktop);
-      render();
-    };
     document.getElementById('logout-btn').onclick = function(){
       state.currentUser = null;
       state.section = null;
@@ -990,6 +960,7 @@
     var d = new Date(ts);
     return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
   }
+  // Sum/count of bundles approved BY a specific manager username, respecting that manager's own reset threshold
   function managerStats(managerUsername){
     var resetAt = state.managerResetAt[managerUsername] || 0;
     var total=0, count=0;
@@ -1002,6 +973,7 @@
     return {total:total, count:count};
   }
 
+  // Sum/count of bundles belonging to a specific NTO username that were approved, respecting that NTO's own reset threshold
   function ntoStats(ntoUsername){
     var resetAt = state.ntoResetAt[ntoUsername] || 0;
     var total=0, count=0;
@@ -1050,6 +1022,7 @@
 
   function renderReportSection(body, role, headerRow){
     if(role==='admin'){
+      // ---- Admin: per-manager summary table ----
       var managers = state.users.filter(function(u){return u.role==='manager';});
       if(!managers.length){
         body.innerHTML = '<div class="card"><div class="empty-state">تر اوسه د هيڅ مدير حساب نشته.</div></div>';
@@ -1081,6 +1054,7 @@
         });
       }
     }else if(role==='manager'){
+      // ---- Manager: only their own approvals ----
       var s = managerStats(state.currentUser.username);
       body.innerHTML =
         '<div class="card">'+
@@ -1185,34 +1159,6 @@
     toastTimer = setTimeout(function(){ el.remove(); }, 2600);
   }
 
-  // ---------------- notifications (Web Notification API) ----------------
-  function requestNotificationPermission(){
-    if(!('Notification' in window)) return;
-    if(Notification.permission==='default'){
-      Notification.requestPermission();
-    }
-  }
-
-  function fireNotification(title, body){
-    if(!('Notification' in window)) return;
-    if(Notification.permission!=='granted') return;
-    try{
-      if(navigator.serviceWorker && navigator.serviceWorker.ready){
-        navigator.serviceWorker.ready.then(function(reg){
-          if(reg && reg.showNotification){
-            reg.showNotification(title, {body:body, icon:'icon-192.png', badge:'icon-192.png', vibrate:[200,100,200]});
-          }else{
-            new Notification(title, {body:body, icon:'icon-192.png'});
-          }
-        }).catch(function(){
-          new Notification(title, {body:body, icon:'icon-192.png'});
-        });
-      }else{
-        new Notification(title, {body:body, icon:'icon-192.png'});
-      }
-    }catch(e){}
-  }
-
   // ---------------- real-time sync ----------------
   function attachListeners(){
     if(state.unsubs) return;
@@ -1224,7 +1170,6 @@
       if(snap.exists && snap.data().list){
         var newList = snap.data().list;
         checkForNewNtoActivity(newList);
-        checkForStatusChangesForNto(newList);
         state.bundles = newList;
         render();
       }
@@ -1244,52 +1189,30 @@
     }));
   }
 
-  // ---------------- notify manager/admin of new NTO activity (submit / resubmit) ----------------
+  // ---------------- notify manager of new NTO activity (submit / resubmit) ----------------
   function checkForNewNtoActivity(newBundles){
     var prevMap = {};
     state.bundles.forEach(function(b){ prevMap[b.id] = b.status; });
 
     if(state.knownBundleIds===null){
+      // first load: just record current state, don't alert
       state.knownBundleIds = true;
       return;
     }
 
-    var newOnes = [];
+    var isNewActivity = false;
     newBundles.forEach(function(b){
       if(b.status==='pending' || b.status==='resubmit'){
         if(prevMap[b.id]===undefined || prevMap[b.id]!==b.status){
-          newOnes.push(b);
+          isNewActivity = true;
         }
       }
     });
 
-    if(newOnes.length && state.currentUser && (state.currentUser.role==='manager' || state.currentUser.role==='admin')){
-      if(state.currentUser.role==='manager'){
-        playNotificationSound();
-      }
-      var b0 = newOnes[0];
-      fireNotification('نوی بنډل راغی', b0.ntoUsername+' یو بنډل ('+b0.field2+') ولیږه.');
-      showToast('نوی بنډل راغی — '+b0.ntoUsername);
+    if(isNewActivity && state.currentUser && state.currentUser.role==='manager'){
+      playNotificationSound();
+      showToast('بنډل راغى');
     }
-  }
-
-  // ---------------- notify NTO when their bundle gets approved/rejected ----------------
-  function checkForStatusChangesForNto(newBundles){
-    if(!state.currentUser || state.currentUser.role!=='nto') return;
-    var prevMap = {};
-    state.bundles.forEach(function(b){ prevMap[b.id] = b.status; });
-
-    newBundles.forEach(function(b){
-      if(b.ntoUsername!==state.currentUser.username) return;
-      var was = prevMap[b.id];
-      if(was===undefined) return; // don't alert for the initial load / own fresh submit
-      if(was!==b.status && (b.status==='approved' || b.status==='rejected')){
-        fireNotification(
-          b.status==='approved' ? 'ستاسو بنډل فعاله شو' : 'ستاسو بنډل رد شو',
-          b.field2+' — '+(b.comment ? b.comment : '')
-        );
-      }
-    });
   }
 
   function playNotificationSound(){
@@ -1308,13 +1231,6 @@
       setTimeout(function(){ try{ o.stop(); ctx.close(); }catch(e){} }, 280);
     }catch(e){}
     if(navigator.vibrate){ try{ navigator.vibrate([200,80,200]); }catch(e){} }
-  }
-
-  // ---------------- PWA: register service worker ----------------
-  if('serviceWorker' in navigator){
-    window.addEventListener('load', function(){
-      navigator.serviceWorker.register('sw.js').catch(function(){ /* ignore */ });
-    });
   }
 
   // ---------------- init ----------------
