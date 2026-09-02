@@ -161,11 +161,17 @@
   .blocked-card p{color:var(--ink-soft);font-size:14px;line-height:1.8;direction:ltr;text-align:center;}
 
   /* ---------- Dashboard layout ---------- */
-  .shell{display:flex;min-height:100vh;}
+  /* Sidebar is an overlay drawer on ALL screen sizes: hidden by default,
+     opened/closed via the hamburger icon in the top bar. */
+  .shell{position:relative;}
   .sidebar{
-    width:236px;flex:none;background:var(--sidebar);color:var(--sidebar-text);
-    display:flex;flex-direction:column;padding:22px 16px;
+    width:236px;background:var(--sidebar);color:var(--sidebar-text);
+    display:none;
+    flex-direction:column;padding:22px 16px;
+    position:absolute;top:0;right:0;bottom:0;z-index:55;
+    box-shadow:0 12px 24px rgba(0,0,0,.3);
   }
+  .sidebar.mobile-open{display:flex;}
   .sidebar .brand{display:flex;align-items:center;gap:10px;padding:0 6px 22px 6px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:18px;}
   .sidebar .brand .mark{width:30px;height:30px;border-radius:7px;background:linear-gradient(135deg,#B8862B,#8f6a20);flex:none;}
   .sidebar .brand b{font-size:15.5px;}
@@ -191,7 +197,7 @@
     border-top:1px solid rgba(255,255,255,.08);padding-top:14px;margin-top:8px;
   }
   .sidebar .user-box .uname{font-size:13.5px;font-weight:700;color:#fff;margin-bottom:8px;}
-  .main{flex:1;padding:30px 34px;overflow-y:auto;min-width:0;}
+  .main{padding:30px 34px;overflow-y:auto;min-width:0;}
   .main-header{margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;}
   .main-header h2{margin:0 0 4px 0;font-size:21px;}
   .main-header p{margin:0;color:var(--ink-soft);font-size:13.5px;}
@@ -201,6 +207,34 @@
   .card h4{margin:0 0 16px 0;font-size:15px;}
   .row{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;}
   .row .field{flex:1;min-width:180px;margin-bottom:0;}
+
+  /* ---------- Search box ---------- */
+  .search-row{margin-bottom:16px;position:relative;}
+  .search-row input{
+    width:100%;padding:11px 40px 11px 13px;border:1.5px solid var(--border);border-radius:8px;
+    font-family:inherit;font-size:14px;background:#FBFCFD;color:var(--ink);outline:none;
+    transition:border-color .15s;
+  }
+  .search-row input:focus{border-color:var(--accent);}
+  .search-row .search-icon{
+    position:absolute;top:50%;right:13px;transform:translateY(-50%);
+    color:var(--ink-soft);font-size:14px;pointer-events:none;
+  }
+
+  /* ---------- Pagination bar ---------- */
+  .pager{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;
+    margin-top:16px;padding-top:14px;border-top:1px solid var(--border);
+  }
+  .pager .pager-info{font-size:12.5px;color:var(--ink-soft);}
+  .pager .pager-nav{display:flex;align-items:center;gap:6px;}
+  .pager .pager-nav button{
+    width:32px;height:32px;border-radius:7px;border:1.5px solid var(--border);background:#fff;
+    cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center;color:var(--ink);
+  }
+  .pager .pager-nav button:hover:not(:disabled){border-color:var(--accent);color:var(--accent);}
+  .pager .pager-nav button:disabled{opacity:.4;cursor:not-allowed;}
+  .pager .pager-nav .pager-page{font-size:12.5px;color:var(--ink-soft);padding:0 4px;min-width:70px;text-align:center;}
 
   table{width:100%;border-collapse:collapse;font-size:13.4px;}
   th,td{padding:11px 10px;text-align:right;border-bottom:1px solid var(--border);}
@@ -245,19 +279,30 @@
   }
   .modal-card{position:relative;}
 
-  /* ---------- Mobile top bar with hamburger toggle ---------- */
-  .mobile-topbar{display:none;}
+  /* ---------- Top bar with hamburger toggle (shown on every screen size) ---------- */
+  .mobile-topbar{
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    background:var(--sidebar);color:#fff;padding:12px 16px;
+    position:sticky;top:0;z-index:60;
+  }
+  .mobile-topbar .mt-title{font-weight:800;font-size:15px;color:#fff;}
+  .mobile-topbar .hamburger-btn{
+    background:transparent;border:1.5px solid rgba(255,255,255,.3);color:#fff;
+    width:38px;height:38px;border-radius:8px;font-size:18px;cursor:pointer;flex:none;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .mobile-topbar .hamburger-btn:hover{border-color:var(--accent);}
+  .mobile-topbar .mt-spacer{width:38px;flex:none;}
 
-  /* ---------- Desktop view toggle (forces wide layout even on phones) ---------- */
-  body.force-desktop .mobile-topbar{display:none !important;}
-  body.force-desktop .shell{flex-direction:row !important;}
+  /* ---------- Desktop view toggle (forces a permanently-visible wide layout, e.g. on phones) ---------- */
   body.force-desktop .sidebar{
     display:flex !important;
     position:static !important;
-    width:236px !important;flex-direction:column !important;flex-wrap:nowrap !important;
+    width:236px !important;flex:none !important;flex-direction:column !important;flex-wrap:nowrap !important;
     padding:22px 16px !important;align-items:stretch !important;
     box-shadow:none !important;
   }
+  body.force-desktop .shell{display:flex !important;flex-direction:row !important;}
   body.force-desktop .sidebar .brand{display:flex !important;border-bottom:1px solid rgba(255,255,255,.08) !important;margin-bottom:18px !important;padding:0 6px 22px 6px !important;width:auto !important;}
   body.force-desktop .sidebar .role-tag{margin-bottom:18px !important;}
   body.force-desktop .sidebar .spacer{display:block !important;}
@@ -270,38 +315,16 @@
   body.force-desktop{min-width:900px;}
 
   @media (max-width:860px){
-    .mobile-topbar{
-      display:flex;align-items:center;justify-content:space-between;gap:10px;
-      background:var(--sidebar);color:#fff;padding:12px 16px;
-      position:sticky;top:0;z-index:60;
-    }
-    .mobile-topbar .mt-title{font-weight:800;font-size:15px;color:#fff;}
-    .mobile-topbar .hamburger-btn{
-      background:transparent;border:1.5px solid rgba(255,255,255,.3);color:#fff;
-      width:38px;height:38px;border-radius:8px;font-size:18px;cursor:pointer;flex:none;
-      display:flex;align-items:center;justify-content:center;
-    }
-    .mobile-topbar .mt-spacer{width:38px;flex:none;}
-
-    .shell{flex-direction:column;position:relative;}
-    .sidebar{
-      display:none;
-      position:absolute;top:0;left:0;right:0;z-index:55;
-      width:100%;flex-direction:column;padding:16px;
-      box-shadow:0 12px 24px rgba(0,0,0,.25);
-    }
-    .sidebar.mobile-open{display:flex;}
-    .sidebar .brand{display:none;}
-    .sidebar .role-tag{margin-bottom:14px;}
-    .sidebar .spacer{display:none;}
-    .sidebar .user-box{border-top:1px solid rgba(255,255,255,.08);padding-top:14px;margin-top:8px;margin-right:0;}
-    .nav-item{margin-bottom:4px;}
-    .main{padding:18px 16px;}
+    .sidebar{width:100%;left:0;right:0;padding:16px;}
+    .main{padding:16px 14px;}
     .grid-2{grid-template-columns:1fr;}
     table{font-size:12px;}
+    th,td{padding:9px 7px;}
     .row{flex-direction:column;align-items:stretch;}
     .row .field{width:100%;min-width:0;}
     .row .btn{width:100%;}
+    .pager{flex-direction:column;align-items:stretch;}
+    .pager .pager-nav{justify-content:center;}
   }
 </style>
 </head>
@@ -339,8 +362,75 @@
     mySessionToken:null, // in-memory only; used for single-session manager enforcement
     knownBundleIds:null,  // sentinel: null = not yet initialized, true = initialized
     forceDesktop:false,
-    mobileMenuOpen:false
+    mobileMenuOpen:false,
+    bundleSearch:'',
+    bundlePage:0,
+    userSearch:{manager:'', nto:''},
+    userPage:{manager:0, nto:0}
   };
+  var PAGE_SIZE = 20;
+
+  // ---------------- generic pagination helper ----------------
+  // Renders a "1-20 of 78" style pager with prev/next icons into containerEl.
+  // page: 0-based current page. total: total item count. onChange(newPage) is called on nav.
+  function renderPager(containerEl, page, total, onChange){
+    if(!containerEl) return;
+    if(total<=PAGE_SIZE){ containerEl.innerHTML=''; return; }
+    var pageCount = Math.ceil(total/PAGE_SIZE);
+    if(page>pageCount-1) page = pageCount-1;
+    var startN = total===0 ? 0 : (page*PAGE_SIZE)+1;
+    var endN = Math.min(total, (page+1)*PAGE_SIZE);
+    containerEl.innerHTML =
+      '<div class="pager">'+
+        '<div class="pager-info">'+startN+'-'+endN+' / '+total+'</div>'+
+        '<div class="pager-nav">'+
+          '<button data-pg="first" '+(page<=0?'disabled':'')+' title="لومړی">&#171;</button>'+
+          '<button data-pg="prev" '+(page<=0?'disabled':'')+' title="مخکینی">&#8250;</button>'+
+          '<span class="pager-page">'+(page+1)+' / '+pageCount+'</span>'+
+          '<button data-pg="next" '+(page>=pageCount-1?'disabled':'')+' title="راتلونکی">&#8249;</button>'+
+          '<button data-pg="last" '+(page>=pageCount-1?'disabled':'')+' title="وروستی">&#187;</button>'+
+        '</div>'+
+      '</div>';
+    Array.prototype.forEach.call(containerEl.querySelectorAll('[data-pg]'), function(btn){
+      btn.onclick = function(){
+        var which = btn.getAttribute('data-pg');
+        var np = page;
+        if(which==='first') np = 0;
+        else if(which==='prev') np = Math.max(0, page-1);
+        else if(which==='next') np = Math.min(pageCount-1, page+1);
+        else if(which==='last') np = pageCount-1;
+        onChange(np);
+      };
+    });
+  }
+
+  // Filters a list of objects by a search string across the given field names (case-insensitive).
+  function filterBySearch(list, query, fields){
+    var q = (query||'').trim().toLowerCase();
+    if(!q) return list;
+    return list.filter(function(item){
+      return fields.some(function(f){
+        var v = item[f];
+        return v!=null && String(v).toLowerCase().indexOf(q)!==-1;
+      });
+    });
+  }
+
+  // Binds a search input so typing filters+re-renders without losing focus/cursor position.
+  function bindSearchInput(inputId, getQuery, setQuery, rerenderFn){
+    var el = document.getElementById(inputId);
+    if(!el) return;
+    el.oninput = function(){
+      var pos = el.selectionStart;
+      setQuery(el.value);
+      rerenderFn();
+      var el2 = document.getElementById(inputId);
+      if(el2){
+        el2.focus();
+        try{ el2.setSelectionRange(pos, pos); }catch(e){}
+      }
+    };
+  }
 
   // ---------------- storage helpers (Firestore) ----------------
   function sGetDoc(name){
@@ -563,7 +653,7 @@
           '<div class="spacer"></div>'+
           '<div class="user-box">'+
             '<div class="uname">'+escapeHtml(state.currentUser.username)+'</div>'+
-            '<button class="btn btn-ghost btn-sm btn-block" id="desktop-toggle-btn" style="margin-bottom:8px;">'+(state.forceDesktop?'&#128241; موبایل لید':'&#128421; ډیسک-ټاپ لید')+'</button>'+
+            (role!=='nto' ? '<button class="btn btn-ghost btn-sm btn-block" id="desktop-toggle-btn" style="margin-bottom:8px;">'+(state.forceDesktop?'&#128241; موبایل لید':'&#128421; ډیسک-ټاپ لید')+'</button>' : '')+
             '<button class="btn btn-ghost btn-sm btn-block" id="logout-btn">وتل (Logout)</button>'+
           '</div>'+
         '</div>'+
@@ -591,12 +681,15 @@
         render();
       };
     });
-    document.getElementById('desktop-toggle-btn').onclick = function(){
-      state.forceDesktop = !state.forceDesktop;
-      state.mobileMenuOpen = false;
-      document.body.classList.toggle('force-desktop', state.forceDesktop);
-      render();
-    };
+    var dtBtn = document.getElementById('desktop-toggle-btn');
+    if(dtBtn){
+      dtBtn.onclick = function(){
+        state.forceDesktop = !state.forceDesktop;
+        state.mobileMenuOpen = false;
+        document.body.classList.toggle('force-desktop', state.forceDesktop);
+        render();
+      };
+    }
     document.getElementById('logout-btn').onclick = function(){
       state.currentUser = null;
       state.section = null;
@@ -684,7 +777,8 @@
 
   // ---------------- SALES REPORT SECTION ----------------
   function renderSalesSection(body, role, headerRow){
-    var rows = role==='nto' ? state.bundles.filter(function(b){return b.ntoUsername===state.currentUser.username;}) : state.bundles.slice();
+    var allRows = role==='nto' ? state.bundles.filter(function(b){return b.ntoUsername===state.currentUser.username;}) : state.bundles.slice();
+    var rows = filterBySearch(allRows, state.bundleSearch, ['ntoUsername','field1','field2','comment','actionedBy']);
     var canProcess = (role==='admin' || role==='manager');
 
     if(headerRow && (role==='admin' || role==='manager')){
@@ -729,11 +823,24 @@
       }
     }
 
-    if(!rows.length){
+    if(!allRows.length){
       body.innerHTML = '<div class="card"><div class="empty-state">هیڅ ثبت شوی معلومات نشته.</div></div>';
       return;
     }
-    body.innerHTML = '<div class="card"><div style="overflow-x:auto;"><table><thead><tr>'+
+
+    var pageCount = Math.max(1, Math.ceil(rows.length/PAGE_SIZE));
+    if(state.bundlePage>pageCount-1) state.bundlePage = pageCount-1;
+    if(state.bundlePage<0) state.bundlePage = 0;
+    var pageRows = rows.slice(state.bundlePage*PAGE_SIZE, (state.bundlePage+1)*PAGE_SIZE);
+
+    var searchHtml = '<div class="search-row"><input id="bundle-search" type="text" placeholder="د مشتري نوم، شمیره یا بنډل ولټوئ..." value="'+escapeHtml(state.bundleSearch)+'"><span class="search-icon">&#128269;</span></div>';
+
+    if(!rows.length){
+      body.innerHTML = '<div class="card">'+searchHtml+'<div class="empty-state">ستاسو د لټون سره سم هیڅ معلومات ونه موندل شول.</div></div>';
+      bindSearchInput('bundle-search', function(){return state.bundleSearch;}, function(v){state.bundleSearch=v; state.bundlePage=0;}, function(){ renderSalesSection(body, role, headerRow); });
+      return;
+    }
+    body.innerHTML = '<div class="card">'+searchHtml+'<div style="overflow-x:auto;"><table><thead><tr>'+
       (role!=='nto' ? '<th>مشتري-نوم</th>' : '')+
       '<th>اړيکې-شمیره</th><th>بنډل-نوو</th><th>حالت</th>'+
       (canProcess ? '<th>تائيد کوونکى-مدير</th>' : '')+
@@ -741,7 +848,7 @@
       '<th>نیټه</th>'+
       (role==='nto' ? '<th></th>' : '')+
       '</tr></thead><tbody>'+
-      rows.map(function(b){
+      pageRows.map(function(b){
         var statusCell = statusBadge(b.status);
         if(canProcess && (b.status==='pending' || b.status==='resubmit')){
           statusCell = '<span class="badge clickable '+badgeClass(b.status)+'" data-open-process="'+b.id+'">'+statusLabel(b.status)+'</span>';
@@ -757,7 +864,13 @@
           (role==='nto' ? '<td>'+(b.status==='rejected' ? '<button class="btn btn-sm btn-info" data-resubmit="'+b.id+'">ریسبمیټ</button>' : '')+'</td>' : '')+
         '</tr>';
       }).join('')+
-    '</tbody></table></div></div>';
+    '</tbody></table></div><div id="bundle-pager"></div></div>';
+
+    bindSearchInput('bundle-search', function(){return state.bundleSearch;}, function(v){state.bundleSearch=v; state.bundlePage=0;}, function(){ renderSalesSection(body, role, headerRow); });
+    renderPager(document.getElementById('bundle-pager'), state.bundlePage, rows.length, function(np){
+      state.bundlePage = np;
+      renderSalesSection(body, role, headerRow);
+    });
 
     if(canProcess){
       Array.prototype.forEach.call(document.querySelectorAll('[data-open-process]'), function(el){
@@ -944,9 +1057,11 @@
 
   // ---------------- USERS SECTIONS (managers / ntos) ----------------
   function renderUsersSection(body, targetRole, canToggle, canDelete){
-    var list = state.users.filter(function(u){return u.role===targetRole;});
+    var fullList = state.users.filter(function(u){return u.role===targetRole;});
     var roleLabel = targetRole==='manager' ? 'مدير' : 'مشتري';
     var isNto = targetRole==='nto';
+    var searchFields = isNto ? ['username','address','contact','createdBy'] : ['username'];
+    var list = filterBySearch(fullList, state.userSearch[targetRole], searchFields);
 
     body.innerHTML =
       '<div class="card">'+
@@ -959,7 +1074,9 @@
           '<button class="btn btn-gold" id="nu-create">جوړ کړئ</button>'+
         '</div>'+
       '</div>'+
-      '<div class="card"><h4>د '+roleLabel+' حسابونه</h4><div id="nu-list"></div></div>';
+      '<div class="card"><h4>د '+roleLabel+' حسابونه</h4>'+
+        (fullList.length ? '<div class="search-row"><input id="nu-search" type="text" placeholder="د '+roleLabel+' لټون (یوزرنوم'+(isNto?'، ادرس یا شمیره':'')+')..." value="'+escapeHtml(state.userSearch[targetRole])+'"><span class="search-icon">&#128269;</span></div>' : '')+
+        '<div id="nu-list"></div><div id="nu-pager"></div></div>';
 
     document.getElementById('nu-create').onclick = function(){
       var u = document.getElementById('nu-user').value.trim();
@@ -978,15 +1095,31 @@
       });
     };
 
+    if(fullList.length){
+      bindSearchInput('nu-search', function(){return state.userSearch[targetRole];}, function(v){state.userSearch[targetRole]=v; state.userPage[targetRole]=0;}, function(){ renderUsersSection(body, targetRole, canToggle, canDelete); });
+    }
+
     var listEl = document.getElementById('nu-list');
-    if(!list.length){
+    if(!fullList.length){
       listEl.innerHTML = '<div class="empty-state">تر اوسه هیڅ حساب نشته.</div>';
       return;
     }
+    if(!list.length){
+      listEl.innerHTML = '<div class="empty-state">ستاسو د لټون سره سم هیڅ حساب ونه موندل شو.</div>';
+      return;
+    }
+
+    var page = state.userPage[targetRole] || 0;
+    var pageCount = Math.max(1, Math.ceil(list.length/PAGE_SIZE));
+    if(page>pageCount-1) page = pageCount-1;
+    if(page<0) page = 0;
+    state.userPage[targetRole] = page;
+    var pageList = list.slice(page*PAGE_SIZE, (page+1)*PAGE_SIZE);
+
     listEl.innerHTML = '<div style="overflow-x:auto;"><table><thead><tr><th>یوزر-نوم</th>'+
       (isNto ? '<th>مشتري-ادرس</th><th>اړیکې-شمیره</th><th>جوړونکی</th>' : '')+
       '<th>حالت</th>'+(canToggle?'<th></th>':'')+(canDelete?'<th></th>':'')+'</tr></thead><tbody>'+
-      list.map(function(u){
+      pageList.map(function(u){
         return '<tr><td>'+escapeHtml(u.username)+'</td>'+
           (isNto ? '<td>'+escapeHtml(u.address||'—')+'</td><td>'+escapeHtml(u.contact||'—')+'</td><td>'+escapeHtml(u.createdBy||'—')+'</td>' : '')+
           '<td>'+statusBadge(u.status==='enabled'?'enabled':'disabled')+'</td>'+
@@ -995,6 +1128,11 @@
         '</tr>';
       }).join('')+
     '</tbody></table></div>';
+
+    renderPager(document.getElementById('nu-pager'), page, list.length, function(np){
+      state.userPage[targetRole] = np;
+      renderUsersSection(body, targetRole, canToggle, canDelete);
+    });
 
     if(canToggle){
       Array.prototype.forEach.call(document.querySelectorAll('[data-toggle]'), function(btn){
