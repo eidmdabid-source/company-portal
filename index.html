@@ -37,15 +37,17 @@
     --border:#DDE2E8;
     --radius:10px;
   }
-  *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;height:100%;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  html,body{margin:0;padding:0;height:100%;overscroll-behavior-y:contain;}
   body{
     font-family:'Vazirmatn','Segoe UI',Tahoma,sans-serif;
     background:var(--bg);
     color:var(--ink);
     direction:rtl;
     min-height:100vh;
+    -webkit-text-size-adjust:100%;
   }
+  button,.btn,.nav-item,.icon-btn,.icon-btn-sm,.icon-btn-copy,input,select,textarea{touch-action:manipulation;}
   #app{min-height:100vh;}
 
   /* ---------- Login ---------- */
@@ -316,15 +318,41 @@
 
   @media (max-width:860px){
     .sidebar{width:100%;left:0;right:0;padding:16px;}
-    .main{padding:16px 14px;}
+    .main{padding:14px 12px;}
     .grid-2{grid-template-columns:1fr;}
-    table{font-size:12px;}
-    th,td{padding:9px 7px;}
+    .card{padding:16px;border-radius:12px;}
     .row{flex-direction:column;align-items:stretch;}
     .row .field{width:100%;min-width:0;}
-    .row .btn{width:100%;}
+    .row .btn{width:100%;padding:13px 18px;}
     .pager{flex-direction:column;align-items:stretch;}
     .pager .pager-nav{justify-content:center;}
+    .pager .pager-nav button{width:38px;height:38px;}
+    .field input, .field textarea, .field select, .search-row input{font-size:16px;padding:12px 14px;}
+    .icon-btn{width:40px;height:40px;font-size:18px;}
+    .icon-btn-sm{width:34px;height:34px;font-size:16px;}
+    .btn-sm{padding:9px 14px;font-size:13.5px;}
+    .nav-item{padding:13px 12px;font-size:15px;}
+
+    /* Tables become stacked cards on phones -- no horizontal scrolling. */
+    table{font-size:13.5px;}
+    table thead{display:none;}
+    table, table tbody, table tr{display:block;width:100%;}
+    table tr{
+      background:var(--surface);border:1px solid var(--border);border-radius:12px;
+      margin-bottom:12px;padding:4px 14px;
+    }
+    table td{
+      display:flex;align-items:center;justify-content:space-between;gap:14px;
+      padding:11px 0;border-bottom:1px solid var(--border);
+      text-align:left;
+    }
+    table td:last-child{border-bottom:none;}
+    table td:empty{display:none;}
+    table td:before{
+      content:attr(data-label);
+      font-weight:700;color:var(--ink-soft);font-size:11.5px;flex:none;
+    }
+    table td:not([data-label]):before, table td[data-label=""]:before{content:none;}
   }
 </style>
 </head>
@@ -769,7 +797,7 @@
     }else{
       list.innerHTML = '<table><thead><tr><th>شمیره</th><th>د بنډل نوم</th><th>حالت</th><th>نیټه</th></tr></thead><tbody>'+
         myBundles.map(function(b){
-          return '<tr><td>'+escapeHtml(b.field1)+'</td><td>'+escapeHtml(b.field2)+'</td><td>'+statusBadge(b.status)+'</td><td>'+fmtDate(b.createdAt)+'</td></tr>';
+          return '<tr><td data-label="شمیره">'+escapeHtml(b.field1)+'</td><td data-label="د بنډل نوم">'+escapeHtml(b.field2)+'</td><td data-label="حالت">'+statusBadge(b.status)+'</td><td data-label="نیټه">'+fmtDate(b.createdAt)+'</td></tr>';
         }).join('')+
       '</tbody></table>';
     }
@@ -854,13 +882,13 @@
           statusCell = '<span class="badge clickable '+badgeClass(b.status)+'" data-open-process="'+b.id+'">'+statusLabel(b.status)+'</span>';
         }
         return '<tr>'+
-          (role!=='nto' ? '<td>'+escapeHtml(b.ntoUsername)+'</td>' : '')+
-          '<td>'+escapeHtml(b.field1)+(role==='manager' ? ' <button class="icon-btn-copy" data-copy="'+escapeHtml(b.field1)+'" title="کاپي کول">&#128203;</button>' : '')+'</td>'+
-          '<td>'+escapeHtml(b.field2)+'</td>'+
-          '<td>'+statusCell+'</td>'+
-          (canProcess ? '<td>'+(b.actionedBy?escapeHtml(b.actionedBy):'—')+'</td>' : '')+
-          '<td>'+(b.comment?escapeHtml(b.comment):'—')+'</td>'+
-          '<td>'+fmtDate(b.createdAt)+'</td>'+
+          (role!=='nto' ? '<td data-label="مشتري-نوم">'+escapeHtml(b.ntoUsername)+'</td>' : '')+
+          '<td data-label="اړيکې-شمیره">'+escapeHtml(b.field1)+(role==='manager' ? ' <button class="icon-btn-copy" data-copy="'+escapeHtml(b.field1)+'" title="کاپي کول">&#128203;</button>' : '')+'</td>'+
+          '<td data-label="بنډل-نوو">'+escapeHtml(b.field2)+'</td>'+
+          '<td data-label="حالت">'+statusCell+'</td>'+
+          (canProcess ? '<td data-label="تائيد کوونکى-مدير">'+(b.actionedBy?escapeHtml(b.actionedBy):'—')+'</td>' : '')+
+          '<td data-label="يادونه-شوې">'+(b.comment?escapeHtml(b.comment):'—')+'</td>'+
+          '<td data-label="نیټه">'+fmtDate(b.createdAt)+'</td>'+
           (role==='nto' ? '<td>'+(b.status==='rejected' ? '<button class="btn btn-sm btn-info" data-resubmit="'+b.id+'">ریسبمیټ</button>' : '')+'</td>' : '')+
         '</tr>';
       }).join('')+
@@ -1120,9 +1148,9 @@
       (isNto ? '<th>مشتري-ادرس</th><th>اړیکې-شمیره</th><th>جوړونکی</th>' : '')+
       '<th>حالت</th>'+(canToggle?'<th></th>':'')+(canDelete?'<th></th>':'')+'</tr></thead><tbody>'+
       pageList.map(function(u){
-        return '<tr><td>'+escapeHtml(u.username)+'</td>'+
-          (isNto ? '<td>'+escapeHtml(u.address||'—')+'</td><td>'+escapeHtml(u.contact||'—')+'</td><td>'+escapeHtml(u.createdBy||'—')+'</td>' : '')+
-          '<td>'+statusBadge(u.status==='enabled'?'enabled':'disabled')+'</td>'+
+        return '<tr><td data-label="یوزر-نوم">'+escapeHtml(u.username)+'</td>'+
+          (isNto ? '<td data-label="مشتري-ادرس">'+escapeHtml(u.address||'—')+'</td><td data-label="اړیکې-شمیره">'+escapeHtml(u.contact||'—')+'</td><td data-label="جوړونکی">'+escapeHtml(u.createdBy||'—')+'</td>' : '')+
+          '<td data-label="حالت">'+statusBadge(u.status==='enabled'?'enabled':'disabled')+'</td>'+
           (canToggle ? '<td><button class="btn btn-sm '+(u.status==='enabled'?'btn-danger':'btn-ok')+'" data-toggle="'+u.username+'">'+(u.status==='enabled'?'ډیسیبل':'انیبل')+'</button></td>' : '')+
           (canDelete ? '<td><button class="icon-btn-sm" data-delete-user="'+u.username+'" title="ډیلیټ">&#128465;</button></td>' : '')+
         '</tr>';
@@ -1214,7 +1242,7 @@
       '<th>مشتري</th><th>فعاله شويو بنډلونو شمير</th><th>فروشات</th><th></th>'+
       '</tr></thead><tbody>'+
       rows.map(function(r){
-        return '<tr><td>'+escapeHtml(r.username)+'</td><td>'+r.count+'</td><td>'+r.total.toLocaleString()+' افغانۍ</td>'+
+        return '<tr><td data-label="مشتري">'+escapeHtml(r.username)+'</td><td data-label="فعاله شويو بنډلونو شمير">'+r.count+'</td><td data-label="فروشات">'+r.total.toLocaleString()+' افغانۍ</td>'+
           '<td><button class="icon-btn-sm" data-nto-reset="'+escapeHtml(r.username)+'" title="ریسیټ">&#8635;</button></td></tr>';
       }).join('')+
     '</tbody></table></div></div>';
@@ -1247,7 +1275,7 @@
           '<th>مدير</th><th>د فعاله شويو بنډلونو شمير</th><th>فروشات</th><th></th>'+
           '</tr></thead><tbody>'+
           rows.map(function(r){
-            return '<tr><td>'+escapeHtml(r.username)+'</td><td>'+r.count+'</td><td>'+r.total.toLocaleString()+' افغانۍ</td>'+
+            return '<tr><td data-label="مدير">'+escapeHtml(r.username)+'</td><td data-label="د فعاله شويو بنډلونو شمير">'+r.count+'</td><td data-label="فروشات">'+r.total.toLocaleString()+' افغانۍ</td>'+
               '<td><button class="icon-btn-sm" data-mgr-reset="'+escapeHtml(r.username)+'" title="ریسیټ">&#8635;</button></td></tr>';
           }).join('')+
         '</tbody></table></div></div>';
