@@ -904,7 +904,8 @@
       state.bundles.unshift(entry);
       persistBundles().then(function(){
         showToast('بنډل واستول شو، اوس د تمې په حالت کې دی.');
-        renderBundleSection(body);
+        state.section = 'sales';
+        renderDashboard(document.getElementById('app'));
       });
     };
 
