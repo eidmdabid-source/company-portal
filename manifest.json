@@ -1,7 +1,7 @@
 {
-  "name": "روشن بنډل ایکټیویشن",
-  "short_name": "روشن پورټال",
-  "description": "د روشن بنډل ایکټیویشن مدیریتي سیسټم",
+  "name": "Bundle Sales",
+  "short_name": "Roshan app",
+  "description": "Roshan Bundle Sales",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
