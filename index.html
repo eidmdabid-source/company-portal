@@ -9,7 +9,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="روشن پورټال">
+<meta name="apple-mobile-web-app-title" content="روشن نزدیک-شدن">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -166,12 +166,19 @@
   /* Sidebar is an overlay drawer on ALL screen sizes: hidden by default,
      opened/closed via the hamburger icon in the top bar. */
   .shell{position:relative;}
+  .sidebar-backdrop{
+    position:fixed;inset:0;background:rgba(10,14,22,.55);z-index:54;
+    display:none;
+  }
+  .sidebar-backdrop.show{display:block;}
+  body.force-desktop .sidebar-backdrop{display:none !important;}
   .sidebar{
     width:236px;background:var(--sidebar);color:var(--sidebar-text);
     display:none;
     flex-direction:column;padding:22px 16px;
-    position:absolute;top:0;right:0;bottom:0;z-index:55;
+    position:fixed;top:0;right:0;height:100vh;z-index:55;
     box-shadow:0 12px 24px rgba(0,0,0,.3);
+    overflow-y:auto;
   }
   .sidebar.mobile-open{display:flex;}
   .sidebar .brand{display:flex;align-items:center;gap:10px;padding:0 6px 22px 6px;border-bottom:1px solid rgba(255,255,255,.08);margin-bottom:18px;}
@@ -296,6 +303,30 @@
   .mobile-topbar .hamburger-btn:hover{border-color:var(--accent);}
   .mobile-topbar .mt-spacer{width:38px;flex:none;}
 
+  /* ---------- Top-bar user menu ---------- */
+  .mt-user-wrap{position:relative;flex:none;}
+  .mt-user-btn{
+    background:transparent;border:1.5px solid rgba(255,255,255,.3);color:#fff;
+    padding:8px 12px;border-radius:8px;font-size:12.5px;font-weight:700;cursor:pointer;
+    display:flex;align-items:center;gap:6px;font-family:inherit;max-width:150px;
+  }
+  .mt-user-btn:hover{border-color:var(--accent);}
+  .mt-user-btn .mt-user-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:105px;}
+  .mt-user-btn .mt-caret{font-size:10px;color:var(--sidebar-text-dim);flex:none;}
+  .mt-user-dropdown{
+    position:absolute;top:calc(100% + 8px);left:0;
+    background:#fff;color:var(--ink);border-radius:10px;min-width:200px;
+    box-shadow:0 14px 34px rgba(0,0,0,.28);padding:8px;z-index:70;
+    display:flex;flex-direction:column;gap:2px;
+  }
+  .mt-user-item{
+    background:transparent;border:none;text-align:right;padding:10px 12px;border-radius:7px;
+    font-family:inherit;font-size:13.5px;font-weight:600;color:var(--ink);cursor:pointer;
+  }
+  .mt-user-item:hover{background:var(--bg);}
+  .mt-user-item-danger{color:var(--danger);}
+  .mt-user-item-danger:hover{background:var(--danger-soft);}
+
   /* ---------- Desktop view toggle (forces a permanently-visible wide layout, e.g. on phones) ---------- */
   body.force-desktop .sidebar{
     display:flex !important;
@@ -391,6 +422,8 @@
     knownBundleIds:null,  // sentinel: null = not yet initialized, true = initialized
     forceDesktop:false,
     mobileMenuOpen:false,
+    userMenuOpen:false,
+    pwError:'',
     bundleSearch:'',
     bundlePage:0,
     userSearch:{manager:'', nto:''},
@@ -476,6 +509,33 @@
     return sSetDoc(key, obj);
   }
   function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
+
+  // ---------------- session persistence (stay logged in across refresh/close) ----------------
+  var SESSION_KEY = 'roshanPortalSession';
+  function saveSession(){
+    try{
+      localStorage.setItem(SESSION_KEY, JSON.stringify({
+        username: state.currentUser.username,
+        sessionToken: state.mySessionToken || null
+      }));
+    }catch(e){}
+  }
+  function clearSavedSession(){
+    try{ localStorage.removeItem(SESSION_KEY); }catch(e){}
+  }
+  function restoreSession(){
+    var raw;
+    try{ raw = localStorage.getItem(SESSION_KEY); }catch(e){ raw = null; }
+    if(!raw) return;
+    var saved;
+    try{ saved = JSON.parse(raw); }catch(e){ return; }
+    if(!saved || !saved.username) return;
+    var u = state.users.find(function(x){ return x.username===saved.username; });
+    if(!u || u.status==='disabled'){ clearSavedSession(); return; }
+    state.currentUser = {username:u.username, role:u.role};
+    state.mySessionToken = saved.sessionToken || null;
+    state.section = MENUS[u.role][0].key;
+  }
 
   // ---------------- data bootstrap ----------------
   var DEFAULT_ADMIN_USER = 'admin@roshan.af';
@@ -606,7 +666,18 @@
       state.mySessionToken = tok;
       persistUsers();
     }
+    saveSession();
     requestNotificationPermission();
+    render();
+  }
+
+  function doLogout(){
+    state.currentUser = null;
+    state.section = null;
+    state.modal = null;
+    state.userMenuOpen = false;
+    state.mySessionToken = null;
+    clearSavedSession();
     render();
   }
 
@@ -621,6 +692,7 @@
       '</div></div>';
     document.getElementById('bk-back').onclick = function(){
       state.currentUser = null;
+      clearSavedSession();
       render();
     };
   }
@@ -637,6 +709,7 @@
     document.getElementById('sr-back').onclick = function(){
       state.currentUser = null;
       state.mySessionToken = null;
+      clearSavedSession();
       render();
     };
   }
@@ -667,23 +740,33 @@
         '<span>'+m.label+'</span>'+badge+'</div>';
     }).join('');
 
+    var canChangePw = role==='manager';
+    var userMenuHtml = '';
+    if(state.userMenuOpen){
+      userMenuHtml =
+        '<div class="mt-user-dropdown">'+
+          (role!=='nto' ? '<button class="mt-user-item" id="um-desktop">'+(state.forceDesktop?'&#128241; موبایل لید':'&#128421; ډیسک-ټاپ لید')+'</button>' : '')+
+          (canChangePw ? '<button class="mt-user-item" id="um-changepw">&#128273; پاسورډ بدلول</button>' : '')+
+          '<button class="mt-user-item mt-user-item-danger" id="um-logout">&#128682; وتل (Logout)</button>'+
+        '</div>';
+    }
+
     root.innerHTML =
       '<div class="mobile-topbar">'+
         '<button class="hamburger-btn" id="mobile-menu-btn">&#9776;</button>'+
         '<span class="mt-title">روشن پورټال</span>'+
-        '<span class="mt-spacer"></span>'+
+        '<div class="mt-user-wrap" id="mt-user-wrap">'+
+          '<button class="mt-user-btn" id="mt-user-btn"><span class="mt-user-name">'+escapeHtml(state.currentUser.username)+'</span><span class="mt-caret">&#9662;</span></button>'+
+          userMenuHtml+
+        '</div>'+
       '</div>'+
       '<div class="shell">'+
+        '<div class="sidebar-backdrop'+(state.mobileMenuOpen?' show':'')+'" id="sidebar-backdrop"></div>'+
         '<div class="sidebar'+(state.mobileMenuOpen?' mobile-open':'')+'">'+
           '<div class="brand"><div class="mark"></div><b>روشن-نزديک شدن</b></div>'+
           '<div class="role-tag">'+ROLE_LABEL[role]+'</div>'+
           '<div style="display:flex;flex-direction:column;gap:2px;flex:1;">'+navHtml+'</div>'+
           '<div class="spacer"></div>'+
-          '<div class="user-box">'+
-            '<div class="uname">'+escapeHtml(state.currentUser.username)+'</div>'+
-            (role!=='nto' ? '<button class="btn btn-ghost btn-sm btn-block" id="desktop-toggle-btn" style="margin-bottom:8px;">'+(state.forceDesktop?'&#128241; موبایل لید':'&#128421; ډیسک-ټاپ لید')+'</button>' : '')+
-            '<button class="btn btn-ghost btn-sm btn-block" id="logout-btn">وتل (Logout)</button>'+
-          '</div>'+
         '</div>'+
         '<div class="main" id="main-area"></div>'+
       '</div>';
@@ -692,6 +775,13 @@
     if(mmBtn){
       mmBtn.onclick = function(){
         state.mobileMenuOpen = !state.mobileMenuOpen;
+        renderDashboard(document.getElementById('app'));
+      };
+    }
+    var backdrop = document.getElementById('sidebar-backdrop');
+    if(backdrop){
+      backdrop.onclick = function(){
+        state.mobileMenuOpen = false;
         renderDashboard(document.getElementById('app'));
       };
     }
@@ -709,20 +799,40 @@
         render();
       };
     });
-    var dtBtn = document.getElementById('desktop-toggle-btn');
-    if(dtBtn){
-      dtBtn.onclick = function(){
-        state.forceDesktop = !state.forceDesktop;
-        state.mobileMenuOpen = false;
-        document.body.classList.toggle('force-desktop', state.forceDesktop);
+
+    var userBtn = document.getElementById('mt-user-btn');
+    if(userBtn){
+      userBtn.onclick = function(e){
+        e.stopPropagation();
+        state.userMenuOpen = !state.userMenuOpen;
+        renderDashboard(document.getElementById('app'));
+      };
+    }
+    var umDesktop = document.getElementById('um-desktop');
+    if(umDesktop){
+      umDesktop.onclick = function(){
+        state.userMenuOpen = false;
+        state.modal = {type:'confirm-desktop'};
         render();
       };
     }
-    document.getElementById('logout-btn').onclick = function(){
-      state.currentUser = null;
-      state.section = null;
-      render();
-    };
+    var umChangePw = document.getElementById('um-changepw');
+    if(umChangePw){
+      umChangePw.onclick = function(){
+        state.userMenuOpen = false;
+        state.pwError = '';
+        state.modal = {type:'change-password'};
+        render();
+      };
+    }
+    var umLogout = document.getElementById('um-logout');
+    if(umLogout){
+      umLogout.onclick = function(){
+        state.userMenuOpen = false;
+        state.modal = {type:'confirm-logout'};
+        render();
+      };
+    }
 
     renderSection(document.getElementById('main-area'));
   }
@@ -1039,6 +1149,33 @@
     });
   }
 
+  // ---------------- account modals (logout / desktop-view / change password) ----------------
+  function submitChangePassword(){
+    var cur = document.getElementById('pw-current').value;
+    var nw = document.getElementById('pw-new').value;
+    var cf = document.getElementById('pw-confirm').value;
+    var u = state.users.find(function(x){ return x.username===state.currentUser.username; });
+    if(!u || u.password!==cur){
+      state.pwError = 'اوسنی پاسورډ سم نه دی.';
+      render(); return;
+    }
+    if(!nw || nw.length<4){
+      state.pwError = 'نوی پاسورډ دي لږ تر لږه ۴ توري وي.';
+      render(); return;
+    }
+    if(nw!==cf){
+      state.pwError = 'نوی پاسورډ سره سمون نه خوري.';
+      render(); return;
+    }
+    u.password = nw;
+    persistUsers().then(function(){
+      state.pwError = '';
+      state.modal = null;
+      showToast('پاسورډ بدل شو.');
+      render();
+    });
+  }
+
   function renderModalLayer(){
     var old = document.getElementById('modal-layer');
     if(old) old.remove();
@@ -1048,7 +1185,40 @@
     layer.id = 'modal-layer';
     layer.className = 'modal-backdrop';
 
-    if(state.modal.type==='process'){
+    if(state.modal.type==='confirm-logout'){
+      layer.innerHTML =
+        '<div class="modal-card">'+
+          '<h3>وتل (Logout)</h3>'+
+          '<p class="note-text" style="margin-top:0;">آیا تاسو ډاډه یاست چې غواړئ له سیسټم څخه ووځئ؟</p>'+
+          '<div class="modal-actions">'+
+            '<button class="btn btn-danger" id="cl-confirm">هو، ووځه</button>'+
+            '<button class="btn btn-ghost" id="cl-cancel">لغوه کول</button>'+
+          '</div>'+
+        '</div>';
+    }else if(state.modal.type==='confirm-desktop'){
+      layer.innerHTML =
+        '<div class="modal-card">'+
+          '<h3>د لید بدلول</h3>'+
+          '<p class="note-text" style="margin-top:0;">آیا غواړئ '+(state.forceDesktop?'موبایل':'ډیسک-ټاپ')+' ليد ته لاړ شئ؟</p>'+
+          '<div class="modal-actions">'+
+            '<button class="btn btn-gold" id="cd-confirm">هو</button>'+
+            '<button class="btn btn-ghost" id="cd-cancel">لغوه کول</button>'+
+          '</div>'+
+        '</div>';
+    }else if(state.modal.type==='change-password'){
+      layer.innerHTML =
+        '<div class="modal-card">'+
+          '<h3>پاسورډ بدلول</h3>'+
+          (state.pwError ? '<div class="error-box">'+escapeHtml(state.pwError)+'</div>' : '')+
+          '<div class="field"><label>اوسنی پاسورډ</label><input id="pw-current" type="password"></div>'+
+          '<div class="field"><label>نوی پاسورډ</label><input id="pw-new" type="password"></div>'+
+          '<div class="field"><label>نوی پاسورډ بیا ولیکئ</label><input id="pw-confirm" type="password"></div>'+
+          '<div class="modal-actions">'+
+            '<button class="btn btn-gold btn-block" id="pw-submit">بدلول</button>'+
+          '</div>'+
+          '<button class="btn btn-ghost btn-block" id="pw-cancel" style="margin-top:10px;">لغوه کول</button>'+
+        '</div>';
+    }else if(state.modal.type==='process'){
       layer.innerHTML =
         '<div class="modal-card">'+
           '<h3>د بنډل پروسس کول</h3>'+
@@ -1073,7 +1243,21 @@
 
     document.body.appendChild(layer);
 
-    if(state.modal.type==='process'){
+    if(state.modal.type==='confirm-logout'){
+      document.getElementById('cl-confirm').onclick = doLogout;
+      document.getElementById('cl-cancel').onclick = function(){ state.modal=null; render(); };
+    }else if(state.modal.type==='confirm-desktop'){
+      document.getElementById('cd-confirm').onclick = function(){
+        state.forceDesktop = !state.forceDesktop;
+        document.body.classList.toggle('force-desktop', state.forceDesktop);
+        state.modal = null;
+        render();
+      };
+      document.getElementById('cd-cancel').onclick = function(){ state.modal=null; render(); };
+    }else if(state.modal.type==='change-password'){
+      document.getElementById('pw-submit').onclick = submitChangePassword;
+      document.getElementById('pw-cancel').onclick = function(){ state.modal=null; state.pwError=''; render(); };
+    }else if(state.modal.type==='process'){
       document.getElementById('proc-approve').onclick = function(){ submitProcessDecision('approved'); };
       document.getElementById('proc-reject').onclick = function(){ submitProcessDecision('rejected'); };
       document.getElementById('proc-cancel').onclick = closeProcessModal;
@@ -1510,17 +1694,29 @@
       var Ctx = window.AudioContext || window.webkitAudioContext;
       if(!Ctx) return;
       var ctx = new Ctx();
-      var o = ctx.createOscillator();
-      var g = ctx.createGain();
-      o.type = 'sine';
-      o.frequency.value = 880;
-      g.gain.value = 0.18;
-      o.connect(g); g.connect(ctx.destination);
-      o.start();
-      setTimeout(function(){ o.frequency.value = 660; }, 130);
-      setTimeout(function(){ try{ o.stop(); ctx.close(); }catch(e){} }, 280);
+      var now = ctx.currentTime;
+      // A soft three-note ascending chime (bell-like), closer to a phone alert tone
+      // than a flat single beep.
+      var notes = [
+        {freq:988,  start:0.00, dur:0.16},
+        {freq:1319, start:0.13, dur:0.16},
+        {freq:1568, start:0.26, dur:0.34}
+      ];
+      notes.forEach(function(n){
+        var o = ctx.createOscillator();
+        var g = ctx.createGain();
+        o.type = 'sine';
+        o.frequency.value = n.freq;
+        g.gain.setValueAtTime(0.0001, now+n.start);
+        g.gain.exponentialRampToValueAtTime(0.22, now+n.start+0.02);
+        g.gain.exponentialRampToValueAtTime(0.0001, now+n.start+n.dur);
+        o.connect(g); g.connect(ctx.destination);
+        o.start(now+n.start);
+        o.stop(now+n.start+n.dur+0.02);
+      });
+      setTimeout(function(){ try{ ctx.close(); }catch(e){} }, 900);
     }catch(e){}
-    if(navigator.vibrate){ try{ navigator.vibrate([200,80,200]); }catch(e){} }
+    if(navigator.vibrate){ try{ navigator.vibrate([150,60,150]); }catch(e){} }
   }
 
   // ---------------- PWA: register service worker ----------------
@@ -1530,8 +1726,18 @@
     });
   }
 
+  // ---------------- close the top-bar user dropdown when clicking elsewhere ----------------
+  document.addEventListener('click', function(e){
+    if(!state.userMenuOpen) return;
+    var wrap = document.getElementById('mt-user-wrap');
+    if(wrap && wrap.contains(e.target)) return;
+    state.userMenuOpen = false;
+    render();
+  });
+
   // ---------------- init ----------------
   loadAll().then(function(){
+    restoreSession();
     state.loading = false;
     attachListeners();
     render();
