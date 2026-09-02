@@ -328,8 +328,8 @@
   function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,7); }
 
   // ---------------- data bootstrap ----------------
-  var DEFAULT_ADMIN_USER = '123';
-  var DEFAULT_ADMIN_PASS = '321';
+  var DEFAULT_ADMIN_USER = 'admin@roshan.af';
+  var DEFAULT_ADMIN_PASS = 'Roshan.af.admin@af&786'firebase.initializeApp(firebaseConfig);;
 
   function ensureSeed(){
     return loadJSON('users', null).then(function(users){
