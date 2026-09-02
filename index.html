@@ -9,7 +9,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="روشن-نزدیک شدن">
+<meta name="apple-mobile-web-app-title" content="روشن پورټال">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -259,6 +259,7 @@
   .badge-approved{background:var(--ok-soft);color:var(--ok);}
   .badge-rejected{background:var(--danger-soft);color:var(--danger);}
   .badge-resubmit{background:#EFE3F7;color:#6b3fa0;}
+  .badge-deactivated{background:#E7E4E0;color:#5C5347;}
   .badge-enabled{background:var(--ok-soft);color:var(--ok);}
   .badge-disabled{background:var(--danger-soft);color:var(--danger);}
   .empty-state{color:var(--ink-soft);font-size:13.5px;padding:26px 10px;text-align:center;}
@@ -596,6 +597,7 @@
     ],
     nto:[
       {key:'bundle', label:'نوى بنډل استول'},
+      {key:'deactivate', label:'بنډل غيري فعالول'},
       {key:'sales', label:'بنډلونه'},
       {key:'report', label:'فروشاتو راپور'},
       {key:'complaints', label:'شکایت استول'}
@@ -758,7 +760,7 @@
     root.innerHTML =
       '<div class="mobile-topbar">'+
         '<button class="hamburger-btn" id="mobile-menu-btn">&#9776;</button>'+
-        '<span class="mt-title">روشن پورټال</span>'+
+        '<span class="mt-title">روشن-نزديک شدن</span>'+
         '<div class="mt-user-wrap" id="mt-user-wrap">'+
           '<button class="mt-user-btn" id="mt-user-btn"><span class="mt-user-name">'+escapeHtml(state.currentUser.username)+'</span><span class="mt-caret">&#9662;</span></button>'+
           userMenuHtml+
@@ -842,7 +844,7 @@
   }
 
   function sectionTitle(key){
-    var map = {bundle:'نوى بنډل-استول', managers:'مدير-حسابونه', ntos:'مشتري-اضافه کول', sales:'بنډلونو-حالت', report:'فروشاتو -راپور', nto_report:'مشتري-راپور', rolls:'پيغام-استول', complaints:'راليږل شوي شکایتونه'};
+    var map = {bundle:'نوى بنډل-استول', deactivate:'بنډل-غيري فعالول', managers:'مدير-حسابونه', ntos:'مشتري-اضافه کول', sales:'بنډلونو-حالت', report:'فروشاتو -راپور', nto_report:'مشتري-راپور', rolls:'پيغام-استول', complaints:'راليږل شوي شکایتونه'};
     return map[key] || '';
   }
 
@@ -853,11 +855,12 @@
     var body = document.getElementById('sec-body');
 
     if(state.section==='bundle' && role==='nto') return renderBundleSection(body);
+    if(state.section==='deactivate' && role==='nto') return renderDeactivateSection(body);
     if(state.section==='managers' && role==='admin') return renderUsersSection(body, 'manager', true, true);
     if(state.section==='ntos' && (role==='admin'||role==='manager')) return renderUsersSection(body, 'nto', role==='admin', role==='admin');
     if(state.section==='sales') return renderSalesSection(body, role, headerRow);
     if(state.section==='report') return renderReportSection(body, role, headerRow);
-    if(state.section==='nto_report' && role==='admin') return renderNtoReportSection(body);
+    if(state.section==='nto_report' && role==='admin') return renderNtoReportSection(body, headerRow);
     if(state.section==='rolls' && role==='admin') return renderRollsSection(body);
     if(state.section==='complaints') return renderComplaintsSection(body, role);
 
@@ -912,6 +915,59 @@
       list.innerHTML = '<table><thead><tr><th>شمیره</th><th>د بنډل نوم</th><th>حالت</th><th>نیټه</th></tr></thead><tbody>'+
         myBundles.map(function(b){
           return '<tr><td data-label="شمیره">'+escapeHtml(b.field1)+'</td><td data-label="د بنډل نوم">'+escapeHtml(b.field2)+'</td><td data-label="حالت">'+statusBadge(b.status)+'</td><td data-label="نیټه">'+fmtDate(b.createdAt)+'</td></tr>';
+        }).join('')+
+      '</tbody></table>';
+    }
+  }
+
+  // ---------------- BUNDLE DEACTIVATION SECTION (NTO only) ----------------
+  function renderDeactivateSection(body){
+    var myRequests = state.bundles.filter(function(b){return b.ntoUsername===state.currentUser.username && b.type==='deactivate';});
+    body.innerHTML =
+      '<div class="card">'+
+        '<h4>د بنډلونو د غیري فعالولو لپاره شمیره ولیکئ</h4>'+
+        '<div class="row">'+
+          '<div class="field"><label>شمیره</label><input id="dz-f1" type="text" inputmode="numeric" placeholder="یوازې شمیره"></div>'+
+          '<button class="btn btn-gold" id="dz-submit">واستوئ</button>'+
+        '</div>'+
+      '</div>'+
+      '<div class="card"><h4>ستاسو د غیري فعالولو غوښتنې</h4><div id="dz-list"></div></div>';
+
+    var f1 = document.getElementById('dz-f1');
+    f1.addEventListener('input', function(){
+      var v = f1.value.replace(/[^0-9]/g,'');
+      v = v.replace(/^0+(?=\d)/,'');
+      f1.value = v;
+    });
+
+    document.getElementById('dz-submit').onclick = function(){
+      var v1 = f1.value.trim();
+      if(!v1){ showToast('مهرباني وکړئ شمیره ولیکئ.'); return; }
+      var entry = {
+        id: uid(),
+        ntoUsername: state.currentUser.username,
+        field1:v1, field2:'بنډلونه غیري فعاله کړئ',
+        type:'deactivate',
+        status: 'pending',
+        createdAt: Date.now(),
+        comment:null, actionedBy:null, actionedAt:null, processingBy:null,
+        ntoSeen: true
+      };
+      state.bundles.unshift(entry);
+      persistBundles().then(function(){
+        showToast('غوښتنه واستول شوه، اوس د تمې په حالت کې ده.');
+        state.section = 'sales';
+        renderDashboard(document.getElementById('app'));
+      });
+    };
+
+    var list = document.getElementById('dz-list');
+    if(!myRequests.length){
+      list.innerHTML = '<div class="empty-state">تر اوسه هیڅ غوښتنه نه ده استول شوې.</div>';
+    }else{
+      list.innerHTML = '<table><thead><tr><th>شمیره</th><th>حالت</th><th>نیټه</th></tr></thead><tbody>'+
+        myRequests.map(function(b){
+          return '<tr><td data-label="شمیره">'+escapeHtml(b.field1)+'</td><td data-label="حالت">'+statusBadge(b.status)+'</td><td data-label="نیټه">'+fmtDate(b.createdAt)+'</td></tr>';
         }).join('')+
       '</tbody></table>';
     }
@@ -1061,6 +1117,7 @@
     if(status==='approved') return 'badge-approved';
     if(status==='rejected') return 'badge-rejected';
     if(status==='resubmit') return 'badge-resubmit';
+    if(status==='deactivated') return 'badge-deactivated';
     return '';
   }
   function statusLabel(status){
@@ -1069,6 +1126,7 @@
     if(status==='approved') return 'فعاله شوو';
     if(status==='rejected') return 'رد شوى دى';
     if(status==='resubmit') return 'بیا استول شوى';
+    if(status==='deactivated') return 'غیري فعاله شو';
     return status;
   }
   function statusBadge(status){
@@ -1084,7 +1142,11 @@
     b.status = 'in_process';
     b.processingBy = state.currentUser.username;
     persistBundles().then(function(){
-      state.modal = {type:'process', bundleId:bundleId, previousStatus:previousStatus};
+      if(b.type==='deactivate'){
+        state.modal = {type:'deactivate-confirm', bundleId:bundleId, previousStatus:previousStatus};
+      }else{
+        state.modal = {type:'process', bundleId:bundleId, previousStatus:previousStatus};
+      }
       render();
     });
   }
@@ -1105,10 +1167,10 @@
     }
   }
 
-  function submitProcessDecision(decision){
+  function submitProcessDecision(decision, overrideComment){
     if(!state.modal) return;
     var commentEl = document.getElementById('proc-comment');
-    var comment = commentEl ? commentEl.value.trim() : '';
+    var comment = (overrideComment!=null) ? overrideComment : (commentEl ? commentEl.value.trim() : '');
     if(!comment){ showToast('مهرباني وکړئ لومړی کمینټ ولیکئ.'); return; }
     var b = state.bundles.find(function(x){return x.id===state.modal.bundleId;});
     if(!b) return;
@@ -1120,6 +1182,23 @@
     b.ntoSeen = false;
     persistBundles().then(function(){
       showToast(decision==='approved' ? 'بنډل فعاله شو.' : 'بنډل رد شو.');
+      state.modal = null;
+      render();
+    });
+  }
+
+  // ---------------- DEACTIVATE-CONFIRM MODAL (admin/manager: deactivate bundles request) ----------------
+  function submitDeactivate(){
+    if(!state.modal) return;
+    var b = state.bundles.find(function(x){return x.id===state.modal.bundleId;});
+    if(!b) return;
+    b.status = 'deactivated';
+    b.actionedBy = state.currentUser.username;
+    b.actionedAt = Date.now();
+    b.processingBy = null;
+    b.ntoSeen = false;
+    persistBundles().then(function(){
+      showToast('بنډلونه غیري فعاله شول.');
       state.modal = null;
       render();
     });
@@ -1227,11 +1306,26 @@
         '<div class="modal-card">'+
           '<h3>د بنډل پروسس کول</h3>'+
           '<div class="field"><label>کمینټ (اړین دی)</label><textarea id="proc-comment" rows="3" placeholder="خپل کمینټ دلته ولیکئ..."></textarea></div>'+
+          '<div style="display:flex;gap:8px;flex-wrap:wrap;margin:0 0 16px 0;">'+
+            '<button class="btn btn-sm btn-ghost" id="proc-quick-1">پیسې اضافه کړه</button>'+
+            '<button class="btn btn-sm btn-ghost" id="proc-quick-2">پیسې کمې دي</button>'+
+            '<button class="btn btn-sm btn-ghost" id="proc-quick-3">شمیره غلطه ده</button>'+
+          '</div>'+
           '<div class="modal-actions">'+
             '<button class="btn btn-ok" id="proc-approve">فعاله کول (Approve)</button>'+
             '<button class="btn btn-danger" id="proc-reject">رد کول (Reject)</button>'+
           '</div>'+
           '<button class="btn btn-ghost btn-block" id="proc-cancel" style="margin-top:10px;">لغوه کول</button>'+
+        '</div>';
+    }else if(state.modal.type==='deactivate-confirm'){
+      layer.innerHTML =
+        '<div class="modal-card">'+
+          '<h3>د بنډلونو غیري فعالول</h3>'+
+          '<p class="note-text" style="margin-top:0;">آیا تاسو غواړئ چې د دې مشتري ټول بنډلونه غیري فعاله کړئ؟</p>'+
+          '<div class="modal-actions">'+
+            '<button class="btn btn-danger btn-block" id="deact-confirm">غیري فعاله شو.</button>'+
+          '</div>'+
+          '<button class="btn btn-ghost btn-block" id="deact-cancel" style="margin-top:10px;">لغوه کول</button>'+
         '</div>';
     }else if(state.modal.type==='resubmit'){
       layer.innerHTML =
@@ -1265,6 +1359,12 @@
       document.getElementById('proc-approve').onclick = function(){ submitProcessDecision('approved'); };
       document.getElementById('proc-reject').onclick = function(){ submitProcessDecision('rejected'); };
       document.getElementById('proc-cancel').onclick = closeProcessModal;
+      document.getElementById('proc-quick-1').onclick = function(){ submitProcessDecision('rejected', 'پیسې اضافه کړه'); };
+      document.getElementById('proc-quick-2').onclick = function(){ submitProcessDecision('rejected', 'پیسې کمې دي'); };
+      document.getElementById('proc-quick-3').onclick = function(){ submitProcessDecision('rejected', 'شمیره غلطه ده'); };
+    }else if(state.modal.type==='deactivate-confirm'){
+      document.getElementById('deact-confirm').onclick = submitDeactivate;
+      document.getElementById('deact-cancel').onclick = closeProcessModal;
     }else if(state.modal.type==='resubmit'){
       document.getElementById('resub-submit').onclick = submitResubmit;
       document.getElementById('resub-cancel').onclick = function(){ state.modal=null; render(); };
@@ -1416,8 +1516,34 @@
   }
 
   // ---------------- ADMIN: PER-NTO REPORT ----------------
-  function renderNtoReportSection(body){
+  function renderNtoReportSection(body, headerRow){
     var ntoUsers = state.users.filter(function(u){return u.role==='nto';});
+
+    if(headerRow){
+      headerRow.innerHTML =
+        '<div><h2>'+sectionTitle('nto_report')+'</h2></div>'+
+        '<div class="header-actions">'+
+          '<button class="icon-btn" id="nto-report-export" title="اکسیل ډاونلوډ">&#128190;</button>'+
+        '</div>';
+      document.getElementById('nto-report-export').onclick = function(){
+        if(!ntoUsers.length){ showToast('هیڅ معلومات نشته چې ډاونلوډ شي.'); return; }
+        var data = ntoUsers.map(function(u){
+          var s = ntoStats(u.username);
+          var o = {};
+          o['مشتري'] = u.username;
+          o['فعاله شويو بنډلونو شمير'] = s.count;
+          o['فروشات'] = s.total;
+          return o;
+        });
+        try{
+          var ws = XLSX.utils.json_to_sheet(data);
+          var wb = XLSX.utils.book_new();
+          XLSX.utils.book_append_sheet(wb, ws, 'NtoReport');
+          XLSX.writeFile(wb, 'nto-report-'+Date.now()+'.xlsx');
+        }catch(e){ showToast('د ډاونلوډ کولو کې تېروتنه.'); }
+      };
+    }
+
     if(!ntoUsers.length){
       body.innerHTML = '<div class="card"><div class="empty-state">تر اوسه هیڅ مشتري حساب نشته.</div></div>';
       return;
@@ -1452,6 +1578,32 @@
   function renderReportSection(body, role, headerRow){
     if(role==='admin'){
       var managers = state.users.filter(function(u){return u.role==='manager';});
+
+      if(headerRow){
+        headerRow.innerHTML =
+          '<div><h2>'+sectionTitle('report')+'</h2></div>'+
+          '<div class="header-actions">'+
+            '<button class="icon-btn" id="mgr-report-export" title="اکسیل ډاونلوډ">&#128190;</button>'+
+          '</div>';
+        document.getElementById('mgr-report-export').onclick = function(){
+          if(!managers.length){ showToast('هیڅ معلومات نشته چې ډاونلوډ شي.'); return; }
+          var data = managers.map(function(m){
+            var s = managerStats(m.username);
+            var o = {};
+            o['مدير'] = m.username;
+            o['د فعاله شويو بنډلونو شمير'] = s.count;
+            o['فروشات'] = s.total;
+            return o;
+          });
+          try{
+            var ws = XLSX.utils.json_to_sheet(data);
+            var wb = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(wb, ws, 'ManagerReport');
+            XLSX.writeFile(wb, 'manager-report-'+Date.now()+'.xlsx');
+          }catch(e){ showToast('د ډاونلوډ کولو کې تېروتنه.'); }
+        };
+      }
+
       if(!managers.length){
         body.innerHTML = '<div class="card"><div class="empty-state">تر اوسه د هيڅ مدير حساب نشته.</div></div>';
       }else{
