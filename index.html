@@ -904,7 +904,7 @@
       state.bundles.unshift(entry);
       persistBundles().then(function(){
         showToast('بنډل واستول شو، اوس د تمې په حالت کې دی.');
-        renderDashboard(document.getElementById('app'));
+        renderBundleSection(body);
       });
     };
 
@@ -1118,6 +1118,8 @@
     if(status==='rejected') return 'badge-rejected';
     if(status==='resubmit') return 'badge-resubmit';
     if(status==='deactivated') return 'badge-deactivated';
+    if(status==='enabled') return 'badge-enabled';
+    if(status==='disabled') return 'badge-disabled';
     return '';
   }
   function statusLabel(status){
@@ -1127,6 +1129,8 @@
     if(status==='rejected') return 'رد شوى دى';
     if(status==='resubmit') return 'بیا استول شوى';
     if(status==='deactivated') return 'غیري فعاله شو';
+    if(status==='enabled') return 'فعاله';
+    if(status==='disabled') return 'غیر فعاله';
     return status;
   }
   function statusBadge(status){
@@ -1359,9 +1363,9 @@
       document.getElementById('proc-approve').onclick = function(){ submitProcessDecision('approved'); };
       document.getElementById('proc-reject').onclick = function(){ submitProcessDecision('rejected'); };
       document.getElementById('proc-cancel').onclick = closeProcessModal;
-      document.getElementById('proc-quick-1').onclick = function(){ submitProcessDecision('rejected', 'پیسې اضافه کړه'); };
-      document.getElementById('proc-quick-2').onclick = function(){ submitProcessDecision('rejected', 'پیسې کمې دي'); };
-      document.getElementById('proc-quick-3').onclick = function(){ submitProcessDecision('rejected', 'شمیره غلطه ده'); };
+      document.getElementById('proc-quick-1').onclick = function(){ document.getElementById('proc-comment').value = 'پیسې اضافه کړه'; };
+      document.getElementById('proc-quick-2').onclick = function(){ document.getElementById('proc-comment').value = 'پیسې کمې دي'; };
+      document.getElementById('proc-quick-3').onclick = function(){ document.getElementById('proc-comment').value = 'شمیره غلطه ده'; };
     }else if(state.modal.type==='deactivate-confirm'){
       document.getElementById('deact-confirm').onclick = submitDeactivate;
       document.getElementById('deact-cancel').onclick = closeProcessModal;
@@ -1439,7 +1443,7 @@
         return '<tr><td data-label="یوزر-نوم">'+escapeHtml(u.username)+'</td>'+
           (isNto ? '<td data-label="مشتري-ادرس">'+escapeHtml(u.address||'—')+'</td><td data-label="اړیکې-شمیره">'+escapeHtml(u.contact||'—')+'</td><td data-label="جوړونکی">'+escapeHtml(u.createdBy||'—')+'</td>' : '')+
           '<td data-label="حالت">'+statusBadge(u.status==='enabled'?'enabled':'disabled')+'</td>'+
-          (canToggle ? '<td><button class="btn btn-sm '+(u.status==='enabled'?'btn-danger':'btn-ok')+'" data-toggle="'+u.username+'">'+(u.status==='enabled'?'ډیسیبل':'انیبل')+'</button></td>' : '')+
+          (canToggle ? '<td><button class="btn btn-sm '+(u.status==='enabled'?'btn-danger':'btn-ok')+'" data-toggle="'+u.username+'">'+(u.status==='enabled'?'غیر فعالول':'فعالول')+'</button></td>' : '')+
           (canDelete ? '<td><button class="icon-btn-sm" data-delete-user="'+u.username+'" title="ډیلیټ">&#128465;</button></td>' : '')+
         '</tr>';
       }).join('')+
