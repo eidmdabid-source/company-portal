@@ -9,7 +9,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="روشن نزدیک-شدن">
+<meta name="apple-mobile-web-app-title" content="روشن-نزدیک شدن">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -608,19 +608,23 @@
     var root = document.getElementById('app');
     if(state.loading){
       root.innerHTML = '<div class="login-wrap"><div class="login-card"><p class="sub">بار کیږي...</p></div></div>';
+      renderModalLayer();
       return;
     }
     if(!state.currentUser){
       renderLogin(root);
+      renderModalLayer();
       return;
     }
     var fresh = state.users.find(function(u){return u.username===state.currentUser.username;});
     if(!fresh || fresh.status==='disabled'){
       renderBlocked(root);
+      renderModalLayer();
       return;
     }
     if(fresh.role==='manager' && state.mySessionToken && fresh.sessionToken && fresh.sessionToken!==state.mySessionToken){
       renderSessionReplaced(root);
+      renderModalLayer();
       return;
     }
     renderDashboard(root);
